@@ -8,18 +8,17 @@ using namespace std;
 
 extern map<string, float> state;
 
+enum TAG {
+  OP_PLUS,
+  OP_MINUS,
+  OP_TIMES,
+  OP_DIVIDE
+};
+
 class NExpression {
 	public:
 		virtual void print() = 0;
 		virtual float evaluate() = 0;
-};
-
-class NBinaryOp : public NExpression {
-	public:
-		NExpression *left;
-		NExpression *right;
-
-		NBinaryOp(NExpression *left, NExpression *right);	
 };
 
 class NNumber : public NExpression {
@@ -29,6 +28,22 @@ class NNumber : public NExpression {
 		NNumber(float num);
 		void print();
 		float evaluate();
+};
+
+class NBinaryOp : public NExpression {
+	public:
+		NExpression *left;
+		NExpression *right;
+    int tag;
+
+		NBinaryOp(NExpression *left, NExpression *right, int tag);	
+};
+
+class NBinaryNumOp : public NBinaryOp {
+  public: 
+    NBinaryNumOp(NExpression *left, NExpression *right, int tag);
+    void print();
+    float evaluate();
 };
 
 class NStatement {
