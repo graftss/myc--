@@ -37,6 +37,30 @@ float NBinaryNumOp::evaluate() {  float l = left->evaluate();
     case OP_DIVIDE: return l / r;
   }
 }
-  
 
-NNumber::NNumber(float num) : num(num) {}void NNumber::print() { cout << num; }float NNumber::evaluate() { return num; }NAssign::NAssign(string id, NExpression *expr)   : id(id), expr(expr) {}void NAssign::print() {  cout << id << " = ";  expr->print();}void NAssign::evaluate() {  float result = expr->evaluate();  state[id] = result;}
+NNumber::NNumber(float num) : num(num) {}void NNumber::print() { cout << num; }float NNumber::evaluate() { return num; }
+
+NIdentifier::NIdentifier(string id) : id(id) {}
+void NIdentifier::print() { cout << id; }
+float NIdentifier::evaluate() { return state[id]; }NBlock::NBlock(NStatement *head) {
+  statements = new list<NStatement*>;
+  statements->push_front(head);
+}
+
+void NBlock::print() {
+  list<NStatement*>::iterator it;
+
+  for (it=statements->begin(); it != statements->end(); ++it) {
+    (*it)->print();
+    cout << endl;
+  }
+}
+
+void NBlock::evaluate() {
+  list<NStatement*>::iterator it;
+
+  for (it=statements->begin(); it != statements->end(); ++it) {
+    (*it)->evaluate();
+  }} 
+NAssign::NAssign(string id, NExpression *expr)   : id(id), expr(expr) {}void NAssign::print() {  cout << id << " = ";  expr->print();
+  cout << ";";}void NAssign::evaluate() {  float result = expr->evaluate();  state[id] = result;}

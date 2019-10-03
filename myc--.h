@@ -22,12 +22,21 @@ class NExpression {
 };
 
 class NNumber : public NExpression {
-	private:
-		float num;
 	public:
+    float num;
+    
 		NNumber(float num);
 		void print();
 		float evaluate();
+};
+
+class NIdentifier : public NExpression {
+  public:
+    string id;
+    
+    NIdentifier(string id);
+    void print();
+    float evaluate();
 };
 
 class NBinaryOp : public NExpression {
@@ -50,6 +59,15 @@ class NStatement {
 	public:
 		virtual void print() {}
 		virtual void evaluate() = 0;
+};
+
+class NBlock {
+  public:
+    list<NStatement*> *statements;
+
+    NBlock(NStatement *head);
+    void print();
+    void evaluate();
 };
 
 class NAssign : public NStatement {
