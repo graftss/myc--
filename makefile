@@ -1,6 +1,6 @@
 
 CCC = g++
-CCFLAGS= -O2
+CCFLAGS= -O2 -std=c++11
 LEX = flex
 LFLAGS= -8     
 YACC= bison 

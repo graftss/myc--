@@ -6,19 +6,52 @@
 
 using namespace std;
 
-extern map<string, float> state;
-
-enum TAG {
+enum Tag {
   OP_PLUS,
   OP_MINUS,
   OP_TIMES,
   OP_DIVIDE
 };
 
+class Value {
+  public:
+    enum ValueType {
+      BOOL = 0,
+      FLOAT = 1,
+      STRING = 2,
+      CHAR = 3,
+      VOID = 4
+    };
+    
+    union ExprValue {
+      bool b;
+      float f;
+      string *s;
+      char c;
+    };
+  
+    int valueType;
+    ExprValue value;
+    
+    static Value* fromFloat(float f);
+    static Value* fromBool(bool b);
+    static Value* fromString(string *s);
+    static Value* fromChar(char c);
+    
+    bool toBool();
+    float toFloat();
+    char toChar();
+    string toString();
+    
+    void print();
+};
+
+extern map<string, Value*> state;
+
 class NExpression {
 	public:
 		virtual void print() = 0;
-		virtual float evaluate() = 0;
+		virtual Value* evaluate() = 0;
 };
 
 class NNumber : public NExpression {
@@ -27,7 +60,7 @@ class NNumber : public NExpression {
     
 		NNumber(float num);
 		void print();
-		float evaluate();
+		Value* evaluate();
 };
 
 class NIdentifier : public NExpression {
@@ -36,7 +69,7 @@ class NIdentifier : public NExpression {
     
     NIdentifier(string id);
     void print();
-    float evaluate();
+    Value* evaluate();
 };
 
 class NBinaryOp : public NExpression {
@@ -46,13 +79,8 @@ class NBinaryOp : public NExpression {
     int tag;
 
 		NBinaryOp(NExpression *left, NExpression *right, int tag);	
-};
-
-class NBinaryNumOp : public NBinaryOp {
-  public: 
-    NBinaryNumOp(NExpression *left, NExpression *right, int tag);
     void print();
-    float evaluate();
+    Value* evaluate();
 };
 
 class NStatement {
@@ -71,10 +99,10 @@ class NBlock {
 };
 
 class NAssign : public NStatement {
-	protected:
-		string id;
-		NExpression *expr;
 	public:
+    string id;
+    NExpression *expr;
+    
 		NAssign(string id, NExpression *expr);
 		void print();
 		void evaluate();

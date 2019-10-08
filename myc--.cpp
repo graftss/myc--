@@ -5,13 +5,70 @@
 #include <list>
 #include "myc--.h"
 
-using namespace std;map<string, float> state;
+using namespace std;map<string, Value*> state;
+
+// Value 
+
+Value* Value::fromFloat(float f) {
+  Value *v = new Value;
+  v->value.f = f;
+  v->valueType = FLOAT;
+  return v;
+}
+
+Value* Value::fromBool(bool b) {
+  Value *v = new Value;
+  v->value.b = b;
+  v->valueType = BOOL;
+  return v;
+}
+
+Value* Value::fromString(string *s) {
+  Value *v = new Value;
+  v->value.s = s;
+  v->valueType = STRING;
+  return v;
+}
+
+Value* Value::fromChar(char c) {
+  Value *v = new Value;
+  v->value.c = c;
+  v->valueType = CHAR;
+  return v;
+}
+
+bool Value::toBool() { return value.b; }
+float Value::toFloat() { return value.f; }
+char Value::toChar() { return value.c; }
+string Value::toString() { return *(value.s); }
+
+void Value::print() {
+  switch (valueType) {
+    case BOOL: cout << (value.b ? "true" : "false"); break;
+    case FLOAT: cout << value.f; break;
+    case CHAR: cout << value.c; break;
+    case STRING: cout << toString(); break;
+  }
+}
+
+// NNumber
+
+NNumber::NNumber(float num) : num(num) {}
+void NNumber::print() { cout << num; }
+Value* NNumber::evaluate() { 
+  return Value::fromFloat(num);
+}
+
+// NIdentifier
+
+NIdentifier::NIdentifier(string id) : id(id) {}
+void NIdentifier::print() { cout << id; }
+Value* NIdentifier::evaluate() { return state[id]; }
+
+// NBinaryOp
 
 NBinaryOp::NBinaryOp(NExpression *left, NExpression *right, int tag)   : left(left), right(right), tag(tag) {}
-  
-NBinaryNumOp::NBinaryNumOp(NExpression *left, NExpression *right, int tag)
-  : NBinaryOp(left, right, tag) {}
-  void NBinaryNumOp::print() {
+  void NBinaryOp::print() {
   string op;
   switch (tag) {
     case OP_PLUS: op = "+"; break;
@@ -27,22 +84,20 @@ NBinaryNumOp::NBinaryNumOp(NExpression *left, NExpression *right, int tag)
   cout << ")";
 }
 
-float NBinaryNumOp::evaluate() {  float l = left->evaluate();
-  float r = right->evaluate();
+Value* NBinaryOp::evaluate() {  Value* l = left->evaluate();
+  Value* r = right->evaluate();
   
   switch (tag) {
-    case OP_PLUS: return l + r;
-    case OP_MINUS: return l - r;
-    case OP_TIMES: return l * r;
-    case OP_DIVIDE: return l / r;
+    case OP_PLUS: return Value::fromFloat(l->toFloat() + r->toFloat());
+    case OP_MINUS: return Value::fromFloat(l->toFloat() - r->toFloat());
+    case OP_TIMES: return Value::fromFloat(l->toFloat() * r->toFloat());
+    case OP_DIVIDE: return Value::fromFloat(l->toFloat() / r->toFloat());
   }
 }
 
-NNumber::NNumber(float num) : num(num) {}void NNumber::print() { cout << num; }float NNumber::evaluate() { return num; }
 
-NIdentifier::NIdentifier(string id) : id(id) {}
-void NIdentifier::print() { cout << id; }
-float NIdentifier::evaluate() { return state[id]; }NBlock::NBlock(NStatement *head) {
+// NBlock 
+NBlock::NBlock(NStatement *head) {
   statements = new list<NStatement*>;
   statements->push_front(head);
 }
@@ -62,5 +117,13 @@ void NBlock::evaluate() {
   for (it=statements->begin(); it != statements->end(); ++it) {
     (*it)->evaluate();
   }} 
+
+// NAssign 
 NAssign::NAssign(string id, NExpression *expr)   : id(id), expr(expr) {}void NAssign::print() {  cout << id << " = ";  expr->print();
-  cout << ";";}void NAssign::evaluate() {  float result = expr->evaluate();  state[id] = result;}
+  cout << ";";}void NAssign::evaluate() {
+  Value *v = expr->evaluate();
+
+  cout << "ASSIGN: " << id << " <= ";
+  v->print();
+  cout << endl;
+    state[id] = v;}
