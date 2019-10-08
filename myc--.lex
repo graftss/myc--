@@ -37,6 +37,7 @@ print {
 "+" { return PLUS; }
 "*" { return TIMES; }
 "/" { return DIVIDE; }
+"%" { return MODULO; }
 "(" { return LPARENS; }
 ")" { return RPARENS; }
 "{" { return LBRACE; }
