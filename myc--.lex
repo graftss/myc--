@@ -24,6 +24,7 @@ CHAR [^']
 }
 
 ["][^"]*["] {
+  // TODO fix string literals
   std::string literalString(yytext);
   yylval.literalString = &literalString;
   return STRING;

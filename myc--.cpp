@@ -51,6 +51,26 @@ void Value::print() {
   }
 }
 
+int Value::compare(Value *l, Value *r) {
+  int lt = l->valueType, rt = r->valueType;
+  if (lt != rt) return -2;
+
+  switch (lt) {
+    case FLOAT: {
+      float lf = l->toFloat(), rf = r->toFloat();
+      if (lf == rf) return 0;
+      return lf < rf ? -1 : 1;
+    }
+    case CHAR: {
+      char lc = l->toChar(), rc = r->toChar();
+      if (lc == rc) return 0;
+      return lc < rc ? -1 : 1;
+    }
+  }
+  
+  return -2;
+}
+
 // NNumber
 
 NNumber::NNumber(float num) : num(num) {}
@@ -91,6 +111,16 @@ NBinaryOp::NBinaryOp(NExpression *left, NExpression *right, int tag)   : left(l
     case OP_MINUS: op = "-"; break;
     case OP_TIMES: op = "*"; break;
     case OP_DIVIDE: op = "/"; break;
+    case OP_MODULO: op = "%"; break;
+
+    case OP_LEQ: op = "<="; break;
+    case OP_GEQ: op = ">="; break;
+    case OP_EQ: op = "=="; break;
+    case OP_NEQ: op = "!="; break;
+    case OP_AND: op = "&&"; break;
+    case OP_OR: op = "||"; break;
+    case OP_LT: op = "<"; break;
+    case OP_GT: op = ">"; break;
   }
   
   cout << "(";
@@ -108,6 +138,27 @@ Value* NBinaryOp::evaluate() {  Value* l = left->evaluate();
     case OP_MINUS: return Value::fromFloat(l->toFloat() - r->toFloat());
     case OP_TIMES: return Value::fromFloat(l->toFloat() * r->toFloat());
     case OP_DIVIDE: return Value::fromFloat(l->toFloat() / r->toFloat());
+//    case OP_MODULO: return Value::fromFloat(l->toFloat() % r->toFloat());
+
+    case OP_AND: return Value::fromBool(l->toBool() && r->toBool());
+    case OP_OR: return Value::fromBool(l->toBool() || r->toBool());
+    
+    case OP_LEQ: {
+      int comp = Value::compare(l, r);
+      return Value::fromBool(comp == -1 || comp == 0);
+    }
+    case OP_GEQ: {
+      int comp = Value::compare(l, r);
+      return Value::fromBool(comp == 1 || comp == 0);
+    }
+    case OP_EQ: {
+      int comp = Value::compare(l, r);
+      return Value::fromBool(comp == 0);
+    }
+    case OP_NEQ: {
+      int comp = Value::compare(l, r);
+      return Value::fromBool(comp != 0);
+    }
   }
 }
 

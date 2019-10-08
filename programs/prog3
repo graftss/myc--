@@ -1,3 +1,6 @@
 x = true;
 y = false;
 z = !x;
+w = x || y;
+nope = y && z;
+yup = x && w;

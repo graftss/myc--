@@ -7,10 +7,19 @@
 using namespace std;
 
 enum Tag {
+  OP_LEQ,
+  OP_GEQ,
+  OP_EQ,
+  OP_NEQ,
+  OP_AND,
+  OP_OR,
+  OP_LT,
+  OP_GT,
   OP_PLUS,
   OP_MINUS,
   OP_TIMES,
   OP_DIVIDE,
+  OP_MODULO,
   OP_NOT
 };
 
@@ -45,6 +54,8 @@ class Value {
     string* toString();
     
     void print();
+    
+    static int compare(Value *l, Value *r);
 };
 
 extern map<string, Value*> state;
