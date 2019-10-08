@@ -111,6 +111,27 @@ Value* NBinaryOp::evaluate() {  Value* l = left->evaluate();
   }
 }
 
+// NUnaryOp
+
+NUnaryOp::NUnaryOp(NExpression *expr, int tag) : expr(expr), tag(tag) {}
+
+void NUnaryOp::print() {  string op;
+  switch (tag) {
+    case OP_NOT: op = "!"; break;
+  }
+  
+  cout << "( " << op;
+  expr->print();
+  cout << " )";
+}
+
+Value* NUnaryOp::evaluate() {  Value* v = expr->evaluate();
+  
+  switch (tag) {
+    case OP_NOT: return Value::fromBool(!v->toBool());
+  }
+}
+
 
 // NBlock 
 NBlock::NBlock(NStatement *head) {

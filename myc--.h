@@ -10,7 +10,8 @@ enum Tag {
   OP_PLUS,
   OP_MINUS,
   OP_TIMES,
-  OP_DIVIDE
+  OP_DIVIDE,
+  OP_NOT
 };
 
 class Value {
@@ -106,6 +107,16 @@ class NBinaryOp : public NExpression {
     int tag;
 
 		NBinaryOp(NExpression *left, NExpression *right, int tag);	
+    void print();
+    Value* evaluate();
+};
+
+class NUnaryOp : public NExpression {
+  public:
+    NExpression *expr;
+    int tag;
+    
+    NUnaryOp(NExpression *expr, int tag);
     void print();
     Value* evaluate();
 };
