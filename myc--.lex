@@ -29,17 +29,31 @@ ID [a-zA-Z][a-zA-Z0-9]*
 [ \t\f\r] ;
 \n { lineNumber++; }
 
+"<=" { return LEQ; }
+">=" { return GEQ; }
+"==" { return EQ; }
+"!=" { return NEQ; }
+"&&" { return AND; }
+"||" { return OR; }
+"!" { return NOT; }
+"<" { return LT; }
+">" { return GT; }
 "-" { return MINUS; }
 "+" { return PLUS; }
 "*" { return TIMES; }
 "/" { return DIVIDE; }
 "%" { return MODULO; }
+"=" { return ASSIGN; }
 "(" { return LPARENS; }
 ")" { return RPARENS; }
 "{" { return LBRACE; }
 "}" { return RBRACE; }
-"=" { return EQUALS; }
+"[" { return LINDEX; }
+"]" { return RINDEX; }
+"\"" { return DQUOTE; }
+"\'" { return SQUOTE; }
 ";" { return SEMICOLON; }
+"," { return COMMA; }
 
 . { 
   BEGIN(ERROR);
