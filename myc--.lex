@@ -10,22 +10,18 @@
 %option noyywrap
 
 DIGIT [0-9]
-LETTER [a-zA-Z]
+ID [a-zA-Z][a-zA-Z0-9]*
 
 %x ERROR
 
 %%
-
-print { 
-	return PRINT; 
-}
 
 {DIGIT}+ { 
   yylval.number = atof(yytext);
   return NUMBER;
 }
 
-{LETTER}[{DIGIT}{LETTER}]* {
+{ID} {
   yylval.ident = strdup(yytext);
   return ID;
 }
