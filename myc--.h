@@ -41,7 +41,7 @@ class Value {
     bool toBool();
     float toFloat();
     char toChar();
-    string toString();
+    string* toString();
     
     void print();
 };
@@ -61,6 +61,33 @@ class NNumber : public NExpression {
 		NNumber(float num);
 		void print();
 		Value* evaluate();
+};
+
+class NBoolean : public NExpression { 
+  public:
+    bool b;
+    
+    NBoolean(bool b);
+    void print();
+    Value* evaluate();
+};
+
+class NChar : public NExpression {
+  public:
+    char c;
+    
+    NChar(char c);
+    void print();
+    Value* evaluate();
+};
+
+class NString : public NExpression {
+  public:
+    string *s;
+    
+    NString(string *s);
+    void print();
+    Value* evaluate();
 };
 
 class NIdentifier : public NExpression {

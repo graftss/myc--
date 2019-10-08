@@ -11,23 +11,23 @@
 
 DIGIT [0-9]
 ID [a-zA-Z][a-zA-Z0-9]*
+STR [^"]*
+CHAR [^']
 
 %x ERROR
 
 %%
 
-{DIGIT}+ { 
-  yylval.number = atof(yytext);
-  return NUMBER;
+\'[^']\' {
+  yylval.literalChar = yytext[1];
+  return CHAR;
 }
 
-{ID} {
-  yylval.ident = strdup(yytext);
-  return ID;
+["][^"]*["] {
+  std::string literalString(yytext);
+  yylval.literalString = &literalString;
+  return STRING;
 }
-
-[ \t\f\r] ;
-\n { lineNumber++; }
 
 "<=" { return LEQ; }
 ">=" { return GEQ; }
@@ -54,6 +54,21 @@ ID [a-zA-Z][a-zA-Z0-9]*
 "\'" { return SQUOTE; }
 ";" { return SEMICOLON; }
 "," { return COMMA; }
+"true" { return TRUE; }
+"false" { return FALSE; }
+
+{DIGIT}+ { 
+  yylval.number = atof(yytext);
+  return NUMBER;
+}
+
+{ID} {
+  yylval.ident = strdup(yytext);
+  return ID;
+}
+
+[ \t\f\r] ;
+\n { lineNumber++; }
 
 . { 
   BEGIN(ERROR);

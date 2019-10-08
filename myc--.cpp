@@ -40,14 +40,14 @@ Value* Value::fromChar(char c) {
 bool Value::toBool() { return value.b; }
 float Value::toFloat() { return value.f; }
 char Value::toChar() { return value.c; }
-string Value::toString() { return *(value.s); }
+string* Value::toString() { return value.s; }
 
 void Value::print() {
   switch (valueType) {
     case BOOL: cout << (value.b ? "true" : "false"); break;
     case FLOAT: cout << value.f; break;
-    case CHAR: cout << value.c; break;
-    case STRING: cout << toString(); break;
+    case CHAR: cout << "'" << value.c << "'"; break;
+    case STRING: cout << '"' << *(toString()) << '"'; break;
   }
 }
 
@@ -55,9 +55,25 @@ void Value::print() {
 
 NNumber::NNumber(float num) : num(num) {}
 void NNumber::print() { cout << num; }
-Value* NNumber::evaluate() { 
-  return Value::fromFloat(num);
-}
+Value* NNumber::evaluate() { return Value::fromFloat(num); }
+
+// NBoolean
+
+NBoolean::NBoolean(bool b) : b(b) {}
+void NBoolean::print() { cout << (b ? "true" : "false"); }
+Value* NBoolean::evaluate() { return Value::fromBool(b); }
+
+// NChar
+
+NChar::NChar(char c) : c(c) {}
+void NChar::print() { cout << "'" << c << "'"; }
+Value* NChar::evaluate() { return Value::fromChar(c); }
+
+// NString
+
+NString::NString(string *s) : s(s) {}
+void NString::print() { cout << '"' << *s << '"'; }
+Value* NString::evaluate() { return Value::fromString(s); }
 
 // NIdentifier
 
