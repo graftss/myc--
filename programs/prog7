@@ -6,4 +6,10 @@ while (i < 5) {
   i = i + 1;
 }
 
-return x;
+int y = 0;
+
+do {
+  y = 100;
+} while (i < 5)
+
+return y;

@@ -229,3 +229,13 @@ class NWhile : public NStatement {
     void print();
     Value* evaluate();
 };
+
+class NDoWhile : public NStatement {
+  public:
+    NExpression *cond;
+    NBlock *body;
+    
+    NDoWhile(NExpression *cond, NBlock *body);
+    void print();
+    Value* evaluate();
+};

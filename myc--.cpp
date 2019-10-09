@@ -349,3 +349,24 @@ Value* NWhile::evaluate() {
   }
   
   return Value::fromVoid();}
+
+// NDoWhile
+
+NDoWhile::NDoWhile(NExpression *cond, NBlock *body)
+  : cond(cond), body(body) {}
+
+void NDoWhile::print() {
+  cout << "do {" << endl;
+  body->print(2);
+  cout << "} while (";
+  cond->print();
+  cout << ");" << endl;
+}
+
+Value* NDoWhile::evaluate() {
+  do {
+    body->evaluate();
+  } while (cond->evaluate()->isTrue());
+
+  return Value::fromVoid();
+}
