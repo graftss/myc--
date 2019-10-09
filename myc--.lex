@@ -55,6 +55,7 @@ CHAR [^']
 "\'" { return SQUOTE; }
 ";" { return SEMICOLON; }
 "," { return COMMA; }
+"return" { return RETURN; }
 "true" { return TRUE; }
 "false" { return FALSE; }
 "bool" { return TYPE_BOOL; }

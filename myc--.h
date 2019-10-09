@@ -20,7 +20,7 @@ enum Tag {
   OP_TIMES,
   OP_DIVIDE,
   OP_MODULO,
-  OP_NOT
+  OP_NOT,
 };
 
 enum ValueType {
@@ -144,8 +144,10 @@ class NUnaryOp : public NExpression {
 
 class NStatement {
 	public:
-		virtual void print() {}
-		virtual void evaluate() = 0;
+    bool isReturn;
+    
+    virtual void print() {}
+    virtual Value* evaluate() = 0;
 };
 
 class NBlock {
@@ -154,7 +156,16 @@ class NBlock {
 
     NBlock(NStatement *head);
     void print();
-    void evaluate();
+    Value* evaluate();
+};
+
+class NReturn : public NStatement {
+  public:
+    NExpression *expr;
+    
+    NReturn(NExpression *expr);
+    void print();
+    Value* evaluate();
 };
 
 class NAssign : public NStatement {
@@ -164,7 +175,7 @@ class NAssign : public NStatement {
     
 		NAssign(string id, NExpression *expr);
 		void print();
-		void evaluate();
+		Value* evaluate();
 };
 
 class NVarDecl : public NStatement {
@@ -176,5 +187,15 @@ class NVarDecl : public NStatement {
     NVarDecl(ValueType type, string id);
     NVarDecl(ValueType type, string id, NExpression *expr);
     void print();
-    void evaluate();
+    Value* evaluate();
+};
+
+class NFuncDecl : public NStatement {
+  public:
+    ValueType returnType;
+    string id;
+
+    NFuncDecl(ValueType returnType, string id);
+    void print();
+    Value* evaluate();
 };

@@ -223,22 +223,37 @@ void NBlock::print() {
   }
 }
 
-void NBlock::evaluate() {
+Value* NBlock::evaluate() {
   list<NStatement*>::iterator it;
 
   for (it=statements->begin(); it != statements->end(); ++it) {
-    (*it)->evaluate();
-  }} 
+    Value *v = (*it)->evaluate();
+
+    if ((*it)->isReturn) return v;
+  }
+  
+  return Value::fromVoid();} 
+
+// NReturn 
+
+NReturn::NReturn(NExpression *expr) : expr(expr) {
+  isReturn = true;
+}
+
+void NReturn::print() {  cout << "return ";
+  expr->print();
+  cout << ";";
+}
+
+Value* NReturn::evaluate() {
+  return expr->evaluate();
+}
 
 // NAssign 
 NAssign::NAssign(string id, NExpression *expr)   : id(id), expr(expr) {}void NAssign::print() {  cout << id << " = ";  expr->print();
-  cout << ";";}void NAssign::evaluate() {
+  cout << ";";}Value* NAssign::evaluate() {
   Value *v = expr->evaluate();
-
-  cout << "ASSIGN: " << id << " <= ";
-  v->print();
-  cout << endl;
-    state[id] = v;}
+  state[id] = v;}
 // NVarDecl
 
 NVarDecl::NVarDecl(ValueType type, string id) 
@@ -254,6 +269,22 @@ NVarDecl::NVarDecl(ValueType type, string id, NExpression *expr)
   cout << ";";
 }
 
-void NVarDecl::evaluate() {  Value *v = expr == NULL ? Value::fromVoid() : expr->evaluate();
+Value* NVarDecl::evaluate() {  Value *v = expr == NULL ? Value::fromVoid() : expr->evaluate();
   state[id] = v;
+  
+  return Value::fromVoid();
+}
+
+// NFuncDecl
+
+NFuncDecl::NFuncDecl(ValueType returnType, string id)
+  : id(id), returnType(returnType) {}
+  
+void NFuncDecl::print() {
+  cout << Type::toString(returnType) << " " << id << "();";
+}
+
+Value* NFuncDecl::evaluate() {  cout << "evaluating function declaration";
+  
+  return Value::fromVoid();
 }
