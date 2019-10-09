@@ -149,16 +149,6 @@ NIdentifier::NIdentifier(string id) : id(id) {}
 void NIdentifier::print() { cout << id; }
 Value* NIdentifier::evaluate() { return state[id]; }
 
-// NFuncCall
-
-NFuncCall::NFuncCall(string id) : id(id) {}
-
-void NFuncCall::print() {  cout << id << "()";
-}
-
-Value* NFuncCall::evaluate() {
-  return state[id]->value.func->call();
-}
 // NBinaryOp
 
 NBinaryOp::NBinaryOp(NExpression *left, NExpression *right, int tag)   : left(left), right(right), tag(tag) {}
@@ -250,7 +240,7 @@ void NBlock::print(int indent) {
   for (it=statements->begin(); it != statements->end(); ++it) {
     cout << std::string(indent, ' ');
     (*it)->print();
-    cout << endl;
+    cout << ";" << endl;
   }
 }
 
@@ -277,7 +267,6 @@ NReturn::NReturn(NExpression *expr) : expr(expr) {
 
 void NReturn::print() {  cout << "return ";
   expr->print();
-  cout << ";";
 }
 
 Value* NReturn::evaluate() {
@@ -286,7 +275,7 @@ Value* NReturn::evaluate() {
 
 // NAssign 
 NAssign::NAssign(string id, NExpression *expr)   : id(id), expr(expr) {}void NAssign::print() {  cout << id << " = ";  expr->print();
-  cout << ";";}Value* NAssign::evaluate() {
+}Value* NAssign::evaluate() {
   Value *v = expr->evaluate();
   state[id] = v;}
 // NVarDecl
@@ -301,7 +290,6 @@ NVarDecl::NVarDecl(ValueType type, string id, NExpression *expr)
     cout << " = ";
     expr->print();
   }
-  cout << ";";
 }
 
 Value* NVarDecl::evaluate() {  Value *v = expr == NULL ? Value::fromVoid() : expr->evaluate();
@@ -318,7 +306,7 @@ NFuncDecl::NFuncDecl(ValueType returnType, string id, NBlock *body)
 void NFuncDecl::print() {
   cout << Type::toString(returnType) << " " << id << "() {" << endl;
   body->print(2);
-  cout << "}" << endl;
+  cout << "}";
 }
 
 Value* NFuncDecl::evaluate() {
@@ -329,6 +317,18 @@ Value* NFuncDecl::evaluate() {
 
 Value* NFuncDecl::call() {
   return body->evaluate();
+}
+
+// NFuncCall
+
+NFuncCall::NFuncCall(string id) : id(id) {}
+
+void NFuncCall::print() {
+  cout << id << "()";
+}
+
+Value* NFuncCall::evaluate() {
+  return state[id]->value.func->call();
 }
 
 // NWhile
@@ -360,13 +360,38 @@ void NDoWhile::print() {
   body->print(2);
   cout << "} while (";
   cond->print();
-  cout << ");" << endl;
+  cout << ")" << endl;
 }
 
 Value* NDoWhile::evaluate() {
   do {
     body->evaluate();
   } while (cond->evaluate()->isTrue());
+
+  return Value::fromVoid();
+}
+
+// NFor
+
+NFor::NFor(NStatement *init, NExpression *cond, NExpression *incr, NBlock *body)
+  : init(init), cond(cond), incr(incr), body(body) {}
+
+void NFor::print() {
+  cout << "for (";
+  init->print();
+  cout << "; ";
+  cond->print();
+  cout << "; ";
+  incr->print();
+  cout << ") {" << endl;
+  body->print(2);
+  cout << "}";
+}
+
+Value* NFor::evaluate() {
+  for (init->evaluate(); cond->evaluate()->isTrue(); incr->evaluate()) {
+    body->evaluate();
+  }
 
   return Value::fromVoid();
 }

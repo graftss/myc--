@@ -1,0 +1,10 @@
+int x = 0;
+int c = 0;
+
+int doubleCount() {  c = c * 2;
+}
+
+for (int i = 0; i < 10; i = i + 1) {
+  x = x + i;
+  doubleCount();
+}

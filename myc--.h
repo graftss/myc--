@@ -129,15 +129,6 @@ class NIdentifier : public NExpression {
     Value* evaluate();
 };
 
-class NFuncCall : public NExpression {
-  public:
-    string id;
-    
-    NFuncCall(string id);
-    void print();
-    Value* evaluate();
-};
-
 class NBinaryOp : public NExpression {
 	public:
 		NExpression *left;
@@ -186,7 +177,7 @@ class NReturn : public NStatement {
     Value* evaluate();
 };
 
-class NAssign : public NStatement {
+class NAssign : public NStatement, public NExpression {
 	public:
     string id;
     NExpression *expr;
@@ -220,6 +211,15 @@ class NFuncDecl : public NStatement {
     Value* call();
 };
 
+class NFuncCall : public NStatement, public NExpression {
+  public:
+    string id;
+    
+    NFuncCall(string id);
+    void print();
+    Value* evaluate();
+};
+
 class NWhile : public NStatement {
   public:
     NExpression *cond;
@@ -236,6 +236,18 @@ class NDoWhile : public NStatement {
     NBlock *body;
     
     NDoWhile(NExpression *cond, NBlock *body);
+    void print();
+    Value* evaluate();
+};
+
+class NFor : public NStatement {
+  public:
+    NStatement *init;
+    NExpression *cond;
+    NExpression *incr;
+    NBlock *body;
+    
+    NFor(NStatement *init, NExpression *cond, NExpression *incr, NBlock *body);
     void print();
     Value* evaluate();
 };
