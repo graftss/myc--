@@ -89,6 +89,16 @@ void Value::print() {
   }
 }
 
+bool Value::isTrue() {  switch (valueType) {
+    case BOOL: return toBool();
+    case INT: return toInt() != 0;
+    case FLOAT: return toFloat() != 0;
+    case CHAR: return toChar() != 0;
+  }
+  
+  return true;
+}
+
 int Value::compare(Value *l, Value *r) {
   int lt = l->valueType, rt = r->valueType;
   if (lt != rt) return -2;
@@ -320,3 +330,22 @@ Value* NFuncDecl::evaluate() {
 Value* NFuncDecl::call() {
   return body->evaluate();
 }
+
+// NWhile
+
+NWhile::NWhile(NExpression *cond, NBlock *body)
+  : cond(cond), body(body) {}
+
+void NWhile::print() {  cout << "while (";
+  cond->print();
+  cout << ") {" << endl;
+  body->print(2);
+  cout << "}" << endl;
+}
+
+Value* NWhile::evaluate() {
+  while (cond->evaluate()->isTrue()) {
+    body->evaluate();
+  }
+  
+  return Value::fromVoid();}

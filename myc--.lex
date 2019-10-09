@@ -56,6 +56,9 @@ CHAR [^']
 ";" { return SEMICOLON; }
 "," { return COMMA; }
 "return" { return RETURN; }
+"while" { return WHILE; }
+"for" { return FOR; }
+"do" { return DO; }
 "true" { return TRUE; }
 "false" { return FALSE; }
 "bool" { return TYPE_BOOL; }

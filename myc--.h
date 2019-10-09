@@ -62,6 +62,8 @@ class Value {
     static Value* fromFunc(NFuncDecl *func);
     static Value* fromVoid();
     
+    bool isTrue();
+    
     bool toBool();
     int toInt();
     float toFloat();
@@ -216,4 +218,14 @@ class NFuncDecl : public NStatement {
     void print();
     Value* evaluate();
     Value* call();
+};
+
+class NWhile : public NStatement {
+  public:
+    NExpression *cond;
+    NBlock *body;
+    
+    NWhile(NExpression *cond, NBlock *body);
+    void print();
+    Value* evaluate();
 };
