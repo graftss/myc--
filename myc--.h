@@ -6,6 +6,8 @@
 
 using namespace std;
 
+class NFuncDecl;
+
 enum Tag {
   OP_LEQ,
   OP_GEQ,
@@ -29,6 +31,7 @@ enum ValueType {
   FLOAT,
   CHAR,
   STRING,
+  FUNC,
   VOID,
 };
 
@@ -45,6 +48,7 @@ class Value {
       float f;
       string *s;
       char c;
+      NFuncDecl *func;
     };
   
     int valueType;
@@ -55,6 +59,7 @@ class Value {
     static Value* fromFloat(float f);
     static Value* fromChar(char c);
     static Value* fromString(string *s);
+    static Value* fromFunc(NFuncDecl *func);
     static Value* fromVoid();
     
     bool toBool();
@@ -62,6 +67,7 @@ class Value {
     float toFloat();
     char toChar();
     string* toString();
+    Value* callFunc();
     
     void print();
     
@@ -121,6 +127,15 @@ class NIdentifier : public NExpression {
     Value* evaluate();
 };
 
+class NFuncCall : public NExpression {
+  public:
+    string id;
+    
+    NFuncCall(string id);
+    void print();
+    Value* evaluate();
+};
+
 class NBinaryOp : public NExpression {
 	public:
 		NExpression *left;
@@ -155,6 +170,7 @@ class NBlock {
     list<NStatement*> *statements;
 
     NBlock(NStatement *head);
+    void print(int indent);
     void print();
     Value* evaluate();
 };
@@ -194,8 +210,10 @@ class NFuncDecl : public NStatement {
   public:
     ValueType returnType;
     string id;
+    NBlock *body;
 
-    NFuncDecl(ValueType returnType, string id);
+    NFuncDecl(ValueType returnType, string id, NBlock *body);
     void print();
     Value* evaluate();
+    Value* call();
 };

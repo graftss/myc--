@@ -16,6 +16,7 @@ string Type::toString(ValueType valueType) {
     case FLOAT: return "float";
     case STRING: return "string";
     case CHAR: return "char";
+    case FUNC: return "func";
   }
 }
 
@@ -56,6 +57,13 @@ Value* Value::fromString(string *s) {
   return v;
 }
 
+Value* Value::fromFunc(NFuncDecl *func) {
+  Value *v = new Value;
+  v->value.func = func;
+  v->valueType = FUNC;
+  return v;
+}
+
 Value* Value::fromVoid() {
   Value *v = new Value;
   v->valueType = VOID;
@@ -67,6 +75,7 @@ int Value::toInt() { return value.i; }
 float Value::toFloat() { return value.f; }
 char Value::toChar() { return value.c; }
 string* Value::toString() { return value.s; }
+Value* Value::callFunc() { return value.func->evaluate(); }
 
 void Value::print() {
   switch (valueType) {
@@ -75,6 +84,7 @@ void Value::print() {
     case FLOAT: cout << value.f; break;
     case CHAR: cout << "'" << value.c << "'"; break;
     case STRING: cout << '"' << *(toString()) << '"'; break;
+    case FUNC: cout << "() -> " << Type::toString(value.func->returnType); break;
     case VOID: cout << "VOID"; break;
   }
 }
@@ -129,6 +139,16 @@ NIdentifier::NIdentifier(string id) : id(id) {}
 void NIdentifier::print() { cout << id; }
 Value* NIdentifier::evaluate() { return state[id]; }
 
+// NFuncCall
+
+NFuncCall::NFuncCall(string id) : id(id) {}
+
+void NFuncCall::print() {  cout << id << "()";
+}
+
+Value* NFuncCall::evaluate() {
+  return state[id]->value.func->call();
+}
 // NBinaryOp
 
 NBinaryOp::NBinaryOp(NExpression *left, NExpression *right, int tag)   : left(left), right(right), tag(tag) {}
@@ -214,13 +234,18 @@ Value* NUnaryOp::evaluate() {  Value* v = expr->evaluate();
   statements->push_front(head);
 }
 
-void NBlock::print() {
+void NBlock::print(int indent) {
   list<NStatement*>::iterator it;
 
   for (it=statements->begin(); it != statements->end(); ++it) {
+    cout << std::string(indent, ' ');
     (*it)->print();
     cout << endl;
   }
+}
+
+void NBlock::print() {
+  print(0);
 }
 
 Value* NBlock::evaluate() {
@@ -277,14 +302,21 @@ Value* NVarDecl::evaluate() {  Value *v = expr == NULL ? Value::fromVoid() : ex
 
 // NFuncDecl
 
-NFuncDecl::NFuncDecl(ValueType returnType, string id)
-  : id(id), returnType(returnType) {}
+NFuncDecl::NFuncDecl(ValueType returnType, string id, NBlock *body)
+  : returnType(returnType), id(id), body(body) {}
   
 void NFuncDecl::print() {
-  cout << Type::toString(returnType) << " " << id << "();";
+  cout << Type::toString(returnType) << " " << id << "() {" << endl;
+  body->print(2);
+  cout << "}" << endl;
 }
 
-Value* NFuncDecl::evaluate() {  cout << "evaluating function declaration";
+Value* NFuncDecl::evaluate() {
+  state[id] = Value::fromFunc(this);
   
   return Value::fromVoid();
+}
+
+Value* NFuncDecl::call() {
+  return body->evaluate();
 }

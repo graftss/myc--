@@ -1,0 +1,15 @@
+int three() {
+  return 3;
+}
+
+int four() { return 4; } int five() { return 5; }
+
+int x = 3;
+
+int y = three() + four() + five() + x;
+
+int sum() {
+  return y * 3;
+}
+
+return sum();
