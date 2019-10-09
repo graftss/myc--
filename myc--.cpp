@@ -7,14 +7,19 @@
 
 using namespace std;map<string, Value*> state;
 
-// Value 
+// Type
 
-Value* Value::fromFloat(float f) {
-  Value *v = new Value;
-  v->value.f = f;
-  v->valueType = FLOAT;
-  return v;
+string Type::toString(ValueType valueType) {
+  switch (valueType) {
+    case BOOL: return "bool";
+    case INT: return "int";
+    case FLOAT: return "float";
+    case STRING: return "string";
+    case CHAR: return "char";
+  }
 }
+
+// Value 
 
 Value* Value::fromBool(bool b) {
   Value *v = new Value;
@@ -23,10 +28,17 @@ Value* Value::fromBool(bool b) {
   return v;
 }
 
-Value* Value::fromString(string *s) {
+Value* Value::fromInt(int i) {
   Value *v = new Value;
-  v->value.s = s;
-  v->valueType = STRING;
+  v->value.i = i;
+  v->valueType = INT;
+  return v;
+}
+
+Value* Value::fromFloat(float f) {
+  Value *v = new Value;
+  v->value.f = f;
+  v->valueType = FLOAT;
   return v;
 }
 
@@ -37,7 +49,21 @@ Value* Value::fromChar(char c) {
   return v;
 }
 
+Value* Value::fromString(string *s) {
+  Value *v = new Value;
+  v->value.s = s;
+  v->valueType = STRING;
+  return v;
+}
+
+Value* Value::fromVoid() {
+  Value *v = new Value;
+  v->valueType = VOID;
+  return v;
+}
+
 bool Value::toBool() { return value.b; }
+int Value::toInt() { return value.i; }
 float Value::toFloat() { return value.f; }
 char Value::toChar() { return value.c; }
 string* Value::toString() { return value.s; }
@@ -45,9 +71,11 @@ string* Value::toString() { return value.s; }
 void Value::print() {
   switch (valueType) {
     case BOOL: cout << (value.b ? "true" : "false"); break;
+    case INT: cout << value.i; break;
     case FLOAT: cout << value.f; break;
     case CHAR: cout << "'" << value.c << "'"; break;
     case STRING: cout << '"' << *(toString()) << '"'; break;
+    case VOID: cout << "VOID"; break;
   }
 }
 
@@ -210,4 +238,22 @@ void NBlock::evaluate() {
   cout << "ASSIGN: " << id << " <= ";
   v->print();
   cout << endl;
-    state[id] = v;}
+    state[id] = v;}
+// NVarDecl
+
+NVarDecl::NVarDecl(ValueType type, string id) 
+  : id(id), type(type) {}
+  
+NVarDecl::NVarDecl(ValueType type, string id, NExpression *expr) 
+  : type(type), id(id), expr(expr) {}void NVarDecl::print() {
+  cout << Type::toString(type) << " " << id;
+  if (expr != NULL) {
+    cout << " = ";
+    expr->print();
+  }
+  cout << ";";
+}
+
+void NVarDecl::evaluate() {  Value *v = expr == NULL ? Value::fromVoid() : expr->evaluate();
+  state[id] = v;
+}

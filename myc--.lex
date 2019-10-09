@@ -20,14 +20,14 @@ CHAR [^']
 
 \'[^']\' {
   yylval.literalChar = yytext[1];
-  return CHAR;
+  return CHAR_LITERAL;
 }
 
 ["][^"]*["] {
   // TODO fix string literals
   std::string literalString(yytext);
   yylval.literalString = &literalString;
-  return STRING;
+  return STRING_LITERAL;
 }
 
 "<=" { return LEQ; }
@@ -57,6 +57,11 @@ CHAR [^']
 "," { return COMMA; }
 "true" { return TRUE; }
 "false" { return FALSE; }
+"bool" { return TYPE_BOOL; }
+"int" { return TYPE_INT; }
+"float" { return TYPE_FLOAT; }
+"string" { return TYPE_STRING; }
+"char" { return TYPE_CHAR; }
 
 {DIGIT}+ { 
   yylval.number = atof(yytext);

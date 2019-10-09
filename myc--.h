@@ -23,18 +23,25 @@ enum Tag {
   OP_NOT
 };
 
+enum ValueType {
+  BOOL,
+  INT,
+  FLOAT,
+  CHAR,
+  STRING,
+  VOID,
+};
+
+class Type {
+  public:
+    static string toString(ValueType valueType);
+};
+
 class Value {
   public:
-    enum ValueType {
-      BOOL = 0,
-      FLOAT = 1,
-      STRING = 2,
-      CHAR = 3,
-      VOID = 4
-    };
-    
     union ExprValue {
       bool b;
+      int i;
       float f;
       string *s;
       char c;
@@ -43,12 +50,15 @@ class Value {
     int valueType;
     ExprValue value;
     
-    static Value* fromFloat(float f);
     static Value* fromBool(bool b);
-    static Value* fromString(string *s);
+    static Value* fromInt(int i);
+    static Value* fromFloat(float f);
     static Value* fromChar(char c);
+    static Value* fromString(string *s);
+    static Value* fromVoid();
     
     bool toBool();
+    int toInt();
     float toFloat();
     char toChar();
     string* toString();
@@ -155,4 +165,16 @@ class NAssign : public NStatement {
 		NAssign(string id, NExpression *expr);
 		void print();
 		void evaluate();
+};
+
+class NVarDecl : public NStatement {
+  public:
+    string id;
+    ValueType type;
+    NExpression *expr = NULL;
+    
+    NVarDecl(ValueType type, string id);
+    NVarDecl(ValueType type, string id, NExpression *expr);
+    void print();
+    void evaluate();
 };
