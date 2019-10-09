@@ -143,6 +143,10 @@ Value* NBinaryOp::evaluate() {  Value* l = left->evaluate();
     case OP_AND: return Value::fromBool(l->toBool() && r->toBool());
     case OP_OR: return Value::fromBool(l->toBool() || r->toBool());
     
+    case OP_GT: return Value::fromBool(Value::compare(l, r) == 1);
+    case OP_LT: return Value::fromBool(Value::compare(l, r) == -1);
+    case OP_EQ: return Value::fromBool(Value::compare(l, r) == 0);
+    case OP_NEQ: return Value::fromBool(Value::compare(l, r) != 0);
     case OP_LEQ: {
       int comp = Value::compare(l, r);
       return Value::fromBool(comp == -1 || comp == 0);
@@ -150,14 +154,6 @@ Value* NBinaryOp::evaluate() {  Value* l = left->evaluate();
     case OP_GEQ: {
       int comp = Value::compare(l, r);
       return Value::fromBool(comp == 1 || comp == 0);
-    }
-    case OP_EQ: {
-      int comp = Value::compare(l, r);
-      return Value::fromBool(comp == 0);
-    }
-    case OP_NEQ: {
-      int comp = Value::compare(l, r);
-      return Value::fromBool(comp != 0);
     }
   }
 }
