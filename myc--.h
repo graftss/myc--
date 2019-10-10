@@ -3,10 +3,12 @@
 #include <string>
 #include <map>
 #include <list>
+#include <vector>
 
 using namespace std;
 
 class NFuncDecl;
+class ValueArray;
 
 enum Tag {
   OP_LEQ,
@@ -32,6 +34,7 @@ enum ValueType {
   CHAR,
   STRING,
   FUNC,
+  ARRAY,
   VOID,
 };
 
@@ -49,6 +52,7 @@ class Value {
       string *s;
       char c;
       NFuncDecl *func;
+      ValueArray *array;
     };
   
     int valueType;
@@ -60,6 +64,7 @@ class Value {
     static Value* fromChar(char c);
     static Value* fromString(string *s);
     static Value* fromFunc(NFuncDecl *func);
+    static Value* fromArray(ValueArray *array);
     static Value* fromVoid();
     
     bool isTrue();
@@ -70,6 +75,7 @@ class Value {
     char toChar();
     string* toString();
     Value* callFunc();
+    ValueArray* toArray();
     
     void print();
     
@@ -77,6 +83,20 @@ class Value {
 };
 
 extern map<string, Value*> state;
+
+class ValueArray {
+  public:
+    int valueType;
+    list<int> *dimensions;
+    vector<Value*> values;
+    
+    ValueArray(int valueType, list<int> *dimensions);
+
+    int getLinearIndex(list<int> *indices);
+    
+    Value* getValue(list<int> *indices);
+    void setValue(list<int> *indices, Value* v);
+};
 
 class NExpression {
 	public:
@@ -195,6 +215,21 @@ class NVarDecl : public NStatement {
     
     NVarDecl(ValueType type, string id);
     NVarDecl(ValueType type, string id, NExpression *expr);
+    void print();
+    Value* evaluate();
+};
+
+class NArrayDecl : public NStatement {
+  public:
+    string id;
+    ValueType type;
+    NExpression *expr = NULL;
+    list<int>* dimensions;
+    
+    NArrayDecl(ValueType type, string id, NExpression* dimension);
+    
+    void addDimension(NExpression* dimension);
+    
     void print();
     Value* evaluate();
 };

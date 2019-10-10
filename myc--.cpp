@@ -3,6 +3,8 @@
 #include <string>
 #include <map>
 #include <list>
+#include <vector>
+#include <cmath>
 #include "myc--.h"
 
 using namespace std;map<string, Value*> state;
@@ -64,6 +66,13 @@ Value* Value::fromFunc(NFuncDecl *func) {
   return v;
 }
 
+Value* Value::fromArray(ValueArray *array) {
+  Value *v = new Value;
+  v->value.array = array;
+  v->valueType = ARRAY;
+  return v;
+}
+
 Value* Value::fromVoid() {
   Value *v = new Value;
   v->valueType = VOID;
@@ -76,6 +85,7 @@ float Value::toFloat() { return value.f; }
 char Value::toChar() { return value.c; }
 string* Value::toString() { return value.s; }
 Value* Value::callFunc() { return value.func->evaluate(); }
+ValueArray* Value::toArray() { return value.array; }
 
 void Value::print() {
   switch (valueType) {
@@ -117,6 +127,43 @@ int Value::compare(Value *l, Value *r) {
   }
   
   return -2;
+}
+
+// ValueArray
+
+ValueArray::ValueArray(int valueType, list<int> *dimensions) 
+  : valueType(valueType), dimensions(dimensions) {
+  int size = 1;
+  list<int>::iterator it;
+  for (it = dimensions->begin(); it != dimensions->end(); ++it) {
+    size *= *it;
+  }
+
+  std::vector<Value*> v;
+  v.reserve(size);
+  
+  values = v;
+}
+
+int ValueArray::getLinearIndex(list<int> *indices) {
+  int result = 0;
+  int subarraySize = 1;
+  list<int>::iterator itDim = dimensions->begin(), itInd = indices->end();
+  
+  for (; itDim != dimensions->end(); ++itDim, --itInd) {
+    result += *itInd * subarraySize;
+    subarraySize *= *itDim;
+  }
+  
+  return result;
+}
+
+Value* ValueArray::getValue(list<int> *indices) {
+  return values.at(getLinearIndex(indices));
+}
+
+void ValueArray::setValue(list<int> *indices, Value* v) {
+  values.at(getLinearIndex(indices)) = v;
 }
 
 // NNumber
@@ -298,6 +345,33 @@ Value* NVarDecl::evaluate() {  Value *v = expr == NULL ? Value::fromVoid() : ex
   return Value::fromVoid();
 }
 
+// NArrayDecl
+
+NArrayDecl::NArrayDecl(ValueType type, string id, NExpression* dimension) 
+  : type(type), id(id) {
+  dimensions = new list<int>;
+  int dim = std::floor(dimension->evaluate()->toFloat());
+  dimensions->push_front(dim);
+}
+
+void NArrayDecl::addDimension(NExpression* dimension) {
+  dimensions->push_front(dimension->evaluate()->toInt());
+}
+
+void NArrayDecl::print() {  cout << Type::toString(type) << " " << id;
+  
+  list<int>::iterator it;
+  for (it = dimensions->begin(); it != dimensions->end(); ++it) {
+    cout << "[" << *it << "]";
+  }
+}
+
+Value* NArrayDecl::evaluate() {
+  ValueArray *array = new ValueArray(type, dimensions);
+  Value *v = Value::fromArray(array);
+  
+  return Value::fromVoid();}
+  
 // NFuncDecl
 
 NFuncDecl::NFuncDecl(ValueType returnType, string id, NBlock *body)
