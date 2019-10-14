@@ -170,10 +170,10 @@ class NUnaryOp : public NExpression {
 
 class NIndex : public NExpression {
   public:
-    NExpression *array;
-    NExpression *index;
+    NExpression *arrayExpr;
+    NExpression *indexExpr;
     
-    NIndex(NExpression *array, NExpression *index);
+    NIndex(NExpression *arrayExpr, NExpression *indexExpr);
     void print();
     Value* evaluate();
 };

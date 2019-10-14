@@ -80,14 +80,20 @@ Value* Value::fromVoid() {
 }
 
 bool Value::toBool() { return value.b; }
+
 int Value::toInt() { 
   if (valueType == FLOAT) return std::floor(value.f);
   return value.i; 
 }
+
 float Value::toFloat() { return value.f; }
+
 char Value::toChar() { return value.c; }
+
 string* Value::toString() { return value.s; }
+
 Value* Value::callFunc() { return value.func->evaluate(); }
+
 ValueArray* Value::toArray() { return value.array; }
 
 void Value::print() {
@@ -136,8 +142,7 @@ int Value::compare(Value *l, Value *r) {
 
 ValueArray::ValueArray(int valueType, int size) 
   : valueType(valueType), size(size) {
-  std::vector<Value*> v;
-  v.reserve(size);
+  std::vector<Value*> v (size, Value::fromVoid());
   
   values = v;
 }
@@ -260,17 +265,18 @@ Value* NUnaryOp::evaluate() {  Value* v = expr->evaluate();
 
 // NIndex
 
-NIndex::NIndex(NExpression *array, NExpression *index) 
-  : array(array), index(index) {}
+NIndex::NIndex(NExpression *arrayExpr, NExpression *indexExpr) 
+  : arrayExpr(arrayExpr), indexExpr(indexExpr) {}
   
-void NIndex::print() {  array->print();
+void NIndex::print() {  arrayExpr->print();
   cout << "[";
-  index->print();
+  indexExpr->print();
   cout << "]";
 }
 
-Value* NIndex::evaluate() {  Value* arrayValue = array->evaluate();
-  
+Value* NIndex::evaluate() {  Value* array = arrayExpr->evaluate();
+  Value* index = indexExpr->evaluate(); 
+  return array->toArray()->getValue(index->toInt());
 }
 
 // NBlock 
