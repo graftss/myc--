@@ -80,7 +80,10 @@ Value* Value::fromVoid() {
 }
 
 bool Value::toBool() { return value.b; }
-int Value::toInt() { return value.i; }
+int Value::toInt() { 
+  if (valueType == FLOAT) return std::floor(value.f);
+  return value.i; 
+}
 float Value::toFloat() { return value.f; }
 char Value::toChar() { return value.c; }
 string* Value::toString() { return value.s; }
@@ -347,27 +350,30 @@ Value* NVarDecl::evaluate() {  Value *v = expr == NULL ? Value::fromVoid() : ex
 
 // NArrayDecl
 
-NArrayDecl::NArrayDecl(ValueType type, string id, NExpression* dimension) 
-  : type(type), id(id) {
-  dimensions = new list<int>;
-  int dim = std::floor(dimension->evaluate()->toFloat());
-  dimensions->push_front(dim);
-}
+NArrayDecl::NArrayDecl(ValueType type, string id, list<NExpression*> *dimensions) 
+  : type(type), id(id), dimensions(dimensions) {}
 
-void NArrayDecl::addDimension(NExpression* dimension) {
-  dimensions->push_front(dimension->evaluate()->toInt());
-}
-
-void NArrayDecl::print() {  cout << Type::toString(type) << " " << id;
+void NArrayDecl::print() {
+  list<NExpression*>::iterator it;
   
-  list<int>::iterator it;
-  for (it = dimensions->begin(); it != dimensions->end(); ++it) {
-    cout << "[" << *it << "]";
+  cout << Type::toString(type) << " " << id;
+    
+  for (it = dimensions->begin(); it != dimensions->end(); ++it) {    cout << "[";
+    (*it)->print();
+    cout << "]";
   }
 }
-
+  
 Value* NArrayDecl::evaluate() {
-  ValueArray *array = new ValueArray(type, dimensions);
+  list<int>* evalDimensions = new list<int>;
+  list<NExpression*>::iterator it;
+
+  for (it = dimensions->begin(); it != dimensions->end(); ++it) {
+    int dim = (*it)->evaluate()->toInt();
+    evalDimensions->push_back(dim);
+  }
+  
+  ValueArray *array = new ValueArray(type, evalDimensions);
   Value *v = Value::fromArray(array);
   
   return Value::fromVoid();}

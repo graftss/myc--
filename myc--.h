@@ -224,11 +224,9 @@ class NArrayDecl : public NStatement {
     string id;
     ValueType type;
     NExpression *expr = NULL;
-    list<int>* dimensions;
+    list<NExpression*> *dimensions;
     
-    NArrayDecl(ValueType type, string id, NExpression* dimension);
-    
-    void addDimension(NExpression* dimension);
+    NArrayDecl(ValueType type, string id, list<NExpression*> *dimension);
     
     void print();
     Value* evaluate();
