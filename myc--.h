@@ -215,6 +215,17 @@ class NAssign : public NStatement, public NExpression {
 		Value* evaluate();
 };
 
+class NIndexAssign : public NStatement, public NExpression {
+  public:
+    string id;
+    NExpression *indexExpr;
+    NExpression *expr;
+    
+    NIndexAssign(string id, NExpression *indexExpr, NExpression *expr);
+    void print();
+    Value* evaluate();
+};
+
 class NVarDecl : public NStatement {
   public:
     string id;

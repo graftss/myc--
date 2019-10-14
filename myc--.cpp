@@ -328,7 +328,27 @@ Value* NReturn::evaluate() {
 NAssign::NAssign(string id, NExpression *expr)   : id(id), expr(expr) {}void NAssign::print() {  cout << id << " = ";  expr->print();
 }Value* NAssign::evaluate() {
   Value *v = expr->evaluate();
-  state[id] = v;}
+  state[id] = v;
+
+  return v;}
+
+// NIndexAssign
+
+NIndexAssign::NIndexAssign(string id, NExpression *indexExpr, NExpression *expr)
+  : id(id), indexExpr(indexExpr), expr(expr) {}
+  
+void NIndexAssign::print() {  cout << id << "[";
+  indexExpr->print();
+  cout << "] = ";
+  expr->print();
+}
+
+Value* NIndexAssign::evaluate() {  ValueArray *array = state[id]->toArray();
+  int index = indexExpr->evaluate()->toInt();
+  Value* value = expr->evaluate();
+
+  array->setValue(index, value);
+}
 // NVarDecl
 
 NVarDecl::NVarDecl(ValueType type, string id) 

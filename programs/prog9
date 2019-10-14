@@ -2,3 +2,6 @@ int arr[3+3];
 int y = 3;
 
 y = arr[2];
+
+arr[2] = 17;
+y = arr[2];
