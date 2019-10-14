@@ -7,3 +7,5 @@ if (true) {
 } else {
   int triple (int y ) { return y * 3; }
 }
+
+int x = (double((4 + 2)));

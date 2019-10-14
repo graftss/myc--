@@ -10,8 +10,10 @@ int diff(int a, int b) {
   return b - a;
 }
 int asdf() {
-  int x = 3;
+  return double;
 }
 
 int a = 2;
 int d = diff(3, double(4));
+int mydouble = asdf();
+int x = mydouble(4);
