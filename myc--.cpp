@@ -395,6 +395,14 @@ Value* NArrayDecl::evaluate() {
 NFuncDecl::NFuncDecl(
   ValueType returnType, 
   string id, 
+  NBlock *body
+) : returnType(returnType), id(id), body(body) {
+  arguments = new list<NVarDecl*>;
+}
+
+NFuncDecl::NFuncDecl(
+  ValueType returnType, 
+  string id, 
   NBlock *body, 
   list<NVarDecl*> *arguments
 ) : returnType(returnType), id(id), body(body), arguments(arguments) {}
@@ -429,21 +437,32 @@ Value* NFuncDecl::call(list<Value*> *args) {
   // save existing argument variables in global scope to temp state
   list<NVarDecl*>::iterator paramIt = arguments->begin();
   list<Value*>::iterator argIt = args->begin();
-  for (; paramIt != arguments->end(); ++paramIt, ++argIt) {    string id = (*paramIt)->id;
-    temp[id] = state[id];
+  for (; paramIt != arguments->end(); ++paramIt, ++argIt) {
+    string id = (*paramIt)->id;
+
+   if (state[id] != NULL) temp[id] = state[id];
+
     state[id] = (*argIt);
   }
   
-  body->evaluate();
+  Value* result = body->evaluate();
   
   // return saved scope values to global scope
   for (paramIt = arguments->begin(); paramIt != arguments->end(); ++paramIt) {
     string id = (*paramIt)->id;
-    state[id] = temp[id];
+
+    if (temp[id] != NULL) state[id] = temp[id];
+    else state.erase(id);
   }
+  
+  return result;
 }
 
 // NFuncCall
+
+NFuncCall::NFuncCall(string id) : id(id) {
+  arguments = new list<NExpression*>;
+}
 
 NFuncCall::NFuncCall(string id, list<NExpression*> *arguments) 
   : id(id), arguments(arguments) {}

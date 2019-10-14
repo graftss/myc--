@@ -257,6 +257,7 @@ class NFuncDecl : public NStatement {
     NBlock *body;
     list<NVarDecl*> *arguments;
     
+    NFuncDecl(ValueType returnType, string id, NBlock *body);
     NFuncDecl(ValueType returnType, string id, NBlock *body, list<NVarDecl*> *arguments);
     void print();
     void printArguments();
@@ -269,6 +270,7 @@ class NFuncCall : public NStatement, public NExpression {
     string id;
     list<NExpression*> *arguments;
     
+    NFuncCall(string id);
     NFuncCall(string id, list<NExpression*> *arguments);
     void print();
     Value* evaluate();

@@ -8,6 +8,10 @@ bool and(bool x, bool y) {
 
 int diff(int a, int b) {
   return b - a;
+}
+int asdf() {
+  int x = 3;
 }
 
-int d = diff(3, 5);
+int a = 2;
+int d = diff(3, double(4));
