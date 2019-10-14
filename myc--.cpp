@@ -7,7 +7,8 @@
 #include <cmath>
 #include "myc--.h"
 
-using namespace std;map<string, Value*> state;
+using namespace std;
+map<string, Value*> state;
 
 // Type
 
@@ -422,20 +423,52 @@ Value* NFuncDecl::evaluate() {
   return Value::fromVoid();
 }
 
-Value* NFuncDecl::call() {
-  return body->evaluate();
+Value* NFuncDecl::call(list<Value*> *args) {
+  map<string, Value*> temp = *(new map<string, Value*>);
+  
+  // save existing argument variables in global scope to temp state
+  list<NVarDecl*>::iterator paramIt = arguments->begin();
+  list<Value*>::iterator argIt = args->begin();
+  for (; paramIt != arguments->end(); ++paramIt, ++argIt) {    string id = (*paramIt)->id;
+    temp[id] = state[id];
+    state[id] = (*argIt);
+  }
+  
+  body->evaluate();
+  
+  // return saved scope values to global scope
+  for (paramIt = arguments->begin(); paramIt != arguments->end(); ++paramIt) {
+    string id = (*paramIt)->id;
+    state[id] = temp[id];
+  }
 }
 
 // NFuncCall
 
-NFuncCall::NFuncCall(string id) : id(id) {}
+NFuncCall::NFuncCall(string id, list<NExpression*> *arguments) 
+  : id(id), arguments(arguments) {}
 
 void NFuncCall::print() {
-  cout << id << "()";
+  list<NExpression*>::iterator it = arguments->begin();
+  
+  cout << id << "(";
+  while (it != arguments->end()) {
+    (*it)->print();
+    if (++it != arguments->end()) {
+      cout << ", ";
+    }
+  }
+  cout << ")";
 }
 
 Value* NFuncCall::evaluate() {
-  return state[id]->value.func->call();
+  list<Value*> *values = new list<Value*>;
+  list<NExpression*>::iterator it;
+  for (it = arguments->begin(); it != arguments->end(); ++it) {
+    values->push_back((*it)->evaluate());
+  }
+  
+  return state[id]->value.func->call(values);
 }
 
 // NWhile

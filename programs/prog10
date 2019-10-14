@@ -5,3 +5,9 @@ int double(int x) {
 bool and(bool x, bool y) {
   return x && y;
 }
+
+int diff(int a, int b) {
+  return b - a;
+}
+
+int d = diff(3, 5);

@@ -261,14 +261,15 @@ class NFuncDecl : public NStatement {
     void print();
     void printArguments();
     Value* evaluate();
-    Value* call();
+    Value* call(list<Value*> *args);
 };
 
 class NFuncCall : public NStatement, public NExpression {
   public:
     string id;
+    list<NExpression*> *arguments;
     
-    NFuncCall(string id);
+    NFuncCall(string id, list<NExpression*> *arguments);
     void print();
     Value* evaluate();
 };
