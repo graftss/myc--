@@ -1,0 +1,9 @@
+if (true) {
+  if (1) {
+    int y = 3;
+  } 
+  if (0) { int dead = 7; }
+  int double (int x) { return x * 2; }
+} else {
+  int triple (int y ) { return y * 3; }
+}

@@ -109,7 +109,8 @@ void Value::print() {
   }
 }
 
-bool Value::isTrue() {  switch (valueType) {
+bool Value::isTrue() {
+  cout << "hi";  switch (valueType) {
     case BOOL: return toBool();
     case INT: return toInt() != 0;
     case FLOAT: return toFloat() != 0;
@@ -552,5 +553,32 @@ Value* NFor::evaluate() {
     body->evaluate();
   }
 
+  return Value::fromVoid();
+}
+
+// NBranch
+
+NBranch::NBranch(NExpression *cond, NBlock *pass, NBlock *fail)
+  : cond(cond), pass(pass), fail(fail) {}
+
+void NBranch::print() {
+  cout << "if (";
+  cond->print();
+  cout << ") {" << endl;
+  pass->print(2);
+  cout << "}";
+  
+  if (fail != NULL) {
+    cout << " else {" << endl;
+    fail->print(2);
+    cout << "}";
+  }
+}
+
+Value* NBranch::evaluate() {
+  bool test = cond->evaluate()->isTrue();
+  if (test) pass->evaluate();
+  else if (fail != NULL) fail->evaluate();
+  
   return Value::fromVoid();
 }

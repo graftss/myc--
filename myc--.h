@@ -307,3 +307,14 @@ class NFor : public NStatement {
     void print();
     Value* evaluate();
 };
+
+class NBranch : public NStatement {
+  public:
+    NExpression *cond;
+    NBlock *pass;
+    NBlock *fail;
+    
+    NBranch(NExpression *cond, NBlock *pass, NBlock *fail);
+    void print();
+    Value* evaluate();
+};

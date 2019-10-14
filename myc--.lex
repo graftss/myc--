@@ -59,6 +59,8 @@ CHAR [^']
 "while" { return WHILE; }
 "for" { return FOR; }
 "do" { return DO; }
+"if" { return IF; }
+"else" { return ELSE; }
 "true" { return TRUE; }
 "false" { return FALSE; }
 "bool" { return TYPE_BOOL; }
