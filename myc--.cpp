@@ -391,13 +391,32 @@ Value* NArrayDecl::evaluate() {
   
 // NFuncDecl
 
-NFuncDecl::NFuncDecl(ValueType returnType, string id, NBlock *body)
-  : returnType(returnType), id(id), body(body) {}
+NFuncDecl::NFuncDecl(
+  ValueType returnType, 
+  string id, 
+  NBlock *body, 
+  map<string, ValueType> *arguments
+) : returnType(returnType), id(id), body(body), arguments(arguments) {}
   
 void NFuncDecl::print() {
-  cout << Type::toString(returnType) << " " << id << "() {" << endl;
+  cout << Type::toString(returnType) << " " << id << "(";
+  printArguments();
+  cout << ") {" << endl;
   body->print(2);
   cout << "}";
+}
+
+void NFuncDecl::printArguments() {
+  map<string, ValueType>::iterator it = arguments->begin();
+  
+  while (it != arguments->end()) {
+    string id = (*it).first;
+    string type = Type::toString((*it).second);
+    cout << type << " " << id;
+    if (++it != arguments->end()) {
+      cout << ", ";
+    }
+  }
 }
 
 Value* NFuncDecl::evaluate() {

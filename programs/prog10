@@ -1,0 +1,7 @@
+int double(int x) {
+  return x * 2;
+}
+
+bool and(bool x, bool y) {
+  return x && y;
+}
