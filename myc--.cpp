@@ -134,39 +134,20 @@ int Value::compare(Value *l, Value *r) {
 
 // ValueArray
 
-ValueArray::ValueArray(int valueType, list<int> *dimensions) 
-  : valueType(valueType), dimensions(dimensions) {
-  int size = 1;
-  list<int>::iterator it;
-  for (it = dimensions->begin(); it != dimensions->end(); ++it) {
-    size *= *it;
-  }
-
+ValueArray::ValueArray(int valueType, int size) 
+  : valueType(valueType), size(size) {
   std::vector<Value*> v;
   v.reserve(size);
   
   values = v;
 }
 
-int ValueArray::getLinearIndex(list<int> *indices) {
-  int result = 0;
-  int subarraySize = 1;
-  list<int>::iterator itDim = dimensions->begin(), itInd = indices->end();
-  
-  for (; itDim != dimensions->end(); ++itDim, --itInd) {
-    result += *itInd * subarraySize;
-    subarraySize *= *itDim;
-  }
-  
-  return result;
+Value* ValueArray::getValue(int index) {
+  return values.at(index);
 }
 
-Value* ValueArray::getValue(list<int> *indices) {
-  return values.at(getLinearIndex(indices));
-}
-
-void ValueArray::setValue(list<int> *indices, Value* v) {
-  values.at(getLinearIndex(indices)) = v;
+void ValueArray::setValue(int index, Value* v) {
+  values.at(index) = v;
 }
 
 // NNumber
@@ -277,6 +258,20 @@ Value* NUnaryOp::evaluate() {  Value* v = expr->evaluate();
   }
 }
 
+// NIndex
+
+NIndex::NIndex(NExpression *array, NExpression *index) 
+  : array(array), index(index) {}
+  
+void NIndex::print() {  array->print();
+  cout << "[";
+  index->print();
+  cout << "]";
+}
+
+Value* NIndex::evaluate() {  Value* arrayValue = array->evaluate();
+  
+}
 
 // NBlock 
 NBlock::NBlock(NStatement *head) {
@@ -350,32 +345,22 @@ Value* NVarDecl::evaluate() {  Value *v = expr == NULL ? Value::fromVoid() : ex
 
 // NArrayDecl
 
-NArrayDecl::NArrayDecl(ValueType type, string id, list<NExpression*> *dimensions) 
-  : type(type), id(id), dimensions(dimensions) {}
+NArrayDecl::NArrayDecl(ValueType type, string id, NExpression* sizeExpr) 
+  : type(type), id(id), sizeExpr(sizeExpr) {}
 
 void NArrayDecl::print() {
-  list<NExpression*>::iterator it;
-  
-  cout << Type::toString(type) << " " << id;
-    
-  for (it = dimensions->begin(); it != dimensions->end(); ++it) {    cout << "[";
-    (*it)->print();
-    cout << "]";
-  }
+  cout << Type::toString(type) << " " << id << "[";
+  sizeExpr->print();
+  cout << "]";
 }
   
 Value* NArrayDecl::evaluate() {
-  list<int>* evalDimensions = new list<int>;
-  list<NExpression*>::iterator it;
-
-  for (it = dimensions->begin(); it != dimensions->end(); ++it) {
-    int dim = (*it)->evaluate()->toInt();
-    evalDimensions->push_back(dim);
-  }
-  
-  ValueArray *array = new ValueArray(type, evalDimensions);
+  int size = sizeExpr->evaluate()->toInt();
+  ValueArray *array = new ValueArray(type, size);
   Value *v = Value::fromArray(array);
   
+  state[id] = v;
+    
   return Value::fromVoid();}
   
 // NFuncDecl

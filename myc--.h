@@ -87,15 +87,13 @@ extern map<string, Value*> state;
 class ValueArray {
   public:
     int valueType;
-    list<int> *dimensions;
+    int size;
     vector<Value*> values;
     
-    ValueArray(int valueType, list<int> *dimensions);
-
-    int getLinearIndex(list<int> *indices);
+    ValueArray(int valueType, int size);
     
-    Value* getValue(list<int> *indices);
-    void setValue(list<int> *indices, Value* v);
+    Value* getValue(int index);
+    void setValue(int index, Value* v);
 };
 
 class NExpression {
@@ -170,6 +168,16 @@ class NUnaryOp : public NExpression {
     Value* evaluate();
 };
 
+class NIndex : public NExpression {
+  public:
+    NExpression *array;
+    NExpression *index;
+    
+    NIndex(NExpression *array, NExpression *index);
+    void print();
+    Value* evaluate();
+};
+
 class NStatement {
 	public:
     bool isReturn;
@@ -223,10 +231,9 @@ class NArrayDecl : public NStatement {
   public:
     string id;
     ValueType type;
-    NExpression *expr = NULL;
-    list<NExpression*> *dimensions;
-    
-    NArrayDecl(ValueType type, string id, list<NExpression*> *dimension);
+    NExpression *sizeExpr;
+      
+    NArrayDecl(ValueType type, string id, NExpression* sizeExpr);
     
     void print();
     Value* evaluate();
