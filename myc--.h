@@ -255,9 +255,9 @@ class NFuncDecl : public NStatement {
     ValueType returnType;
     string id;
     NBlock *body;
-    map<string, ValueType> *arguments;
-
-    NFuncDecl(ValueType returnType, string id, NBlock *body, map<string, ValueType> *arguments);
+    list<NVarDecl*> *arguments;
+    
+    NFuncDecl(ValueType returnType, string id, NBlock *body, list<NVarDecl*> *arguments);
     void print();
     void printArguments();
     Value* evaluate();

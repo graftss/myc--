@@ -395,7 +395,7 @@ NFuncDecl::NFuncDecl(
   ValueType returnType, 
   string id, 
   NBlock *body, 
-  map<string, ValueType> *arguments
+  list<NVarDecl*> *arguments
 ) : returnType(returnType), id(id), body(body), arguments(arguments) {}
   
 void NFuncDecl::print() {
@@ -407,12 +407,9 @@ void NFuncDecl::print() {
 }
 
 void NFuncDecl::printArguments() {
-  map<string, ValueType>::iterator it = arguments->begin();
+  list<NVarDecl*>::iterator it = arguments->begin();
   
-  while (it != arguments->end()) {
-    string id = (*it).first;
-    string type = Type::toString((*it).second);
-    cout << type << " " << id;
+  while (it != arguments->end()) {    (*it)->print();
     if (++it != arguments->end()) {
       cout << ", ";
     }
