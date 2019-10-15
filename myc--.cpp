@@ -9,11 +9,12 @@
 
 using namespace std;
 map<string, Value*> state;
-int blockDepth = 0;
 
-string getIndent() {
-  return std::string(blockDepth * 2, ' ');
-}
+int blockDepth = 0;
+string blockIndent() { return std::string(blockDepth * 2, ' '); }
+
+int treeDepth = 0;
+string treeIndent() { return std::string(treeDepth * 2, ' '); }
 
 // Type
 
@@ -171,36 +172,42 @@ void ValueArray::setValue(int index, Value* v) {
 
 NNumber::NNumber(float num) : num(num) {}
 void NNumber::print() { cout << num; }
+void NNumber::printNode() { cout << treeIndent() << "NNumber " << num << endl; }
 Value* NNumber::evaluate() { return Value::fromFloat(num); }
 
 // NBoolean
 
 NBoolean::NBoolean(bool b) : b(b) {}
 void NBoolean::print() { cout << (b ? "true" : "false"); }
+void NBoolean::printNode() { cout << treeIndent() << "NBoolean " << b << endl; }
 Value* NBoolean::evaluate() { return Value::fromBool(b); }
 
 // NChar
 
 NChar::NChar(char c) : c(c) {}
 void NChar::print() { cout << "'" << c << "'"; }
+void NChar::printNode() { cout << treeIndent() << "NChar " << c << endl; }
 Value* NChar::evaluate() { return Value::fromChar(c); }
 
 // NString
 
 NString::NString(string *s) : s(s) {}
 void NString::print() { cout << '"' << *s << '"'; }
+void NString::printNode() { cout << treeIndent() << "NString " << s << endl; }
 Value* NString::evaluate() { return Value::fromString(s); }
 
 // NIdentifier
 
 NIdentifier::NIdentifier(string id) : id(id) {}
 void NIdentifier::print() { cout << id; }
+void NIdentifier::printNode() { cout << treeIndent() << "NIdentifier " << id << endl; }
 Value* NIdentifier::evaluate() { return state[id]; }
 
 // NBinaryOp
 
 NBinaryOp::NBinaryOp(NExpression *left, NExpression *right, int tag)   : left(left), right(right), tag(tag) {}
-  void NBinaryOp::print() {
+  
+string NBinaryOp::opString() {
   string op;
   switch (tag) {
     case OP_PLUS: op = "+"; break;
@@ -217,13 +224,24 @@ NBinaryOp::NBinaryOp(NExpression *left, NExpression *right, int tag)   : left(l
     case OP_OR: op = "||"; break;
     case OP_LT: op = "<"; break;
     case OP_GT: op = ">"; break;
-  }
-  
+  }
+  return op;
+}
+  void NBinaryOp::print() {
   cout << "(";
   left->print();
-  cout << " " << op << " ";
+  cout << " " << opString() << " ";
   right->print();
   cout << ")";
+}
+
+void NBinaryOp::printNode() {
+  cout << treeIndent() << "NBinaryOp " << opString() << endl;
+
+  treeDepth += 1;
+  left->printNode();
+  right->printNode();
+  treeDepth -= 1;
 }
 
 Value* NBinaryOp::evaluate() {  Value* l = left->evaluate();
@@ -258,14 +276,24 @@ Value* NBinaryOp::evaluate() {  Value* l = left->evaluate();
 
 NUnaryOp::NUnaryOp(NExpression *expr, int tag) : expr(expr), tag(tag) {}
 
-void NUnaryOp::print() {  string op;
+string NUnaryOp::opString() {  string op;
   switch (tag) {
     case OP_NOT: op = "!"; break;
   }
   
-  cout << "( " << op;
+  return op;
+}
+
+void NUnaryOp::print() {  cout << "( " << opString();
   expr->print();
   cout << " )";
+}
+
+void NUnaryOp::printNode() {
+  cout << treeIndent() << "NUnaryOp " << opString() << endl;
+  treeDepth += 1;
+  expr->printNode();
+  treeDepth -= 1;
 }
 
 Value* NUnaryOp::evaluate() {  Value* v = expr->evaluate();
@@ -284,6 +312,14 @@ void NIndex::print() {  arrayExpr->print();
   cout << "[";
   indexExpr->print();
   cout << "]";
+}
+
+void NIndex::printNode() {
+  cout << treeIndent() << "NIndex" << endl;
+  treeDepth += 1;
+  arrayExpr->printNode();
+  indexExpr->printNode();
+  treeDepth -= 1;
 }
 
 Value* NIndex::evaluate() {  Value* array = arrayExpr->evaluate();
@@ -305,18 +341,31 @@ NBlock::NBlock(NStatement *head) {
 void NBlock::print() {
   list<NStatement*>::iterator it;
 
-  for (it=statements->begin(); it != statements->end(); ++it) {
-    cout << getIndent();
+  for (it = statements->begin(); it != statements->end(); ++it) {
+    cout << blockIndent();
     (*it)->print();
     cout << endl;
   }
 }
 
-void NBlock::printIndented() {  blockDepth += 1;
+void NBlock::printIndented() {
+  blockDepth += 1;
   cout << " {" << endl;
   print();
   blockDepth -= 1;
-  cout << getIndent() << "}";
+  cout << blockIndent() << "}";
+}
+
+void NBlock::printNode() {
+  list<NStatement*>::iterator it;
+
+  cout << treeIndent() << "NBlock" << endl;
+
+  treeDepth += 1;
+  for (it = statements->begin(); it != statements->end(); ++it) {
+    (*it)->printNode();
+  }
+  treeDepth -= 1;
 }
 
 Value* NBlock::evaluate() {
@@ -340,16 +389,27 @@ void NReturn::print() {  cout << "return ";
   expr->print();
 }
 
+void NReturn::printNode() {  cout << treeIndent() << "NReturn";
+  treeDepth += 1;
+  expr->printNode();
+  treeDepth -= 1;
+}
+
 Value* NReturn::evaluate() {
   return expr->evaluate();
 }
 
 // NAssign 
 NAssign::NAssign(string id, NExpression *expr)   : id(id), expr(expr) {}void NAssign::print() {  cout << id << " = ";  expr->print();
+}
+
+void NAssign::printNode() {  cout << treeIndent() << "NAssign " << id << endl;
+  treeDepth += 1;
+  expr->printNode();
+  treeDepth -= 1;
 }Value* NAssign::evaluate() {
   Value *v = expr->evaluate();
   state[id] = v;
-
   return v;}
 
 // NIndexAssign
@@ -361,6 +421,13 @@ void NIndexAssign::print() {  cout << id << "[";
   indexExpr->print();
   cout << "] = ";
   expr->print();
+}
+
+void NIndexAssign::printNode() {  cout << treeIndent() << "NIndexAssign " << id << endl;
+  treeDepth += 1;
+  indexExpr->printNode();
+  expr->printNode();
+  treeDepth -= 1;
 }
 
 Value* NIndexAssign::evaluate() {  ValueArray *array = state[id]->toArray();
@@ -383,6 +450,12 @@ NVarDecl::NVarDecl(ValueType type, string id, NExpression *expr)
   }
 }
 
+void NVarDecl::printNode() {  cout << treeIndent() << "NVarDecl " << Type::toString(type) << " " << id << endl;
+  treeDepth += 1;
+  expr->printNode();
+  treeDepth -= 1;
+}
+
 Value* NVarDecl::evaluate() {  Value *v = expr == NULL ? Value::fromVoid() : expr->evaluate();
   state[id] = v;
   
@@ -398,6 +471,12 @@ void NArrayDecl::print() {
   cout << Type::toString(type) << " " << id << "[";
   sizeExpr->print();
   cout << "]";
+}
+
+void NArrayDecl::printNode() {
+  cout << treeIndent() << "NArrayDecl " << Type::toString(type) << " " << id << endl;  treeDepth += 1;
+  sizeExpr->printNode();
+  treeDepth -= 1;
 }
   
 Value* NArrayDecl::evaluate() {
@@ -442,6 +521,12 @@ void NFuncDecl::printArguments() {
       cout << ", ";
     }
   }
+}
+
+void NFuncDecl::printNode() {  cout << treeIndent() << "NFuncDecl " << Type::toString(returnType) << " " << id << endl;
+  treeDepth += 1;  
+  body->printNode();
+  treeDepth -= 1;  
 }
 
 Value* NFuncDecl::evaluate() {
@@ -499,6 +584,16 @@ void NFuncCall::print() {
   cout << ")";
 }
 
+void NFuncCall::printNode() {
+  list<NExpression*>::iterator it;
+    cout << treeIndent() << "NFuncCall " << id << endl;
+  treeDepth += 1;
+  for (it = arguments->begin(); it != arguments->end(); ++it) {
+    (*it)->printNode();
+  }
+  treeDepth -= 1;
+}
+
 Value* NFuncCall::evaluate() {
   list<Value*> *values = new list<Value*>;
   list<NExpression*>::iterator it;
@@ -521,6 +616,14 @@ void NWhile::print() {  cout << "while (";
   cout << "endl";
 }
 
+void NWhile::printNode() {
+  cout << treeIndent() << "NWhile" << endl;
+  treeDepth += 1;
+  cond->printNode();
+  body->printNode();
+  treeDepth -= 1;
+}
+
 Value* NWhile::evaluate() {
   while (cond->evaluate()->isTrue()) {
     body->evaluate();
@@ -539,6 +642,13 @@ void NDoWhile::print() {
   cout << " while (";
   cond->print();
   cout << ")" << endl;
+}
+
+void NDoWhile::printNode() {  cout << treeIndent() << "NDoWhile" << endl;
+  treeDepth += 1;
+  cond->printNode();
+  body->printNode();
+  treeDepth -= 1;
 }
 
 Value* NDoWhile::evaluate() {
@@ -563,6 +673,15 @@ void NFor::print() {
   incr->print();
   cout << ")";
   body->printIndented();
+}
+
+void NFor::printNode() {  cout << treeIndent() << "NFor" << endl;
+  treeDepth += 1;
+  init->printNode();
+  cond->printNode();
+  incr->printNode();
+  body->printNode();
+  treeDepth -= 1;
 }
 
 Value* NFor::evaluate() {
@@ -591,6 +710,14 @@ void NBranch::print() {
   }
 }
 
+void NBranch::printNode() {  cout << treeIndent() << "NBranch" << endl;
+  treeDepth += 1;
+  cond->printNode();
+  pass->printNode();
+  if (fail != NULL) fail->printNode();
+  treeDepth -= 1;
+}
+
 Value* NBranch::evaluate() {
   bool test = cond->evaluate()->isTrue();
   if (test) pass->evaluate();
@@ -605,6 +732,12 @@ NPrint::NPrint(NExpression *expr) : expr(expr) {}
 
 void NPrint::print() {  cout << "print ";
   expr->print();
+}
+
+void NPrint::printNode() {  cout << treeIndent() << "NPrint" << endl;
+  treeDepth += 1;
+  expr->printNode();
+  treeDepth -= 1;
 }
 
 Value* NPrint::evaluate() {

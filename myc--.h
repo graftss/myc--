@@ -99,6 +99,7 @@ class ValueArray {
 class NExpression {
 	public:
 		virtual void print() = 0;
+    virtual void printNode() = 0;
 		virtual Value* evaluate() = 0;
 };
 
@@ -108,6 +109,7 @@ class NNumber : public NExpression {
     
 		NNumber(float num);
 		void print();
+    void printNode();
 		Value* evaluate();
 };
 
@@ -117,6 +119,7 @@ class NBoolean : public NExpression {
     
     NBoolean(bool b);
     void print();
+    void printNode();
     Value* evaluate();
 };
 
@@ -126,6 +129,7 @@ class NChar : public NExpression {
     
     NChar(char c);
     void print();
+    void printNode();
     Value* evaluate();
 };
 
@@ -135,6 +139,7 @@ class NString : public NExpression {
     
     NString(string *s);
     void print();
+    void printNode();
     Value* evaluate();
 };
 
@@ -144,6 +149,7 @@ class NIdentifier : public NExpression {
     
     NIdentifier(string id);
     void print();
+    void printNode();
     Value* evaluate();
 };
 
@@ -154,7 +160,9 @@ class NBinaryOp : public NExpression {
     int tag;
 
 		NBinaryOp(NExpression *left, NExpression *right, int tag);	
+    string opString();
     void print();
+    void printNode();
     Value* evaluate();
 };
 
@@ -164,7 +172,9 @@ class NUnaryOp : public NExpression {
     int tag;
     
     NUnaryOp(NExpression *expr, int tag);
+    string opString();
     void print();
+    void printNode();
     Value* evaluate();
 };
 
@@ -175,6 +185,7 @@ class NIndex : public NExpression {
     
     NIndex(NExpression *arrayExpr, NExpression *indexExpr);
     void print();
+    void printNode();
     Value* evaluate();
 };
 
@@ -182,7 +193,8 @@ class NStatement {
 	public:
     bool isReturn;
     
-    virtual void print() {}
+    virtual void print() = 0;
+    virtual void printNode() = 0;
     virtual Value* evaluate() = 0;
 };
 
@@ -193,6 +205,7 @@ class NBlock {
     NBlock();
     NBlock(NStatement *head);
     void print();
+    void printNode();
     void printIndented();
     Value* evaluate();
 };
@@ -203,6 +216,7 @@ class NReturn : public NStatement {
     
     NReturn(NExpression *expr);
     void print();
+    void printNode();
     Value* evaluate();
 };
 
@@ -213,6 +227,7 @@ class NAssign : public NStatement, public NExpression {
     
 		NAssign(string id, NExpression *expr);
 		void print();
+    void printNode();
 		Value* evaluate();
 };
 
@@ -224,6 +239,7 @@ class NIndexAssign : public NStatement, public NExpression {
     
     NIndexAssign(string id, NExpression *indexExpr, NExpression *expr);
     void print();
+    void printNode();
     Value* evaluate();
 };
 
@@ -236,6 +252,7 @@ class NVarDecl : public NStatement {
     NVarDecl(ValueType type, string id);
     NVarDecl(ValueType type, string id, NExpression *expr);
     void print();
+    void printNode();
     Value* evaluate();
 };
 
@@ -248,6 +265,7 @@ class NArrayDecl : public NStatement {
     NArrayDecl(ValueType type, string id, NExpression* sizeExpr);
     
     void print();
+    void printNode();
     Value* evaluate();
 };
 
@@ -262,6 +280,7 @@ class NFuncDecl : public NStatement {
     NFuncDecl(ValueType returnType, string id, NBlock *body, list<NVarDecl*> *arguments);
     void print();
     void printArguments();
+    void printNode();
     Value* evaluate();
     Value* call(list<Value*> *args);
 };
@@ -274,6 +293,7 @@ class NFuncCall : public NStatement, public NExpression {
     NFuncCall(string id);
     NFuncCall(string id, list<NExpression*> *arguments);
     void print();
+    void printNode();
     Value* evaluate();
 };
 
@@ -284,6 +304,7 @@ class NWhile : public NStatement {
     
     NWhile(NExpression *cond, NBlock *body);
     void print();
+    void printNode();
     Value* evaluate();
 };
 
@@ -294,6 +315,7 @@ class NDoWhile : public NStatement {
     
     NDoWhile(NExpression *cond, NBlock *body);
     void print();
+    void printNode();
     Value* evaluate();
 };
 
@@ -306,6 +328,7 @@ class NFor : public NStatement {
     
     NFor(NStatement *init, NExpression *cond, NExpression *incr, NBlock *body);
     void print();
+    void printNode();
     Value* evaluate();
 };
 
@@ -317,6 +340,7 @@ class NBranch : public NStatement {
     
     NBranch(NExpression *cond, NBlock *pass, NBlock *fail);
     void print();
+    void printNode();
     Value* evaluate();
 };
 
@@ -326,5 +350,6 @@ class NPrint : public NStatement {
     
     NPrint(NExpression *expr);
     void print();
+    void printNode();
     Value* evaluate();
 };
