@@ -86,11 +86,11 @@ extern map<string, Value*> state;
 
 class ValueArray {
   public:
-    int valueType;
+    ValueType valueType;
     int size;
     vector<Value*> values;
     
-    ValueArray(int valueType, int size);
+    ValueArray(ValueType valueType, int size);
     
     Value* getValue(int index);
     void setValue(int index, Value* v);
@@ -192,8 +192,8 @@ class NBlock {
 
     NBlock();
     NBlock(NStatement *head);
-    void print(int indent);
     void print();
+    void printIndented();
     Value* evaluate();
 };
 

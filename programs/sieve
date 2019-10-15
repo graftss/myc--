@@ -1,4 +1,4 @@
-int sqrt = 10;
+int sqrt = 5;
 int MAX = sqrt * sqrt;
 bool nums[MAX];
 

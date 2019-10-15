@@ -9,6 +9,11 @@
 
 using namespace std;
 map<string, Value*> state;
+int blockDepth = 0;
+
+string getIndent() {
+  return std::string(blockDepth * 2, ' ');
+}
 
 // Type
 
@@ -108,15 +113,7 @@ void Value::print() {
     case VOID: cout << "VOID"; break;
     case ARRAY: {
       ValueArray *arr = toArray();
-      cout << "{ ";
-      for (int i = 0; i < arr->size; i++) {
-        cout << i << ": ";
-        arr->getValue(i)->print();
-        if (i + 1 < arr->size) {
-          cout << ", ";
-        }
-      }
-      cout << " }";
+      cout << Type::toString(arr->valueType) << "[" << arr->size << "]";
       break;
     }
   }
@@ -155,7 +152,7 @@ int Value::compare(Value *l, Value *r) {
 
 // ValueArray
 
-ValueArray::ValueArray(int valueType, int size) 
+ValueArray::ValueArray(ValueType valueType, int size) 
   : valueType(valueType), size(size) {
   std::vector<Value*> v (size, Value::fromVoid());
   
@@ -305,18 +302,21 @@ NBlock::NBlock(NStatement *head) {
   statements->push_front(head);
 }
 
-void NBlock::print(int indent) {
+void NBlock::print() {
   list<NStatement*>::iterator it;
 
   for (it=statements->begin(); it != statements->end(); ++it) {
-    cout << std::string(indent, ' ');
+    cout << getIndent();
     (*it)->print();
-    cout << ";" << endl;
+    cout << endl;
   }
 }
 
-void NBlock::print() {
-  print(0);
+void NBlock::printIndented() {  blockDepth += 1;
+  cout << " {" << endl;
+  print();
+  blockDepth -= 1;
+  cout << getIndent() << "}";
 }
 
 Value* NBlock::evaluate() {
@@ -429,9 +429,9 @@ NFuncDecl::NFuncDecl(
 void NFuncDecl::print() {
   cout << Type::toString(returnType) << " " << id << "(";
   printArguments();
-  cout << ") {" << endl;
-  body->print(2);
-  cout << "}";
+  cout << ")";
+  body->printIndented();
+  cout << endl;
 }
 
 void NFuncDecl::printArguments() {
@@ -516,9 +516,9 @@ NWhile::NWhile(NExpression *cond, NBlock *body)
 
 void NWhile::print() {  cout << "while (";
   cond->print();
-  cout << ") {" << endl;
-  body->print(2);
-  cout << "}" << endl;
+  cout << ")";
+  body->printIndented();
+  cout << "endl";
 }
 
 Value* NWhile::evaluate() {
@@ -534,9 +534,9 @@ NDoWhile::NDoWhile(NExpression *cond, NBlock *body)
   : cond(cond), body(body) {}
 
 void NDoWhile::print() {
-  cout << "do {" << endl;
-  body->print(2);
-  cout << "} while (";
+  cout << "do";
+  body->printIndented();
+  cout << " while (";
   cond->print();
   cout << ")" << endl;
 }
@@ -561,9 +561,8 @@ void NFor::print() {
   cond->print();
   cout << "; ";
   incr->print();
-  cout << ") {" << endl;
-  body->print(2);
-  cout << "}";
+  cout << ")";
+  body->printIndented();
 }
 
 Value* NFor::evaluate() {
@@ -582,13 +581,12 @@ NBranch::NBranch(NExpression *cond, NBlock *pass, NBlock *fail)
 void NBranch::print() {
   cout << "if (";
   cond->print();
-  cout << ") {" << endl;
-  pass->print(2);
-  cout << "}";
+  cout << ") ";
+  pass->printIndented();
   
   if (fail != NULL) {
     cout << " else {" << endl;
-    fail->print(2);
+    fail->printIndented();
     cout << "}";
   }
 }
