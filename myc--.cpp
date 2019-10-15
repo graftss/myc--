@@ -106,11 +106,24 @@ void Value::print() {
     case STRING: cout << '"' << *(toString()) << '"'; break;
     case FUNC: cout << "() -> " << Type::toString(value.func->returnType); break;
     case VOID: cout << "VOID"; break;
+    case ARRAY: {
+      ValueArray *arr = toArray();
+      cout << "{ ";
+      for (int i = 0; i < arr->size; i++) {
+        cout << i << ": ";
+        arr->getValue(i)->print();
+        if (i + 1 < arr->size) {
+          cout << ", ";
+        }
+      }
+      cout << " }";
+      break;
+    }
   }
 }
 
 bool Value::isTrue() {
-  cout << "hi";  switch (valueType) {
+  switch (valueType) {
     case BOOL: return toBool();
     case INT: return toInt() != 0;
     case FLOAT: return toFloat() != 0;
@@ -282,7 +295,12 @@ Value* NIndex::evaluate() {  Value* array = arrayExpr->evaluate();
 }
 
 // NBlock 
-NBlock::NBlock(NStatement *head) {
+
+NBlock::NBlock() {
+  statements = new list<NStatement*>;
+}
+
+NBlock::NBlock(NStatement *head) {
   statements = new list<NStatement*>;
   statements->push_front(head);
 }

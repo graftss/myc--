@@ -190,6 +190,7 @@ class NBlock {
   public:
     list<NStatement*> *statements;
 
+    NBlock();
     NBlock(NStatement *head);
     void print(int indent);
     void print();
