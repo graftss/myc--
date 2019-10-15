@@ -282,6 +282,7 @@ class NFuncDecl : public NStatement {
     void print();
     void printArguments();
     void printNode();
+    void printType();
     Value* evaluate();
     Value* call(list<Value*> *args);
 };

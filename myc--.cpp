@@ -110,7 +110,7 @@ void Value::print() {
     case FLOAT: cout << value.f; break;
     case CHAR: cout << "'" << value.c << "'"; break;
     case STRING: cout << '"' << toString() << '"'; break;
-    case FUNC: cout << "() -> " << Type::toString(value.func->returnType); break;
+    case FUNC: value.func->printType(); break;
     case VOID: cout << "VOID"; break;
     case ARRAY: {
       ValueArray *arr = toArray();
@@ -532,6 +532,18 @@ void NFuncDecl::printNode() {  cout << treeIndent() << "NFuncDecl " << Type::to
   treeDepth += 1;  
   body->printNode();
   treeDepth -= 1;  
+}
+
+void NFuncDecl::printType() {  list<NVarDecl*>::iterator it = arguments->begin();
+  
+  cout << "(";
+  while (it != arguments->end()) {
+    cout << Type::toString((*it)->type);
+    if (++it != arguments->end()) {
+      cout << ", ";
+    }
+  }
+  cout << ") -> " << Type::toString(returnType);
 }
 
 Value* NFuncDecl::evaluate() {

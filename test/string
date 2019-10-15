@@ -3,5 +3,6 @@ string b = "gggg";
 string c = a + b;
 print c;
 
+int indexOf(string s, int n, string t, int m) {
 
-int x =  4 % 2;
+}
