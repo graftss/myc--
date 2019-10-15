@@ -23,10 +23,8 @@ CHAR [^']
   return CHAR_LITERAL;
 }
 
-["][^"]*["] {
-  // TODO fix string literals
-  std::string literalString(yytext);
-  yylval.literalString = &literalString;
+\"[^"]+\" {
+  yylval.literalString = yytext;
   return STRING_LITERAL;
 }
 

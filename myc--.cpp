@@ -59,9 +59,9 @@ Value* Value::fromChar(char c) {
   return v;
 }
 
-Value* Value::fromString(string *s) {
+Value* Value::fromString(string s) {
   Value *v = new Value;
-  v->value.s = s;
+  v->value.s = new NString(s);
   v->valueType = STRING;
   return v;
 }
@@ -97,7 +97,7 @@ float Value::toFloat() { return value.f; }
 
 char Value::toChar() { return value.c; }
 
-string* Value::toString() { return value.s; }
+string Value::toString() { return value.s->s; }
 
 Value* Value::callFunc() { return value.func->evaluate(); }
 
@@ -109,7 +109,7 @@ void Value::print() {
     case INT: cout << value.i; break;
     case FLOAT: cout << value.f; break;
     case CHAR: cout << "'" << value.c << "'"; break;
-    case STRING: cout << '"' << *(toString()) << '"'; break;
+    case STRING: cout << '"' << toString() << '"'; break;
     case FUNC: cout << "() -> " << Type::toString(value.func->returnType); break;
     case VOID: cout << "VOID"; break;
     case ARRAY: {
@@ -191,9 +191,9 @@ Value* NChar::evaluate() { return Value::fromChar(c); }
 
 // NString
 
-NString::NString(string *s) : s(s) {}
-void NString::print() { cout << '"' << *s << '"'; }
-void NString::printNode() { cout << treeIndent() << "NString " << s << endl; }
+NString::NString(string s) : s(s) {}
+void NString::print() { cout << '"' << s << '"'; }
+void NString::printNode() { cout << treeIndent() << "NString \"" << s << '"' << endl; }
 Value* NString::evaluate() { return Value::fromString(s); }
 
 // NIdentifier
@@ -244,15 +244,20 @@ void NBinaryOp::printNode() {
   treeDepth -= 1;
 }
 
-Value* NBinaryOp::evaluate() {  Value* l = left->evaluate();
+Value* NBinaryOp::evaluate() {
+  Value* l = left->evaluate();
   Value* r = right->evaluate();
   
   switch (tag) {
-    case OP_PLUS: return Value::fromFloat(l->toFloat() + r->toFloat());
+    case OP_PLUS: {
+      return l->valueType == STRING
+        ? Value::fromString(l->toString() + r->toString())
+        : Value::fromFloat(l->toFloat() + r->toFloat());
+    }
     case OP_MINUS: return Value::fromFloat(l->toFloat() - r->toFloat());
     case OP_TIMES: return Value::fromFloat(l->toFloat() * r->toFloat());
     case OP_DIVIDE: return Value::fromFloat(l->toFloat() / r->toFloat());
-//    case OP_MODULO: return Value::fromFloat(l->toFloat() % r->toFloat());
+    case OP_MODULO: return Value::fromFloat(l->toInt() % r->toInt());
 
     case OP_AND: return Value::fromBool(l->toBool() && r->toBool());
     case OP_OR: return Value::fromBool(l->toBool() || r->toBool());
@@ -456,9 +461,9 @@ void NVarDecl::printNode() {  cout << treeIndent() << "NVarDecl " << Type::toSt
   treeDepth -= 1;
 }
 
-Value* NVarDecl::evaluate() {  Value *v = expr == NULL ? Value::fromVoid() : expr->evaluate();
+Value* NVarDecl::evaluate() {
+  Value *v = expr == NULL ? Value::fromVoid() : expr->evaluate();
   state[id] = v;
-  
   return Value::fromVoid();
 }
 

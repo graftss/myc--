@@ -9,6 +9,7 @@ using namespace std;
 
 class NFuncDecl;
 class ValueArray;
+class NString;
 
 enum Tag {
   OP_LEQ,
@@ -49,7 +50,7 @@ class Value {
       bool b;
       int i;
       float f;
-      string *s;
+      NString *s;
       char c;
       NFuncDecl *func;
       ValueArray *array;
@@ -62,7 +63,7 @@ class Value {
     static Value* fromInt(int i);
     static Value* fromFloat(float f);
     static Value* fromChar(char c);
-    static Value* fromString(string *s);
+    static Value* fromString(string s);
     static Value* fromFunc(NFuncDecl *func);
     static Value* fromArray(ValueArray *array);
     static Value* fromVoid();
@@ -73,7 +74,7 @@ class Value {
     int toInt();
     float toFloat();
     char toChar();
-    string* toString();
+    string toString();
     Value* callFunc();
     ValueArray* toArray();
     
@@ -135,9 +136,9 @@ class NChar : public NExpression {
 
 class NString : public NExpression {
   public:
-    string *s;
+    string s;
     
-    NString(string *s);
+    NString(string s);
     void print();
     void printNode();
     Value* evaluate();

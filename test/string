@@ -1,0 +1,7 @@
+string a = "ffff";
+string b = "gggg";
+string c = a + b;
+print c;
+
+
+int x =  4 % 2;
