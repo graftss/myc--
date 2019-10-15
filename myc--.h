@@ -319,3 +319,12 @@ class NBranch : public NStatement {
     void print();
     Value* evaluate();
 };
+
+class NPrint : public NStatement {
+  public:
+    NExpression *expr;
+    
+    NPrint(NExpression *expr);
+    void print();
+    Value* evaluate();
+};

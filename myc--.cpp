@@ -600,3 +600,16 @@ Value* NBranch::evaluate() {
   
   return Value::fromVoid();
 }
+
+// NPrint
+
+NPrint::NPrint(NExpression *expr) : expr(expr) {}
+
+void NPrint::print() {  cout << "print ";
+  expr->print();
+}
+
+Value* NPrint::evaluate() {
+  expr->evaluate()->print();
+  cout << endl;
+  return Value::fromVoid();}

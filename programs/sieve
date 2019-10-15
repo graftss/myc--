@@ -1,7 +1,19 @@
-int MAX = 100;
+int sqrt = 10;
+int MAX = sqrt * sqrt;
 bool nums[MAX];
 
 for (int i = 0; i < MAX; i = i + 1) {
-
+  nums[i] = true;
 }
 
+for (int i = 2; i <= sqrt; i = i + 1) {
+  for (int j = i * 2; j < MAX; j = j + i) {
+    nums[j] = false;
+  }
+}
+
+for (int i = 2; i < MAX; i = i + 1) {
+  if (nums[i]) {
+    print i;
+  }
+}
