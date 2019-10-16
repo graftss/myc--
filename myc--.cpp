@@ -483,7 +483,7 @@ NVarDecl::NVarDecl(ValueType type, string id, NExpression *expr)
 
 void NVarDecl::printNode() {  cout << treeIndent() << "NVarDecl " << Type::toString(type) << " " << id << endl;
   treeDepth += 1;
-  expr->printNode();
+  if (expr != NULL) expr->printNode();
   treeDepth -= 1;
 }
 

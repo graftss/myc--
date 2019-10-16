@@ -1,13 +1,7 @@
 int fib(int n) {
-  int result;
-
-  if (n <= 1) {
-    result = 1;
-  } else {
-    result = fib(n - 1) + fib(n - 2);
-  }
-  
-  return result;
+  int r = 0;
 }
+
+int y;
 
 int x = fib(0);
