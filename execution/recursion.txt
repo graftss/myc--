@@ -1,0 +1,152 @@
+----------source
+
+void copy(void a, void b, int n) {
+  copyRec(a, b, n, 0)
+}
+
+void copyRec(void a, void b, int n, int i) {
+  if ((i < n))  {
+    b[i] = a[i]
+    copyRec(a, b, n, (i + 1))
+  }
+}
+
+void printArray(string label, void a, int n) {
+  print label
+  for (int i = 0; (i < n); i = (i + 1)) {
+    print i, "=>", a[i]
+  }
+}
+
+int SIZE = 4
+int a[SIZE]
+int b[SIZE]
+for (int i = 0; (i < SIZE); i = (i + 1)) {
+  a[i] = (i * i)
+}
+printArray("printing a", a, SIZE)
+printArray("printing b", b, SIZE)
+print "copying"
+copy(a, b, SIZE)
+printArray("reprinting b", b, SIZE)
+
+----------AST
+
+NBlock
+  NFuncDecl void copy
+    NBlock
+      NFuncCall copyRec
+        NIdentifier a
+        NIdentifier b
+        NIdentifier n
+        NNumber 0
+  NFuncDecl void copyRec
+    NBlock
+      NBranch
+        NBinaryOp <
+          NIdentifier i
+          NIdentifier n
+        NBlock
+          NIndexAssign b
+            NIdentifier i
+            NIndex
+              NIdentifier a
+              NIdentifier i
+          NFuncCall copyRec
+            NIdentifier a
+            NIdentifier b
+            NIdentifier n
+            NBinaryOp +
+              NIdentifier i
+              NNumber 1
+  NFuncDecl void printArray
+    NBlock
+      NPrint
+        NIdentifier label
+      NFor
+        NVarDecl int i
+          NNumber 0
+        NBinaryOp <
+          NIdentifier i
+          NIdentifier n
+        NAssign i
+          NBinaryOp +
+            NIdentifier i
+            NNumber 1
+        NBlock
+          NPrint
+            NIdentifier i
+            NString "=>"
+            NIndex
+              NIdentifier a
+              NIdentifier i
+  NVarDecl int SIZE
+    NNumber 4
+  NArrayDecl int a
+    NIdentifier SIZE
+  NArrayDecl int b
+    NIdentifier SIZE
+  NFor
+    NVarDecl int i
+      NNumber 0
+    NBinaryOp <
+      NIdentifier i
+      NIdentifier SIZE
+    NAssign i
+      NBinaryOp +
+        NIdentifier i
+        NNumber 1
+    NBlock
+      NIndexAssign a
+        NIdentifier i
+        NBinaryOp *
+          NIdentifier i
+          NIdentifier i
+  NFuncCall printArray
+    NString "printing a"
+    NIdentifier a
+    NIdentifier SIZE
+  NFuncCall printArray
+    NString "printing b"
+    NIdentifier b
+    NIdentifier SIZE
+  NPrint
+    NString "copying"
+  NFuncCall copy
+    NIdentifier a
+    NIdentifier b
+    NIdentifier SIZE
+  NFuncCall printArray
+    NString "reprinting b"
+    NIdentifier b
+    NIdentifier SIZE
+
+----------evaluation
+
+printing a
+0 => 0
+1 => 1
+2 => 4
+3 => 9
+printing b
+0 => void
+1 => void
+2 => void
+3 => void
+copying
+reprinting b
+0 => 0
+1 => 1
+2 => 4
+3 => 9
+
+
+----------final state
+
+SIZE => 4
+a => int[4]
+b => int[4]
+copy => (void, void, int) -> void
+copyRec => (void, void, int, int) -> void
+i => 4
+printArray => (string, void, int) -> void

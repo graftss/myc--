@@ -181,7 +181,11 @@ void ValueArray::setValue(int index, Value* v) {
 NNumber::NNumber(float num) : num(num) {}
 void NNumber::print() { cout << num; }
 void NNumber::printNode() { cout << treeIndent() << "NNumber " << num << endl; }
-Value* NNumber::evaluate() { return Value::fromFloat(num); }
+Value* NNumber::evaluate() { 
+  return abs(num - int(num)) > 0
+    ? Value::fromFloat(num)
+    : Value::fromInt(num);
+}
 
 // NBoolean
 
