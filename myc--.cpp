@@ -410,7 +410,6 @@ Value* NBlock::evaluate() {
 
   for (it=statements->begin(); it != statements->end(); ++it) {
     Value *v = (*it)->evaluate();
-    // (*it)->print();
     if ((*it)->isReturn) return v;
   }
   

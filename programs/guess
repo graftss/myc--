@@ -1,0 +1,33 @@
+int answer = 3;
+int GUESSES = 3;
+int i = 0;
+
+print "you have", GUESSES, "tries to guess the number";
+
+do {
+  read int guess;
+  if (guess == answer) {
+    print "you got it in", i + 1;
+    i = GUESSES;
+  } else {
+    i = i + 1;
+    string p;
+    string s;
+    
+    if (guess < answer) {
+      p = "too low";
+    } else {
+      p = "too high";
+    }
+    
+    if (i < GUESSES) {
+      s = "guess again";
+    } else {
+      s = "you lose";
+    }
+    
+    print p + ", " + s;
+  }
+} while (i < GUESSES);
+
+print "game over";

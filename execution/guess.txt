@@ -1,0 +1,118 @@
+----------source
+
+int answer = 3
+int GUESSES = 3
+int i = 0
+print "you have", GUESSES, "tries to guess the number"
+do {
+  read guess
+  if ((guess == answer))  {
+    print "you got it in", (i + 1)
+    i = GUESSES
+  } else {
+    i = (i + 1)
+    string p
+    string s
+    if ((guess < answer))  {
+      p = "too low"
+    } else {
+      p = "too high"
+    }
+    if ((i < GUESSES))  {
+      s = "guess again"
+    } else {
+      s = "you lose"
+    }
+    print ((p + ", ") + s)
+  }
+} while ((i < GUESSES))
+
+print "game over"
+
+----------AST
+
+NBlock
+  NVarDecl int answer
+    NNumber 3
+  NVarDecl int GUESSES
+    NNumber 3
+  NVarDecl int i
+    NNumber 0
+  NPrint
+    NString "you have"
+    NIdentifier GUESSES
+    NString "tries to guess the number"
+  NDoWhile
+    NBinaryOp <
+      NIdentifier i
+      NIdentifier GUESSES
+    NBlock
+      NRead guess
+      NBranch
+        NBinaryOp ==
+          NIdentifier guess
+          NIdentifier answer
+        NBlock
+          NPrint
+            NString "you got it in"
+            NBinaryOp +
+              NIdentifier i
+              NNumber 1
+          NAssign i
+            NIdentifier GUESSES
+        NBlock
+          NAssign i
+            NBinaryOp +
+              NIdentifier i
+              NNumber 1
+          NVarDecl string p
+          NVarDecl string s
+          NBranch
+            NBinaryOp <
+              NIdentifier guess
+              NIdentifier answer
+            NBlock
+              NAssign p
+                NString "too low"
+            NBlock
+              NAssign p
+                NString "too high"
+          NBranch
+            NBinaryOp <
+              NIdentifier i
+              NIdentifier GUESSES
+            NBlock
+              NAssign s
+                NString "guess again"
+            NBlock
+              NAssign s
+                NString "you lose"
+          NPrint
+            NBinaryOp +
+              NBinaryOp +
+                NIdentifier p
+                NString ", "
+              NIdentifier s
+  NPrint
+    NString "game over"
+
+----------evaluation
+
+you have 3 tries to guess the number
+>> 9
+too high, guess again
+>> 2
+too low, guess again
+>> 3
+you got it in 3
+game over
+
+
+----------final state
+
+GUESSES => 3
+answer => 3
+guess => 3
+i => 3
+p => too low
+s => guess again
