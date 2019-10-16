@@ -1,14 +1,20 @@
-bool divides(int n, int q) {
-  int mod(int a, int b) {
-    return a % b;
-  }
+// this example shows that functionals can be approximated,
+// but since there's only a single global scope, they aren't
+// particularly useful
 
-  return mod(n, q) == 0;
+void adder(int n) {
+  int firstOperand = n;
+  int add(int x) {
+    return firstOperand + x;
+  }
+  
+  return add;
 }
 
-bool t = divides(20, 5);
-bool f = divides(20, 8);
+print "enter first number";
+read int a;
+print "enter second number";
+read int b;
 
-bool result = t && !f;
-
-return 3;
+void myAdder = adder(a);
+print "the sum is", myAdder(b);

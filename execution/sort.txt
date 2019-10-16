@@ -4,7 +4,7 @@ void getInput() {
   print "input list length:"
   read SIZE
   int arr[SIZE]
-  print "input" SIZE "integers"
+  print "input", SIZE, "integers"
   int i = 0
   while ((i < SIZE)) {
     read j
@@ -152,29 +152,29 @@ NBlock
 input list length:
 >> 7
 input 7 integers
->> 9
->> 2
->> 5
->> 1
+>> 6
 >> 3
->> 44
->> 8
+>> 1
+>> 5
+>> 4
+>> 2
+>> 0
 unsorted:
-9
-2
-5
-1
+6
 3
-44
-8
+1
+5
+4
+2
+0
 sorted:
+0
 1
 2
 3
+4
 5
-8
-9
-44
+6
 
 
 ----------final state
@@ -184,7 +184,7 @@ arr => int[7]
 getInput => () -> void
 i => 7
 j => 7
-k => 44
+k => 6
 printAll => () -> void
 sort => () -> void
 swap => (int, int) -> void

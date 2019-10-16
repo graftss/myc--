@@ -1,0 +1,64 @@
+----------source
+
+void adder(int n) {
+  int firstOperand = n
+  int add(int x) {
+    return (firstOperand + x)
+  }
+
+  return add
+}
+
+print "enter first number"
+read a
+print "enter second number"
+read b
+void myAdder = adder(a)
+print "the sum is", myAdder(b)
+
+----------AST
+
+NBlock
+  NFuncDecl void adder
+    NBlock
+      NVarDecl int firstOperand
+        NIdentifier n
+      NFuncDecl int add
+        NBlock
+          NReturn
+            NBinaryOp +
+              NIdentifier firstOperand
+              NIdentifier x
+      NReturn
+        NIdentifier add
+  NPrint
+    NString "enter first number"
+  NRead a
+  NPrint
+    NString "enter second number"
+  NRead b
+  NVarDecl void myAdder
+    NFuncCall adder
+      NIdentifier a
+  NPrint
+    NString "the sum is"
+    NFuncCall myAdder
+      NIdentifier b
+
+----------evaluation
+
+enter first number
+>> 3
+enter second number
+>> 4
+the sum is 7
+
+
+----------final state
+
+a => 3
+add => (int) -> int
+adder => (int) -> void
+b => 4
+firstOperand => 3
+myAdder => (int) -> int

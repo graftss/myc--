@@ -1,118 +1,142 @@
 ----------source
 
-int answer = 3
-int GUESSES = 3
-int i = 0
-print "you have", GUESSES, "tries to guess the number"
-do {
-  read guess
-  if ((guess == answer))  {
-    print "you got it in", (i + 1)
-    i = GUESSES
+string responsePrefix(int guess, int answer) {
+  string p
+  if ((guess < answer))  {
+    p = "too low"
   } else {
-    i = (i + 1)
-    string p
-    string s
-    if ((guess < answer))  {
-      p = "too low"
-    } else {
-      p = "too high"
-    }
-    if ((i < GUESSES))  {
-      s = "guess again"
-    } else {
-      s = "you lose"
-    }
-    print ((p + ", ") + s)
+    p = "too high"
   }
-} while ((i < GUESSES))
+  return p
+}
 
-print "game over"
+string responseSuffix(int i, int g) {
+  string s
+  if ((i < g))  {
+    s = "guess again"
+  } else {
+    s = "you lose"
+  }
+  return s
+}
+
+void play(int answer, int GUESSES) {
+  int i = 0
+  print "you have", GUESSES, "tries to guess the number between 1 and 10"
+  do {
+    read guess
+    if ((guess == answer))  {
+      print "you got it in", (i + 1)
+      i = GUESSES
+    } else {
+      i = (i + 1)
+      print ((responsePrefix(guess, answer) + ", ") + responseSuffix(i, GUESSES))
+    }
+  } while ((i < GUESSES))
+
+  print "game over"
+}
+
+play(10, 3)
 
 ----------AST
 
 NBlock
-  NVarDecl int answer
-    NNumber 3
-  NVarDecl int GUESSES
-    NNumber 3
-  NVarDecl int i
-    NNumber 0
-  NPrint
-    NString "you have"
-    NIdentifier GUESSES
-    NString "tries to guess the number"
-  NDoWhile
-    NBinaryOp <
-      NIdentifier i
-      NIdentifier GUESSES
+  NFuncDecl string responsePrefix
     NBlock
-      NRead guess
+      NVarDecl string p
       NBranch
-        NBinaryOp ==
+        NBinaryOp <
           NIdentifier guess
           NIdentifier answer
         NBlock
-          NPrint
-            NString "you got it in"
-            NBinaryOp +
-              NIdentifier i
-              NNumber 1
-          NAssign i
-            NIdentifier GUESSES
+          NAssign p
+            NString "too low"
         NBlock
-          NAssign i
-            NBinaryOp +
-              NIdentifier i
-              NNumber 1
-          NVarDecl string p
-          NVarDecl string s
+          NAssign p
+            NString "too high"
+      NReturn
+        NIdentifier p
+  NFuncDecl string responseSuffix
+    NBlock
+      NVarDecl string s
+      NBranch
+        NBinaryOp <
+          NIdentifier i
+          NIdentifier g
+        NBlock
+          NAssign s
+            NString "guess again"
+        NBlock
+          NAssign s
+            NString "you lose"
+      NReturn
+        NIdentifier s
+  NFuncDecl void play
+    NBlock
+      NVarDecl int i
+        NNumber 0
+      NPrint
+        NString "you have"
+        NIdentifier GUESSES
+        NString "tries to guess the number between 1 and 10"
+      NDoWhile
+        NBinaryOp <
+          NIdentifier i
+          NIdentifier GUESSES
+        NBlock
+          NRead guess
           NBranch
-            NBinaryOp <
+            NBinaryOp ==
               NIdentifier guess
               NIdentifier answer
             NBlock
-              NAssign p
-                NString "too low"
+              NPrint
+                NString "you got it in"
+                NBinaryOp +
+                  NIdentifier i
+                  NNumber 1
+              NAssign i
+                NIdentifier GUESSES
             NBlock
-              NAssign p
-                NString "too high"
-          NBranch
-            NBinaryOp <
-              NIdentifier i
-              NIdentifier GUESSES
-            NBlock
-              NAssign s
-                NString "guess again"
-            NBlock
-              NAssign s
-                NString "you lose"
-          NPrint
-            NBinaryOp +
-              NBinaryOp +
-                NIdentifier p
-                NString ", "
-              NIdentifier s
-  NPrint
-    NString "game over"
+              NAssign i
+                NBinaryOp +
+                  NIdentifier i
+                  NNumber 1
+              NPrint
+                NBinaryOp +
+                  NBinaryOp +
+                    NFuncCall responsePrefix
+                      NIdentifier guess
+                      NIdentifier answer
+                    NString ", "
+                  NFuncCall responseSuffix
+                    NIdentifier i
+                    NIdentifier GUESSES
+      NPrint
+        NString "game over"
+  NFuncCall play
+    NNumber 10
+    NNumber 3
 
 ----------evaluation
 
-you have 3 tries to guess the number
->> 9
-too high, guess again
+you have 3 tries to guess the number between 1 and 10
+>> 8
+too low, guess again
 >> 2
 too low, guess again
->> 3
-you got it in 3
+>> 13
+too high, you lose
 game over
 
 
 ----------final state
 
-GUESSES => 3
-answer => 3
-guess => 3
+guess => 13
 i => 3
-p => too low
-s => guess again
+p => too high
+play => (int, int) -> void
+responsePrefix => (int, int) -> string
+responseSuffix => (int, int) -> string
+s => you lose

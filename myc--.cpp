@@ -601,7 +601,6 @@ Value* NFuncDecl::call(list<Value*> *args) {
     state[id] = (*argIt);
   }
   
-
   Value* result = body->evaluate();
   
   // return saved scope values to global scope
