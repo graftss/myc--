@@ -772,21 +772,35 @@ Value* NBranch::evaluate() {
 
 // NPrint
 
-NPrint::NPrint(NExpression *expr) : expr(expr) {}
+NPrint::NPrint(list<NExpression*> *exprs) : exprs(exprs) {}
 
-void NPrint::print() {  cout << "print ";
-  expr->print();
+void NPrint::print() {  list<NExpression*>::iterator it;
+
+  cout << "print ";
+  for (it = exprs->begin(); it != exprs->end(); ++it) {    (*it)->print();
+    cout << " ";
+  }
 }
 
-void NPrint::printNode() {  cout << treeIndent() << "NPrint" << endl;
+void NPrint::printNode() {
+  list<NExpression*>::iterator it;
+    cout << treeIndent() << "NPrint" << endl;
   treeDepth += 1;
-  expr->printNode();
+  for (it = exprs->begin(); it != exprs->end(); ++it) {
+    (*it)->printNode();
+  }
   treeDepth -= 1;
 }
 
 Value* NPrint::evaluate() {
-  expr->evaluate()->print();
+  list<NExpression*>::iterator it;
+
+  for (it = exprs->begin(); it != exprs->end(); ++it) {
+    (*it)->evaluate()->print();
+    cout << " ";
+  }
   cout << endl;
+
   return Value::fromVoid();}
 
 // NRead

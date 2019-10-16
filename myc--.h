@@ -348,9 +348,9 @@ class NBranch : public NStatement {
 
 class NPrint : public NStatement {
   public:
-    NExpression *expr;
+    list<NExpression*> *exprs;
     
-    NPrint(NExpression *expr);
+    NPrint(list<NExpression*> *exprs);
     void print();
     void printNode();
     Value* evaluate();
