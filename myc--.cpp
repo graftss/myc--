@@ -761,3 +761,42 @@ Value* NPrint::evaluate() {
   expr->evaluate()->print();
   cout << endl;
   return Value::fromVoid();}
+
+// NRead
+
+NRead::NRead(ValueType type, string id) : type(type), id(id) {}
+
+void NRead::print() { cout << "read " << id; }
+
+void NRead::printNode() { cout << treeIndent() << "NRead " << id << endl; }
+
+Value* NRead::evaluate() {
+  Value* v;
+  switch (type) {    case INT: {
+      int i;
+      cin >> i;
+      v = Value::fromInt(i);
+      break;
+    }
+    case FLOAT: {
+      float f;
+      cin >> f;
+      v = Value::fromFloat(f);
+      break;
+    }
+    case CHAR: {
+      char c;
+      cin >> c;
+      v = Value::fromChar(c);
+      break;
+    }
+    case STRING: {
+      string s;
+      cin >> s;
+      v = Value::fromString(s);
+      break;
+    }
+  }
+  
+  state[id] = v;
+  return Value::fromVoid();}

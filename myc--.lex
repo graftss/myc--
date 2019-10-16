@@ -54,6 +54,7 @@ CHAR [^']
 ";" { return SEMICOLON; }
 "," { return COMMA; }
 "print" { return PRINT; }
+"read" { return READ; }
 "return" { return RETURN; }
 "while" { return WHILE; }
 "for" { return FOR; }

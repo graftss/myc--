@@ -355,3 +355,14 @@ class NPrint : public NStatement {
     void printNode();
     Value* evaluate();
 };
+
+class NRead : public NStatement {
+  public:
+    ValueType type;
+    string id;
+    
+    NRead(ValueType type, string id);
+    void print();
+    void printNode();
+    Value* evaluate();
+};
