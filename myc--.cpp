@@ -136,14 +136,18 @@ bool Value::isTrue() {
 
 int Value::compare(Value *l, Value *r) {
   int lt = l->valueType, rt = r->valueType;
+  
+  // numeric comparison
+  if ((lt == FLOAT || lt == INT) && (rt == FLOAT || rt == INT)) {
+    float lf = l->toFloat(), rf = r->toFloat();
+    if (lf == rf) return 0;
+    return lf < rf ? -1 : 1;
+  }
+  
+  // non-numeric comparisons
   if (lt != rt) return -2;
 
   switch (lt) {
-    case FLOAT: {
-      float lf = l->toFloat(), rf = r->toFloat();
-      if (lf == rf) return 0;
-      return lf < rf ? -1 : 1;
-    }
     case CHAR: {
       char lc = l->toChar(), rc = r->toChar();
       if (lc == rc) return 0;
@@ -795,6 +799,9 @@ void NRead::printNode() { cout << treeIndent() << "NRead " << id << endl; }
 
 Value* NRead::evaluate() {
   Value* v;
+  
+  cout << ">> ";
+  
   switch (type) {    case INT: {
       int i;
       cin >> i;

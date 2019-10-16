@@ -1,4 +1,6 @@
-int sqrt = 5;
+print "enter the square root of the search space size";
+read int sqrt;
+
 int MAX = sqrt * sqrt;
 bool nums[MAX];
 
@@ -12,8 +14,14 @@ for (int i = 2; i <= sqrt; i = i + 1) {
   }
 }
 
+int count = 0;
+
 for (int i = 2; i < MAX; i = i + 1) {
   if (nums[i]) {
     print i;
+    count = count + 1;
   }
 }
+
+print "found this many primes in the search space:";
+return count;
