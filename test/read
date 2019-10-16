@@ -1,1 +1,5 @@
 read int x;
+
+print x;
+
+print x + x;

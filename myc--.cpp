@@ -93,7 +93,10 @@ int Value::toInt() {
   return value.i; 
 }
 
-float Value::toFloat() { return value.f; }
+float Value::toFloat() {
+  if (valueType == INT) return value.i;
+  return value.f; 
+}
 
 char Value::toChar() { return value.c; }
 
@@ -111,7 +114,7 @@ void Value::print() {
     case CHAR: cout << "'" << value.c << "'"; break;
     case STRING: cout << '"' << toString() << '"'; break;
     case FUNC: value.func->printType(); break;
-    case VOID: cout << "VOID"; break;
+    case VOID: cout << "void"; break;
     case ARRAY: {
       ValueArray *arr = toArray();
       cout << Type::toString(arr->valueType) << "[" << arr->size << "]";
@@ -250,13 +253,33 @@ Value* NBinaryOp::evaluate() {
   
   switch (tag) {
     case OP_PLUS: {
-      return l->valueType == STRING
-        ? Value::fromString(l->toString() + r->toString())
-        : Value::fromFloat(l->toFloat() + r->toFloat());
+      switch (l->valueType) {
+        case STRING: return Value::fromString(l->toString() + r->toString());
+        case FLOAT: return Value::fromFloat(l->toFloat() + r->toFloat());
+        case INT: return Value::fromInt(l->toInt() + r->toInt());
+      }
     }
-    case OP_MINUS: return Value::fromFloat(l->toFloat() - r->toFloat());
-    case OP_TIMES: return Value::fromFloat(l->toFloat() * r->toFloat());
-    case OP_DIVIDE: return Value::fromFloat(l->toFloat() / r->toFloat());
+    case OP_MINUS: {
+      switch (l->valueType) {
+        case FLOAT: Value::fromFloat(l->toFloat() - r->toFloat());
+        case INT: return Value::fromInt(l->toInt() - r->toInt());
+      }
+    }
+   
+    case OP_TIMES: {
+      switch (l->valueType) {
+        case FLOAT: Value::fromFloat(l->toFloat() * r->toFloat());
+        case INT: return Value::fromInt(l->toInt() * r->toInt());
+      }
+    }
+    
+    case OP_DIVIDE: {
+      switch (l->valueType) {
+        case FLOAT: Value::fromFloat(l->toFloat() / r->toFloat());
+        case INT: return Value::fromInt(l->toInt() / r->toInt());
+      }
+    }
+    
     case OP_MODULO: return Value::fromFloat(l->toInt() % r->toInt());
 
     case OP_AND: return Value::fromBool(l->toBool() && r->toBool());
