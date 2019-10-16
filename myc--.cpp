@@ -746,9 +746,8 @@ void NBranch::print() {
   pass->printIndented();
   
   if (fail != NULL) {
-    cout << " else {" << endl;
+    cout << " else";
     fail->printIndented();
-    cout << "}";
   }
 }
 
