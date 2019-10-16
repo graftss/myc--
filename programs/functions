@@ -1,0 +1,14 @@
+bool divides(int n, int q) {
+  int mod(int a, int b) {
+    return a % b;
+  }
+
+  return mod(n, q) == 0;
+}
+
+bool t = divides(20, 5);
+bool f = divides(20, 8);
+
+bool result = t && !f;
+
+return 3;

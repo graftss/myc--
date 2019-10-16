@@ -1,33 +1,38 @@
-int answer = 3;
-int GUESSES = 3;
-int i = 0;
+string responsePrefix(int guess, int answer) {
+  string p;
+  
+  if (guess < answer) { p = "too low"; } 
+  else { p = "too high"; }
+  
+  return p;
+}
 
-print "you have", GUESSES, "tries to guess the number";
+string responseSuffix(int i, int g) {
+  string s;
+  
+  if (i < g) { s = "guess again"; }
+  else { s = "you lose"; }
+  
+  return s;
+}
 
-do {
-  read int guess;
-  if (guess == answer) {
-    print "you got it in", i + 1;
-    i = GUESSES;
-  } else {
-    i = i + 1;
-    string p;
-    string s;
-    
-    if (guess < answer) {
-      p = "too low";
+void play(int answer, int GUESSES) {
+  int i = 0;
+
+  print "you have", GUESSES, "tries to guess the number between 1 and 10";
+  
+  do {
+    read int guess;
+    if (guess == answer) {
+      print "you got it in", i + 1;
+      i = GUESSES;
     } else {
-      p = "too high";
+      i = i + 1;
+      print responsePrefix(guess, answer) + ", " + responseSuffix(i, GUESSES);
     }
-    
-    if (i < GUESSES) {
-      s = "guess again";
-    } else {
-      s = "you lose";
-    }
-    
-    print p + ", " + s;
-  }
-} while (i < GUESSES);
+  } while (i < GUESSES);
+  
+  print "game over";
+}
 
-print "game over";
+play(10, 3);

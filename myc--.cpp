@@ -364,6 +364,10 @@ Value* NIndex::evaluate() {  Value* array = arrayExpr->evaluate();
   return array->toArray()->getValue(index->toInt());
 }
 
+// NStatement
+
+bool NStatement::isReturn() { return false; }
+
 // NBlock 
 
 NBlock::NBlock() {
@@ -410,7 +414,7 @@ Value* NBlock::evaluate() {
 
   for (it=statements->begin(); it != statements->end(); ++it) {
     Value *v = (*it)->evaluate();
-    if ((*it)->isReturn) return v;
+    if ((*it)->isReturn()) return v;
   }
   
   return Value::fromVoid();} 
@@ -423,7 +427,7 @@ void NReturn::print() {  cout << "return ";
   expr->print();
 }
 
-void NReturn::printNode() {  cout << treeIndent() << "NReturn";
+void NReturn::printNode() {  cout << treeIndent() << "NReturn" << endl;
   treeDepth += 1;
   expr->printNode();
   treeDepth -= 1;
@@ -432,6 +436,8 @@ void NReturn::printNode() {  cout << treeIndent() << "NReturn";
 Value* NReturn::evaluate() {
   return expr->evaluate();
 }
+
+bool NReturn::isReturn() { return true; }
 
 // NAssign 
 NAssign::NAssign(string id, NExpression *expr)   : id(id), expr(expr) {}void NAssign::print() {  cout << id << " = ";  expr->print();
@@ -595,6 +601,7 @@ Value* NFuncDecl::call(list<Value*> *args) {
     state[id] = (*argIt);
   }
   
+
   Value* result = body->evaluate();
   
   // return saved scope values to global scope
@@ -646,6 +653,7 @@ Value* NFuncCall::evaluate() {
   for (it = arguments->begin(); it != arguments->end(); ++it) {
     values->push_back((*it)->evaluate());
   }
+  
   
   return state[id]->value.func->call(values);
 }

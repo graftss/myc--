@@ -192,11 +192,10 @@ class NIndex : public NExpression {
 
 class NStatement {
 	public:
-    static const bool isReturn = false;
-    
     virtual void print() = 0;
     virtual void printNode() = 0;
     virtual Value* evaluate() = 0;
+    virtual bool isReturn();
 };
 
 class NBlock {
@@ -213,13 +212,13 @@ class NBlock {
 
 class NReturn : public NStatement {
   public:
-    static const bool isReturn = true;
     NExpression *expr;
     
     NReturn(NExpression *expr);
     void print();
     void printNode();
     Value* evaluate();
+    bool isReturn();
 };
 
 class NAssign : public NStatement, public NExpression {
