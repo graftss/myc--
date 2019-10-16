@@ -192,7 +192,7 @@ class NIndex : public NExpression {
 
 class NStatement {
 	public:
-    bool isReturn;
+    static const bool isReturn = false;
     
     virtual void print() = 0;
     virtual void printNode() = 0;
@@ -213,6 +213,7 @@ class NBlock {
 
 class NReturn : public NStatement {
   public:
+    static const bool isReturn = true;
     NExpression *expr;
     
     NReturn(NExpression *expr);

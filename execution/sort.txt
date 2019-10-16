@@ -1,0 +1,190 @@
+----------source
+
+void getInput() {
+  print "input list length:"
+  read SIZE
+  int arr[SIZE]
+  print "input" SIZE "integers"
+  int i = 0
+  while ((i < SIZE)) {
+    read j
+    arr[i] = j
+    i = (i + 1)
+  }
+}
+
+void swap(int i, int j) {
+  int k = arr[i]
+  arr[i] = arr[j]
+  arr[j] = k
+}
+
+void sort() {
+  for (int i = 0; (i < SIZE); i = (i + 1)) {
+    for (int j = i; (j < SIZE); j = (j + 1)) {
+      if ((arr[i] > arr[j]))  {
+        swap(i, j)
+      }
+    }
+  }
+}
+
+void printAll() {
+  for (int i = 0; (i < SIZE); i = (i + 1)) {
+    print arr[i]
+  }
+}
+
+getInput()
+print "unsorted:"
+printAll()
+sort()
+print "sorted:"
+printAll()
+
+----------AST
+
+NBlock
+  NFuncDecl void getInput
+    NBlock
+      NPrint
+        NString "input list length:"
+      NRead SIZE
+      NArrayDecl int arr
+        NIdentifier SIZE
+      NPrint
+        NString "input"
+        NIdentifier SIZE
+        NString "integers"
+      NVarDecl int i
+        NNumber 0
+      NWhile
+        NBinaryOp <
+          NIdentifier i
+          NIdentifier SIZE
+        NBlock
+          NRead j
+          NIndexAssign arr
+            NIdentifier i
+            NIdentifier j
+          NAssign i
+            NBinaryOp +
+              NIdentifier i
+              NNumber 1
+  NFuncDecl void swap
+    NBlock
+      NVarDecl int k
+        NIndex
+          NIdentifier arr
+          NIdentifier i
+      NIndexAssign arr
+        NIdentifier i
+        NIndex
+          NIdentifier arr
+          NIdentifier j
+      NIndexAssign arr
+        NIdentifier j
+        NIdentifier k
+  NFuncDecl void sort
+    NBlock
+      NFor
+        NVarDecl int i
+          NNumber 0
+        NBinaryOp <
+          NIdentifier i
+          NIdentifier SIZE
+        NAssign i
+          NBinaryOp +
+            NIdentifier i
+            NNumber 1
+        NBlock
+          NFor
+            NVarDecl int j
+              NIdentifier i
+            NBinaryOp <
+              NIdentifier j
+              NIdentifier SIZE
+            NAssign j
+              NBinaryOp +
+                NIdentifier j
+                NNumber 1
+            NBlock
+              NBranch
+                NBinaryOp >
+                  NIndex
+                    NIdentifier arr
+                    NIdentifier i
+                  NIndex
+                    NIdentifier arr
+                    NIdentifier j
+                NBlock
+                  NFuncCall swap
+                    NIdentifier i
+                    NIdentifier j
+  NFuncDecl void printAll
+    NBlock
+      NFor
+        NVarDecl int i
+          NNumber 0
+        NBinaryOp <
+          NIdentifier i
+          NIdentifier SIZE
+        NAssign i
+          NBinaryOp +
+            NIdentifier i
+            NNumber 1
+        NBlock
+          NPrint
+            NIndex
+              NIdentifier arr
+              NIdentifier i
+  NFuncCall getInput
+  NPrint
+    NString "unsorted:"
+  NFuncCall printAll
+  NFuncCall sort
+  NPrint
+    NString "sorted:"
+  NFuncCall printAll
+
+----------evaluation
+
+input list length:
+>> 7
+input 7 integers
+>> 9
+>> 2
+>> 5
+>> 1
+>> 3
+>> 44
+>> 8
+unsorted:
+9
+2
+5
+1
+3
+44
+8
+sorted:
+1
+2
+3
+5
+8
+9
+44
+
+
+----------final state
+
+SIZE => 7
+arr => int[7]
+getInput => () -> void
+i => 7
+j => 7
+k => 44
+printAll => () -> void
+sort => () -> void
+swap => (int, int) -> void

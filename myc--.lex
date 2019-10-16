@@ -66,8 +66,9 @@ CHAR [^']
 "bool" { return TYPE_BOOL; }
 "int" { return TYPE_INT; }
 "float" { return TYPE_FLOAT; }
-"string" { return TYPE_STRING; }
 "char" { return TYPE_CHAR; }
+"string" { return TYPE_STRING; }
+"void" { return TYPE_VOID; }
 
 {DIGIT}+ { 
   yylval.number = atof(yytext);

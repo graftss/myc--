@@ -1,0 +1,144 @@
+----------source
+
+print "enter the square root of the search space size"
+read sqrt
+int MAX = (sqrt * sqrt)
+bool nums[MAX]
+for (int i = 0; (i < MAX); i = (i + 1)) {
+  nums[i] = true
+}
+for (int i = 2; (i <= sqrt); i = (i + 1)) {
+  for (int j = (i * 2); (j < MAX); j = (j + i)) {
+    nums[j] = false
+  }
+}
+int count = 0
+for (int i = 2; (i < MAX); i = (i + 1)) {
+  if (nums[i])  {
+    print i
+    count = (count + 1)
+  }
+}
+print "found this many primes in the search space:", count
+
+----------AST
+
+NBlock
+  NPrint
+    NString "enter the square root of the search space size"
+  NRead sqrt
+  NVarDecl int MAX
+    NBinaryOp *
+      NIdentifier sqrt
+      NIdentifier sqrt
+  NArrayDecl bool nums
+    NIdentifier MAX
+  NFor
+    NVarDecl int i
+      NNumber 0
+    NBinaryOp <
+      NIdentifier i
+      NIdentifier MAX
+    NAssign i
+      NBinaryOp +
+        NIdentifier i
+        NNumber 1
+    NBlock
+      NIndexAssign nums
+        NIdentifier i
+        NBoolean 1
+  NFor
+    NVarDecl int i
+      NNumber 2
+    NBinaryOp <=
+      NIdentifier i
+      NIdentifier sqrt
+    NAssign i
+      NBinaryOp +
+        NIdentifier i
+        NNumber 1
+    NBlock
+      NFor
+        NVarDecl int j
+          NBinaryOp *
+            NIdentifier i
+            NNumber 2
+        NBinaryOp <
+          NIdentifier j
+          NIdentifier MAX
+        NAssign j
+          NBinaryOp +
+            NIdentifier j
+            NIdentifier i
+        NBlock
+          NIndexAssign nums
+            NIdentifier j
+            NBoolean 0
+  NVarDecl int count
+    NNumber 0
+  NFor
+    NVarDecl int i
+      NNumber 2
+    NBinaryOp <
+      NIdentifier i
+      NIdentifier MAX
+    NAssign i
+      NBinaryOp +
+        NIdentifier i
+        NNumber 1
+    NBlock
+      NBranch
+        NIndex
+          NIdentifier nums
+          NIdentifier i
+        NBlock
+          NPrint
+            NIdentifier i
+          NAssign count
+            NBinaryOp +
+              NIdentifier count
+              NNumber 1
+  NPrint
+    NString "found this many primes in the search space:"
+    NIdentifier count
+
+----------evaluation
+
+enter the square root of the search space size
+>> 10
+2
+3
+5
+7
+11
+13
+17
+19
+23
+29
+31
+37
+41
+43
+47
+53
+59
+61
+67
+71
+73
+79
+83
+89
+97
+found this many primes in the search space: 25
+
+
+----------final state
+
+MAX => 100
+count => 25
+i => 100
+j => 100
+nums => bool[100]
+sqrt => 10

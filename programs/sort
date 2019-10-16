@@ -1,0 +1,44 @@
+void getInput() {  print "input list length:";
+  read int SIZE;
+  int arr[SIZE];
+
+  print "input", SIZE, "integers";
+  int i = 0;
+  while (i < SIZE) {
+    read int j;
+    arr[i] = j;
+    i = i + 1;
+  }
+}
+
+void swap(int i, int j) {
+  int k = arr[i];
+  arr[i] = arr[j];
+  arr[j] = k;
+}
+
+void sort() {
+  for (int i = 0; i < SIZE; i = i + 1) {
+    for (int j = i; j < SIZE; j = j + 1) {
+      if (arr[i] > arr[j]) {
+        swap(i, j);
+      }
+    }
+  }
+}
+
+void printAll() {
+  for (int i = 0; i < SIZE; i = i + 1) {
+    print arr[i];
+  }
+}
+
+getInput();
+
+print "unsorted:";
+printAll();
+
+sort();
+
+print "sorted:";
+printAll();

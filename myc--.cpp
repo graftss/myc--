@@ -26,6 +26,7 @@ string Type::toString(ValueType valueType) {
     case STRING: return "string";
     case CHAR: return "char";
     case FUNC: return "func";
+    case VOID: return "void";
   }
 }
 
@@ -112,7 +113,7 @@ void Value::print() {
     case INT: cout << value.i; break;
     case FLOAT: cout << value.f; break;
     case CHAR: cout << "'" << value.c << "'"; break;
-    case STRING: cout << '"' << toString() << '"'; break;
+    case STRING: cout << toString(); break;
     case FUNC: value.func->printType(); break;
     case VOID: cout << "void"; break;
     case ARRAY: {
@@ -405,7 +406,7 @@ Value* NBlock::evaluate() {
 
   for (it=statements->begin(); it != statements->end(); ++it) {
     Value *v = (*it)->evaluate();
-
+    // (*it)->print();
     if ((*it)->isReturn) return v;
   }
   
@@ -413,9 +414,7 @@ Value* NBlock::evaluate() {
 
 // NReturn 
 
-NReturn::NReturn(NExpression *expr) : expr(expr) {
-  isReturn = true;
-}
+NReturn::NReturn(NExpression *expr) : expr(expr) {}
 
 void NReturn::print() {  cout << "return ";
   expr->print();
@@ -657,7 +656,6 @@ void NWhile::print() {  cout << "while (";
   cond->print();
   cout << ")";
   body->printIndented();
-  cout << "endl";
 }
 
 void NWhile::printNode() {
@@ -774,11 +772,12 @@ Value* NBranch::evaluate() {
 
 NPrint::NPrint(list<NExpression*> *exprs) : exprs(exprs) {}
 
-void NPrint::print() {  list<NExpression*>::iterator it;
+void NPrint::print() {  list<NExpression*>::iterator it = exprs->begin();
 
   cout << "print ";
-  for (it = exprs->begin(); it != exprs->end(); ++it) {    (*it)->print();
-    cout << " ";
+  while (it != exprs->end()) {
+    (*it)->print();
+    if (++it != exprs->end()) cout << ", ";
   }
 }
 
