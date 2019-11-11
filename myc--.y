@@ -317,12 +317,16 @@ int main(int argc, char **argv) {
     std::cout << '\n';
   }
 
-  cout << endl << endl << "----------Control Flow Graph" << endl << endl;
+  cout << endl << endl << "----------Control Flow Breakdown" << endl << endl;
   CFG* test = root->makeCFG();
   test->printNodes();
 
   cout << endl << endl << "----------CFG Graph" << endl << endl;
   test->print();
+
+  cout << endl << endl << "----------CFG EdgeMap Print" << endl << endl;
+  map<int, int> edgeMap = test->createLabelEdgeMap();
+  CFG::printLabelEdgeMap(edgeMap);
 }
 
 void yyerror(const char *s) {

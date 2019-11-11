@@ -6,6 +6,7 @@
 #include <vector>
 #include <cmath>
 #include "myc--.h"
+#include <tuple>
 
 using namespace std;
 
@@ -512,7 +513,7 @@ Value* NAssign::evaluate() {
 
 CFG* NAssign::makeCFG() {
   CFG* graph = new CFG();
-  graph->node = this;
+  graph->statement = this;
   return graph;
 }
 
@@ -586,7 +587,7 @@ Value* NVarDecl::evaluate() {
 
 CFG* NVarDecl::makeCFG() {
   CFG* graph = new CFG();
-  graph->node = this;
+  graph->statement = this;
   return graph;
 }
 
@@ -904,7 +905,7 @@ Value* NBranch::evaluate() {
 
 CFG* NBranch::makeCFG() {
   CFG* graph = new CFG();
-  graph->node = this;
+  graph->statement = this;
   graph->edges->push_back(pass->makeCFG());
   if (fail) {
     graph->edges->push_back(fail->makeCFG());
@@ -1012,7 +1013,7 @@ void CFG::printNodes()
 {
   cout << endl << "Label: " << this->label << "; ";
   cout << "STMT: ";
-  this->node->printCfgNode();
+  this->statement->printCfgNode();
   list<CFG*>::iterator it;
 
   for (it = edges->begin(); it != edges->end(); it++)
@@ -1047,5 +1048,52 @@ void CFG::findEmptyNodes(CFG* node, list<CFG*>* emptyNodes)
   for (it = node->edges->begin(); it != node->edges->end(); it++)
   {
     findEmptyNodes((*it), emptyNodes);
+  }
+}
+
+map<int, CFG*> CFG::createLabelNodeMap()
+{
+  map<int, CFG*> cfgMap;
+  list<CFG*>::iterator it;
+
+  cfgMap.insert(pair<int, CFG*>(this->label, this));
+  for (it=edges->begin(); it != edges->end(); ++it) {
+    map<int, CFG*> edgeMap = (*it)->createLabelNodeMap();
+    cfgMap.insert(edgeMap.begin(), edgeMap.end());
+  }
+
+  return cfgMap;
+}
+
+list<std::tuple<int, int>> CFG::createLabelEdgeList()
+{
+  list<tuple<int, int>> edgeList;
+  list<CFG*>::iterator it;
+
+  CFG* head = this;
+  for (it=edges->begin(); it != edges->end(); ++it) {
+    list<tuple<int, int>> siblingEdgeList = (*it)->createLabelEdgeList();
+
+    edgeList.push_back(make_tuple(head->label, (*it)->label));
+    edgeList.sort();
+    edgeList.merge(siblingEdgeList);
+  }
+
+  edgeList.sort();
+  edgeList.unique();
+
+  return edgeList;
+}
+
+void CFG::printLabelEdgeMap(list<tuple<int, int>> edgeList) {
+  list<tuple<int, int>>::iterator it;
+  
+  for (it=edgeList.begin(); it != edgeList.end(); ++it) {
+    cout << "("
+      << get<0>(*it)
+      << ","
+      << get<1>(*it)
+      << ")"
+      << endl;
   }
 }

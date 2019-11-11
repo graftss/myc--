@@ -5,6 +5,7 @@
 #include <list>
 #include <vector>
 #include <queue>
+#include <tuple>
 
 using namespace std;
 
@@ -103,13 +104,16 @@ class NStatement; /* Forward Declaration */
 class CFG {
   public:
   static int labelCount;
-  NStatement* node;
-  list<CFG*> *edges;  
+  NStatement* statement;
+  list<CFG*> *edges;    
   CFG();
   int label;
   void printNodes();
   void print();
   static void findEmptyNodes(CFG* node, list<CFG*>* emptyNodes);
+  map<int, CFG*> createLabelNodeMap();
+  list<tuple<int, int>> createLabelEdgeList();
+  static void printLabelEdgeMap(list<tuple<int, int>> edgeList);
 };
 
 class NExpression {
