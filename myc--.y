@@ -325,8 +325,8 @@ int main(int argc, char **argv) {
   test->print();
 
   cout << endl << endl << "----------CFG EdgeMap Print" << endl << endl;
-  map<int, int> edgeMap = test->createLabelEdgeMap();
-  CFG::printLabelEdgeMap(edgeMap);
+  list<tuple<int, int>> edgeList = test->createLabelEdgeList();
+  CFG::printLabelEdgeMap(edgeList);
 }
 
 void yyerror(const char *s) {
