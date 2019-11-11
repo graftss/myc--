@@ -10,19 +10,6 @@
 using namespace std;
 
 map<string, Value*> state;
-//map<int, BasicBlock*> blockMap;
-
-BasicBlock::BasicBlock() {
-  statements = new list<NStatement*>;
-}
-
-void BasicBlock::print() {
-  list<NStatement*>::iterator it;
-  for (it = statements->begin(); it != statements->end(); ++it) {
-    (*it)->printCfgNode();
-    cout << endl;
-  }
-}
 
 int blockDepth = 0;
 string blockIndent() { return std::string(blockDepth * 2, ' '); }
@@ -31,7 +18,6 @@ int treeDepth = 0;
 string treeIndent() { return std::string(treeDepth * 2, ' '); }
 
 
-queue<NStatement*> CFG_Graph::blockExecQueue;
 // Type
 
 string Type::toString(ValueType valueType) {
@@ -454,13 +440,13 @@ CFG* NBlock::makeCFG() {
   for (it; it != statements->end(); ++it) {
     CFG* currentGraph = (*it)->makeCFG();
 
-    // Check if previous node has any edges, if so link them to this new node.
-    // i.e. if branches should return to the same statement
+    // If the previous node has edges already i.e. if statement
+    // We need to traverse down to find all ends of the edges
+    // and add edge for them to the next statement.
     if (childGraph->edges->size() > 0) {
       list<CFG*>::iterator itEdge;
       list<CFG*>* emptyNodes = new list<CFG*>;
       for (itEdge = childGraph->edges->begin(); itEdge != childGraph->edges->end(); ++itEdge) {
-        //(*itEdge)->edges->push_back(currentGraph);
         CFG::findEmptyNodes(*itEdge, emptyNodes);
       }
       for (itEdge = emptyNodes->begin(); itEdge != emptyNodes->end(); ++itEdge) {
@@ -474,14 +460,6 @@ CFG* NBlock::makeCFG() {
   }
 
   return graph;
-}
-
-void NBlock::buildBlockExecution() {
-  list<NStatement*>::iterator it;
-  //BasicBlock block = new BasicBlock();
-  for (it=statements->begin(); it != statements->end(); ++it) {
-    (*it)->buildBlockExecution();
-  }
 }
 
 // NReturn 
@@ -610,10 +588,6 @@ CFG* NVarDecl::makeCFG() {
   CFG* graph = new CFG();
   graph->node = this;
   return graph;
-}
-
-void NVarDecl::buildBlockExecution() {
-  BlockQueue::add(this);
 }
 
 // NArrayDecl
@@ -939,15 +913,6 @@ CFG* NBranch::makeCFG() {
   return graph;
 }
 
-void NBranch::buildBlockExecution() 
-{
-  BlockQueue::add(this);
-  pass->buildBlockExecution();
-  if (fail) {
-    fail->buildBlockExecution();
-  }
-}
-
 // NPrint
 
 NPrint::NPrint(list<NExpression*> *exprs) : exprs(exprs) {}
@@ -1043,7 +1008,7 @@ CFG::CFG()
   this->label = CFG::labelCount++;
 }
 
-void CFG::print() 
+void CFG::printNodes() 
 {
   cout << endl << "Label: " << this->label << "; ";
   cout << "STMT: ";
@@ -1052,11 +1017,11 @@ void CFG::print()
 
   for (it = edges->begin(); it != edges->end(); it++)
   {
-    (*it)->print();
+    (*it)->printNodes();
   }
 }
 
-void CFG::buildTree() {
+void CFG::print() {
   list<CFG*>::iterator it;
 
   CFG* head = this;
@@ -1067,63 +1032,7 @@ void CFG::buildTree() {
          << (*it)->label
          << ")"
          << endl;
-    (*it)->buildTree();
-    //CFG* currentGraph = (*it)->makeCFG();
-
-    // Check if previous node has any edges, if so link them to this new node.
-    // i.e. if branches should return to the same statement
-    // if (childGraph->edges->size() > 0) {
-    //   cout << "\n Made it here";
-    //   list<CFG*>::iterator itEdge;
-    //   for (itEdge = childGraph->edges->begin(); itEdge != childGraph->edges->end(); ++itEdge) {
-    //     (*itEdge)->edges->push_back(currentGraph);
-    //   }
-    // }
-    //childGraph->edges->push_back(currentGraph);
-    //childGraph = currentGraph;
-  }
-}
-
-CFG_Graph::CFG_Graph() {
-}
-
-void CFG_Graph::buildBlocks(NStatement* start) {
-  start->buildBlockExecution();
-}
-
-queue<NStatement*> BlockQueue::tempQueue;
-map<int, BasicBlock*> BlockQueue::blocks;
-
-
-void BlockQueue::add(NStatement* statement) {
-  tempQueue.push(statement);
-
-  if (BlockQueue::isLeader(statement))
-  {
-    BasicBlock* block = new BasicBlock();
-    while(!tempQueue.empty())
-    {
-      block->statements->push_back(tempQueue.front());
-      tempQueue.pop();
-    }
-    blocks[blocks.size()] = block;
-  }
-}
-
-bool BlockQueue::isLeader(NStatement* statement) {
-  if (dynamic_cast<NBranch*>(statement)) {
-    return true;
-  }
-}
-
-void BlockQueue::print() {
-  map<int, BasicBlock*>::iterator it;
-
-  for (it = blocks.begin(); it != blocks.end(); it++)
-  {
-    cout << "Label: " << it->first << endl;
-    it->second->print();
-    cout << endl;
+    (*it)->print();
   }
 }
 

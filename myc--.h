@@ -100,13 +100,6 @@ class ValueArray {
 
 class NStatement; /* Forward Declaration */
 
-class CFG_Graph {
-  public:
-  CFG_Graph();
-  static queue<NStatement*> blockExecQueue;
-  void buildBlocks(NStatement* start);
-};
-
 class CFG {
   public:
   static int labelCount;
@@ -114,8 +107,8 @@ class CFG {
   list<CFG*> *edges;  
   CFG();
   int label;
+  void printNodes();
   void print();
-  void buildTree();
   static void findEmptyNodes(CFG* node, list<CFG*>* emptyNodes);
 };
 
@@ -219,7 +212,6 @@ class NStatement {
     virtual Value* evaluate() = 0;
     virtual bool isReturn();
     virtual CFG* makeCFG() = 0;
-    virtual void buildBlockExecution() {};
     virtual void printCfgNode() {};
 };
 
@@ -410,24 +402,4 @@ class NRead : public NStatement {
     void printNode();
     Value* evaluate();
     CFG* makeCFG();
-};
-
-class BasicBlock {
-    public:
-    BasicBlock();
-    list<NStatement*> *statements;
-    void print();
-};
-
-//extern map<int, BasicBlock*> blockMap;
-
-class BlockQueue {
-  protected:
-    static queue<NStatement*> tempQueue;
-    static map<int, BasicBlock*> blocks;
-
-  public:
-    static void add(NStatement* statement);
-    static bool isLeader(NStatement* statement);
-    static void print();
 };
