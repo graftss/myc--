@@ -116,6 +116,7 @@ class CFG {
   int label;
   void print();
   void buildTree();
+  static void findEmptyNodes(CFG* node, list<CFG*>* emptyNodes);
 };
 
 class NExpression {

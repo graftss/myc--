@@ -458,7 +458,12 @@ CFG* NBlock::makeCFG() {
     // i.e. if branches should return to the same statement
     if (childGraph->edges->size() > 0) {
       list<CFG*>::iterator itEdge;
+      list<CFG*>* emptyNodes = new list<CFG*>;
       for (itEdge = childGraph->edges->begin(); itEdge != childGraph->edges->end(); ++itEdge) {
+        //(*itEdge)->edges->push_back(currentGraph);
+        CFG::findEmptyNodes(*itEdge, emptyNodes);
+      }
+      for (itEdge = emptyNodes->begin(); itEdge != emptyNodes->end(); ++itEdge) {
         (*itEdge)->edges->push_back(currentGraph);
       }
     }
@@ -1119,5 +1124,19 @@ void BlockQueue::print() {
     cout << "Label: " << it->first << endl;
     it->second->print();
     cout << endl;
+  }
+}
+
+void CFG::findEmptyNodes(CFG* node, list<CFG*>* emptyNodes)
+{
+  if (node->edges->size() == 0) {
+    emptyNodes->push_front(node);
+    return;
+  }
+
+  list<CFG*>::iterator it;
+  for (it = node->edges->begin(); it != node->edges->end(); it++)
+  {
+    findEmptyNodes((*it), emptyNodes);
   }
 }
