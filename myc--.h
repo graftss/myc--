@@ -231,7 +231,6 @@ class NBlock {
     void printIndented();
     Value* evaluate();
     CFG* makeCFG();
-    void buildBlockExecution();
 };
 
 class NReturn : public NStatement {
@@ -284,7 +283,6 @@ class NVarDecl : public NStatement {
     void printNode();
     Value* evaluate();
     CFG* makeCFG();
-    void buildBlockExecution();
     void printCfgNode();
 };
 
@@ -382,7 +380,6 @@ class NBranch : public NStatement {
     void printNode();
     Value* evaluate();
     CFG* makeCFG();
-    void buildBlockExecution();
     void printCfgNode();
 };
 
