@@ -1039,34 +1039,7 @@ CFG::CFG()
   this->label = CFG::labelCount++;
 }
 
-void CFG::printNodes() 
-{
-  cout << endl << "Label: " << this->label << "; ";
-  cout << "STMT: ";
-  this->statement->printCfgNode();
-  list<CFG*>::iterator it;
-
-  for (it = edges->begin(); it != edges->end(); it++)
-  {
-    (*it)->printNodes();
-  }
-}
-
-void CFG::print() {
-  list<CFG*>::iterator it;
-
-  CFG* head = this;
-  for (it=edges->begin(); it != edges->end(); ++it) {
-    cout << "("
-         << head->label
-         << ","
-         << (*it)->label
-         << ")"
-         << endl;
-    (*it)->print();
-  }
-}
-
+// Used to assist loopback on NBlock makeCFG
 void CFG::findEmptyNodes(CFG* node, list<CFG*>* emptyNodes)
 {
   if (node->edges->size() == 0) {

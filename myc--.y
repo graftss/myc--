@@ -318,8 +318,6 @@ int main(int argc, char **argv) {
   }
 
   CFG* cfgRootNode = root->makeCFG();
-  cout << endl << endl << "----------Control Flow Label/Statement Breakdown" << endl << endl;
-  cfgRootNode->printNodes();
 
   cout << endl << endl << "----------CFG Label/AST Map Verification" << endl << endl;
   map<int, CFG*> labelNodeMap = cfgRootNode->createLabelNodeMap();
