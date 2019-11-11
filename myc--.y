@@ -317,15 +317,15 @@ int main(int argc, char **argv) {
     std::cout << '\n';
   }
 
-  cout << endl << endl << "----------Control Flow Breakdown" << endl << endl;
-  CFG* test = root->makeCFG();
-  test->printNodes();
+  CFG* cfgRootNode = root->makeCFG();
+  cout << endl << endl << "----------Control Flow Label/Statement Breakdown" << endl << endl;
+  cfgRootNode->printNodes();
 
-  cout << endl << endl << "----------CFG Graph" << endl << endl;
-  test->print();
+  cout << endl << endl << "----------CFG Node Tree" << endl << endl;
+  cfgRootNode->print();
 
   cout << endl << endl << "----------CFG EdgeMap Print" << endl << endl;
-  list<tuple<int, int>> edgeList = test->createLabelEdgeList();
+  list<tuple<int, int>> edgeList = cfgRootNode->createLabelEdgeList();
   CFG::printLabelEdgeMap(edgeList);
 }
 
