@@ -320,9 +320,6 @@ int main(int argc, char **argv) {
   cout << endl << endl << "----------Control Flow Graph" << endl << endl;
   CFG* test = root->makeCFG();
   test->printNodes();
-  //out << endl << endl << "----------Block Graph" << endl << endl;
-  //root->buildBlockExecution();
-  //BlockQueue::print();
 
   cout << endl << endl << "----------CFG Graph" << endl << endl;
   test->print();
