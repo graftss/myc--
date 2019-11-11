@@ -1,0 +1,22 @@
+int x = 10;
+int y = 20;
+if (x < y) {
+    x = 50;
+    if (x < x) {
+        x = 100;
+    }
+    else {
+        x = 99;
+    }
+}
+else {
+    y = 50;
+    if (y < y) {
+        y = 0;
+    }
+    else {
+        y = 99;
+    }
+}
+int z = 30;
+int t = 30;

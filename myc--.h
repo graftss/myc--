@@ -4,6 +4,7 @@
 #include <map>
 #include <list>
 #include <vector>
+#include <queue>
 
 using namespace std;
 
@@ -95,6 +96,26 @@ class ValueArray {
     
     Value* getValue(int index);
     void setValue(int index, Value* v);
+};
+
+class NStatement; /* Forward Declaration */
+
+class CFG_Graph {
+  public:
+  CFG_Graph();
+  static queue<NStatement*> blockExecQueue;
+  void buildBlocks(NStatement* start);
+};
+
+class CFG {
+  public:
+  static int labelCount;
+  NStatement* node;
+  list<CFG*> *edges;  
+  CFG();
+  int label;
+  void print();
+  void buildTree();
 };
 
 class NExpression {
@@ -196,6 +217,9 @@ class NStatement {
     virtual void printNode() = 0;
     virtual Value* evaluate() = 0;
     virtual bool isReturn();
+    virtual CFG* makeCFG() = 0;
+    virtual void buildBlockExecution() {};
+    virtual void printCfgNode() {};
 };
 
 class NBlock {
@@ -208,6 +232,8 @@ class NBlock {
     void printNode();
     void printIndented();
     Value* evaluate();
+    CFG* makeCFG();
+    void buildBlockExecution();
 };
 
 class NReturn : public NStatement {
@@ -219,6 +245,7 @@ class NReturn : public NStatement {
     void printNode();
     Value* evaluate();
     bool isReturn();
+    CFG* makeCFG();
 };
 
 class NAssign : public NStatement, public NExpression {
@@ -230,6 +257,8 @@ class NAssign : public NStatement, public NExpression {
 		void print();
     void printNode();
 		Value* evaluate();
+    CFG* makeCFG();
+    void printCfgNode();
 };
 
 class NIndexAssign : public NStatement, public NExpression {
@@ -242,6 +271,7 @@ class NIndexAssign : public NStatement, public NExpression {
     void print();
     void printNode();
     Value* evaluate();
+    CFG* makeCFG();
 };
 
 class NVarDecl : public NStatement {
@@ -255,6 +285,9 @@ class NVarDecl : public NStatement {
     void print();
     void printNode();
     Value* evaluate();
+    CFG* makeCFG();
+    void buildBlockExecution();
+    void printCfgNode();
 };
 
 class NArrayDecl : public NStatement {
@@ -268,6 +301,7 @@ class NArrayDecl : public NStatement {
     void print();
     void printNode();
     Value* evaluate();
+    CFG* makeCFG();
 };
 
 class NFuncDecl : public NStatement {
@@ -285,6 +319,7 @@ class NFuncDecl : public NStatement {
     void printType();
     Value* evaluate();
     Value* call(list<Value*> *args);
+    CFG* makeCFG();
 };
 
 class NFuncCall : public NStatement, public NExpression {
@@ -297,6 +332,7 @@ class NFuncCall : public NStatement, public NExpression {
     void print();
     void printNode();
     Value* evaluate();
+    CFG* makeCFG();
 };
 
 class NWhile : public NStatement {
@@ -308,6 +344,7 @@ class NWhile : public NStatement {
     void print();
     void printNode();
     Value* evaluate();
+    CFG* makeCFG();
 };
 
 class NDoWhile : public NStatement {
@@ -319,6 +356,7 @@ class NDoWhile : public NStatement {
     void print();
     void printNode();
     Value* evaluate();
+    CFG* makeCFG();
 };
 
 class NFor : public NStatement {
@@ -332,6 +370,7 @@ class NFor : public NStatement {
     void print();
     void printNode();
     Value* evaluate();
+    CFG* makeCFG();
 };
 
 class NBranch : public NStatement {
@@ -344,6 +383,9 @@ class NBranch : public NStatement {
     void print();
     void printNode();
     Value* evaluate();
+    CFG* makeCFG();
+    void buildBlockExecution();
+    void printCfgNode();
 };
 
 class NPrint : public NStatement {
@@ -354,6 +396,7 @@ class NPrint : public NStatement {
     void print();
     void printNode();
     Value* evaluate();
+    CFG* makeCFG();
 };
 
 class NRead : public NStatement {
@@ -365,4 +408,25 @@ class NRead : public NStatement {
     void print();
     void printNode();
     Value* evaluate();
+    CFG* makeCFG();
+};
+
+class BasicBlock {
+    public:
+    BasicBlock();
+    list<NStatement*> *statements;
+    void print();
+};
+
+//extern map<int, BasicBlock*> blockMap;
+
+class BlockQueue {
+  protected:
+    static queue<NStatement*> tempQueue;
+    static map<int, BasicBlock*> blocks;
+
+  public:
+    static void add(NStatement* statement);
+    static bool isLeader(NStatement* statement);
+    static void print();
 };

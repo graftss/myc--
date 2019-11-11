@@ -13,13 +13,16 @@ myc--: y.tab.o lex.yy.o myc--.o
 
 myc--.o: myc--.cpp myc--.h
 	${CCC} -c myc--.cpp
-y.tab.o: myc--.yacc
-	${YACC} ${YFLAGS} myc--.yacc
+y.tab.o: myc--.y
+	${YACC} ${YFLAGS} myc--.y
 	${CCC} ${CCFLAGS} y.tab.c -c 
 
-lex.yy.o: myc--.lex
-	${LEX} $(LFLAGS) myc--.lex
+lex.yy.o: myc--.l
+	${LEX} $(LFLAGS) myc--.l
 	${CCC} ${CCFLAGS} lex.yy.c -c 
 
 clean:
 	/bin/rm -f lex.yy.* y.tab.* *.o myc--
+
+runTest: myc--
+	./myc-- < programs/test

@@ -8,7 +8,21 @@
 #include "myc--.h"
 
 using namespace std;
-map<string, Value*> state;
+
+map<string, Value*> state;
+//map<int, BasicBlock*> blockMap;
+
+BasicBlock::BasicBlock() {
+  statements = new list<NStatement*>;
+}
+
+void BasicBlock::print() {
+  list<NStatement*>::iterator it;
+  for (it = statements->begin(); it != statements->end(); ++it) {
+    (*it)->printCfgNode();
+    cout << endl;
+  }
+}
 
 int blockDepth = 0;
 string blockIndent() { return std::string(blockDepth * 2, ' '); }
@@ -16,6 +30,8 @@ string blockIndent() { return std::string(blockDepth * 2, ' '); }
 int treeDepth = 0;
 string treeIndent() { return std::string(treeDepth * 2, ' '); }
 
+
+queue<NStatement*> CFG_Graph::blockExecQueue;
 // Type
 
 string Type::toString(ValueType valueType) {
@@ -217,7 +233,8 @@ Value* NIdentifier::evaluate() { return state[id]; }
 
 // NBinaryOp
 
-NBinaryOp::NBinaryOp(NExpression *left, NExpression *right, int tag)   : left(left), right(right), tag(tag) {}
+NBinaryOp::NBinaryOp(NExpression *left, NExpression *right, int tag) 
+  : left(left), right(right), tag(tag) {}
   
 string NBinaryOp::opString() {
   string op;
@@ -236,10 +253,12 @@ string NBinaryOp::opString() {
     case OP_OR: op = "||"; break;
     case OP_LT: op = "<"; break;
     case OP_GT: op = ">"; break;
-  }
+  }
+
   return op;
 }
-  void NBinaryOp::print() {
+  
+void NBinaryOp::print() {
   cout << "(";
   left->print();
   cout << " " << opString() << " ";
@@ -313,7 +332,8 @@ Value* NBinaryOp::evaluate() {
 
 NUnaryOp::NUnaryOp(NExpression *expr, int tag) : expr(expr), tag(tag) {}
 
-string NUnaryOp::opString() {  string op;
+string NUnaryOp::opString() {
+  string op;
   switch (tag) {
     case OP_NOT: op = "!"; break;
   }
@@ -321,7 +341,8 @@ string NUnaryOp::opString() {  string op;
   return op;
 }
 
-void NUnaryOp::print() {  cout << "( " << opString();
+void NUnaryOp::print() {
+  cout << "( " << opString();
   expr->print();
   cout << " )";
 }
@@ -333,7 +354,8 @@ void NUnaryOp::printNode() {
   treeDepth -= 1;
 }
 
-Value* NUnaryOp::evaluate() {  Value* v = expr->evaluate();
+Value* NUnaryOp::evaluate() {
+  Value* v = expr->evaluate();
   
   switch (tag) {
     case OP_NOT: return Value::fromBool(!v->toBool());
@@ -345,7 +367,8 @@ Value* NUnaryOp::evaluate() {  Value* v = expr->evaluate();
 NIndex::NIndex(NExpression *arrayExpr, NExpression *indexExpr) 
   : arrayExpr(arrayExpr), indexExpr(indexExpr) {}
   
-void NIndex::print() {  arrayExpr->print();
+void NIndex::print() {
+  arrayExpr->print();
   cout << "[";
   indexExpr->print();
   cout << "]";
@@ -359,7 +382,8 @@ void NIndex::printNode() {
   treeDepth -= 1;
 }
 
-Value* NIndex::evaluate() {  Value* array = arrayExpr->evaluate();
+Value* NIndex::evaluate() {
+  Value* array = arrayExpr->evaluate();
   Value* index = indexExpr->evaluate(); 
   return array->toArray()->getValue(index->toInt());
 }
@@ -417,17 +441,55 @@ Value* NBlock::evaluate() {
     if ((*it)->isReturn()) return v;
   }
   
-  return Value::fromVoid();} 
+  return Value::fromVoid();
+} 
+
+CFG* NBlock::makeCFG() {
+  list<NStatement*>::iterator it;
+  it=statements->begin();
+  CFG* graph = (*it)->makeCFG();
+  ++it;
+
+  CFG* childGraph = graph;
+  for (it; it != statements->end(); ++it) {
+    CFG* currentGraph = (*it)->makeCFG();
+
+    // Check if previous node has any edges, if so link them to this new node.
+    // i.e. if branches should return to the same statement
+    if (childGraph->edges->size() > 0) {
+      list<CFG*>::iterator itEdge;
+      for (itEdge = childGraph->edges->begin(); itEdge != childGraph->edges->end(); ++itEdge) {
+        (*itEdge)->edges->push_back(currentGraph);
+      }
+    }
+    else {
+      childGraph->edges->push_back(currentGraph);
+    }
+    childGraph = currentGraph;
+  }
+
+  return graph;
+}
+
+void NBlock::buildBlockExecution() {
+  list<NStatement*>::iterator it;
+  //BasicBlock block = new BasicBlock();
+  for (it=statements->begin(); it != statements->end(); ++it) {
+    (*it)->buildBlockExecution();
+  }
+}
 
 // NReturn 
 
 NReturn::NReturn(NExpression *expr) : expr(expr) {}
 
-void NReturn::print() {  cout << "return ";
+void NReturn::print() {
+  cout << "return ";
   expr->print();
 }
 
-void NReturn::printNode() {  cout << treeIndent() << "NReturn" << endl;
+void NReturn::printNode() {
+  cout << treeIndent() << "NReturn" << endl;
   treeDepth += 1;
   expr->printNode();
   treeDepth -= 1;
@@ -439,50 +501,82 @@ Value* NReturn::evaluate() {
 
 bool NReturn::isReturn() { return true; }
 
-// NAssign 
-NAssign::NAssign(string id, NExpression *expr)   : id(id), expr(expr) {}void NAssign::print() {  cout << id << " = ";  expr->print();
+CFG* NReturn::makeCFG() {
 }
 
-void NAssign::printNode() {  cout << treeIndent() << "NAssign " << id << endl;
+// NAssign 
+
+NAssign::NAssign(string id, NExpression *expr) 
+  : id(id), expr(expr) {}
+
+void NAssign::print() {
+  cout << id << " = ";
+  expr->print();
+}
+
+void NAssign::printNode() {
+  cout << treeIndent() << "NAssign " << id << endl;
   treeDepth += 1;
   expr->printNode();
   treeDepth -= 1;
-}Value* NAssign::evaluate() {
+}
+
+Value* NAssign::evaluate() {
   Value *v = expr->evaluate();
   state[id] = v;
-  return v;}
+  return v;
+}
+
+CFG* NAssign::makeCFG() {
+  CFG* graph = new CFG();
+  graph->node = this;
+  return graph;
+}
+
+void NAssign::printCfgNode() {
+  print();
+}
 
 // NIndexAssign
 
 NIndexAssign::NIndexAssign(string id, NExpression *indexExpr, NExpression *expr)
   : id(id), indexExpr(indexExpr), expr(expr) {}
   
-void NIndexAssign::print() {  cout << id << "[";
+void NIndexAssign::print() {
+  cout << id << "[";
   indexExpr->print();
   cout << "] = ";
   expr->print();
 }
 
-void NIndexAssign::printNode() {  cout << treeIndent() << "NIndexAssign " << id << endl;
+void NIndexAssign::printNode() {
+  cout << treeIndent() << "NIndexAssign " << id << endl;
   treeDepth += 1;
   indexExpr->printNode();
   expr->printNode();
   treeDepth -= 1;
 }
 
-Value* NIndexAssign::evaluate() {  ValueArray *array = state[id]->toArray();
+Value* NIndexAssign::evaluate() {
+  ValueArray *array = state[id]->toArray();
   int index = indexExpr->evaluate()->toInt();
   Value* value = expr->evaluate();
 
   array->setValue(index, value);
-}
+}
+
+CFG* NIndexAssign::makeCFG() {
+}
+
 // NVarDecl
 
 NVarDecl::NVarDecl(ValueType type, string id) 
   : id(id), type(type) {}
   
 NVarDecl::NVarDecl(ValueType type, string id, NExpression *expr) 
-  : type(type), id(id), expr(expr) {}void NVarDecl::print() {
+  : type(type), id(id), expr(expr) {}
+
+void NVarDecl::print() {
   cout << Type::toString(type) << " " << id;
   if (expr != NULL) {
     cout << " = ";
@@ -490,16 +584,31 @@ NVarDecl::NVarDecl(ValueType type, string id, NExpression *expr)
   }
 }
 
-void NVarDecl::printNode() {  cout << treeIndent() << "NVarDecl " << Type::toString(type) << " " << id << endl;
+void NVarDecl::printNode() {
+  cout << treeIndent() << "NVarDecl " << Type::toString(type) << " " << id << endl;
   treeDepth += 1;
   if (expr != NULL) expr->printNode();
   treeDepth -= 1;
+}
+
+void NVarDecl::printCfgNode() {
+  print();
 }
 
 Value* NVarDecl::evaluate() {
   Value *v = expr == NULL ? Value::fromVoid() : expr->evaluate();
   state[id] = v;
   return Value::fromVoid();
+}
+
+CFG* NVarDecl::makeCFG() {
+  CFG* graph = new CFG();
+  graph->node = this;
+  return graph;
+}
+
+void NVarDecl::buildBlockExecution() {
+  BlockQueue::add(this);
 }
 
 // NArrayDecl
@@ -514,7 +623,8 @@ void NArrayDecl::print() {
 }
 
 void NArrayDecl::printNode() {
-  cout << treeIndent() << "NArrayDecl " << Type::toString(type) << " " << id << endl;  treeDepth += 1;
+  cout << treeIndent() << "NArrayDecl " << Type::toString(type) << " " << id << endl;
+  treeDepth += 1;
   sizeExpr->printNode();
   treeDepth -= 1;
 }
@@ -526,7 +636,12 @@ Value* NArrayDecl::evaluate() {
   
   state[id] = v;
     
-  return Value::fromVoid();}
+  return Value::fromVoid();
+}
+
+CFG* NArrayDecl::makeCFG() {
+}
+
   
 // NFuncDecl
 
@@ -556,20 +671,23 @@ void NFuncDecl::print() {
 void NFuncDecl::printArguments() {
   list<NVarDecl*>::iterator it = arguments->begin();
   
-  while (it != arguments->end()) {    (*it)->print();
+  while (it != arguments->end()) {
+    (*it)->print();
     if (++it != arguments->end()) {
       cout << ", ";
     }
   }
 }
 
-void NFuncDecl::printNode() {  cout << treeIndent() << "NFuncDecl " << Type::toString(returnType) << " " << id << endl;
+void NFuncDecl::printNode() {
+  cout << treeIndent() << "NFuncDecl " << Type::toString(returnType) << " " << id << endl;
   treeDepth += 1;  
   body->printNode();
   treeDepth -= 1;  
 }
 
-void NFuncDecl::printType() {  list<NVarDecl*>::iterator it = arguments->begin();
+void NFuncDecl::printType() {
+  list<NVarDecl*>::iterator it = arguments->begin();
   
   cout << "(";
   while (it != arguments->end()) {
@@ -614,6 +732,9 @@ Value* NFuncDecl::call(list<Value*> *args) {
   return result;
 }
 
+CFG* NFuncDecl::makeCFG() {
+}
+
 // NFuncCall
 
 NFuncCall::NFuncCall(string id) : id(id) {
@@ -638,7 +759,8 @@ void NFuncCall::print() {
 
 void NFuncCall::printNode() {
   list<NExpression*>::iterator it;
-    cout << treeIndent() << "NFuncCall " << id << endl;
+  
+  cout << treeIndent() << "NFuncCall " << id << endl;
   treeDepth += 1;
   for (it = arguments->begin(); it != arguments->end(); ++it) {
     (*it)->printNode();
@@ -657,12 +779,16 @@ Value* NFuncCall::evaluate() {
   return state[id]->value.func->call(values);
 }
 
+CFG* NFuncCall::makeCFG() {
+}
+
 // NWhile
 
 NWhile::NWhile(NExpression *cond, NBlock *body)
   : cond(cond), body(body) {}
 
-void NWhile::print() {  cout << "while (";
+void NWhile::print() {
+  cout << "while (";
   cond->print();
   cout << ")";
   body->printIndented();
@@ -681,7 +807,11 @@ Value* NWhile::evaluate() {
     body->evaluate();
   }
   
-  return Value::fromVoid();}
+  return Value::fromVoid();
+}
+
+CFG* NWhile::makeCFG() {
+}
 
 // NDoWhile
 
@@ -696,7 +826,8 @@ void NDoWhile::print() {
   cout << ")" << endl;
 }
 
-void NDoWhile::printNode() {  cout << treeIndent() << "NDoWhile" << endl;
+void NDoWhile::printNode() {
+  cout << treeIndent() << "NDoWhile" << endl;
   treeDepth += 1;
   cond->printNode();
   body->printNode();
@@ -709,6 +840,9 @@ Value* NDoWhile::evaluate() {
   } while (cond->evaluate()->isTrue());
 
   return Value::fromVoid();
+}
+
+CFG* NDoWhile::makeCFG() {
 }
 
 // NFor
@@ -727,7 +861,8 @@ void NFor::print() {
   body->printIndented();
 }
 
-void NFor::printNode() {  cout << treeIndent() << "NFor" << endl;
+void NFor::printNode() {
+  cout << treeIndent() << "NFor" << endl;
   treeDepth += 1;
   init->printNode();
   cond->printNode();
@@ -742,6 +877,9 @@ Value* NFor::evaluate() {
   }
 
   return Value::fromVoid();
+}
+
+CFG* NFor::makeCFG() {
 }
 
 // NBranch
@@ -761,12 +899,20 @@ void NBranch::print() {
   }
 }
 
-void NBranch::printNode() {  cout << treeIndent() << "NBranch" << endl;
+void NBranch::printNode() {
+  cout << treeIndent() << "NBranch" << endl;
   treeDepth += 1;
   cond->printNode();
   pass->printNode();
   if (fail != NULL) fail->printNode();
   treeDepth -= 1;
+}
+
+void NBranch::printCfgNode()
+{
+  cout << "if (";
+  cond->print();
+  cout << ") ";
 }
 
 Value* NBranch::evaluate() {
@@ -777,11 +923,32 @@ Value* NBranch::evaluate() {
   return Value::fromVoid();
 }
 
+CFG* NBranch::makeCFG() {
+  CFG* graph = new CFG();
+  graph->node = this;
+  graph->edges->push_back(pass->makeCFG());
+  if (fail) {
+    graph->edges->push_back(fail->makeCFG());
+  }
+
+  return graph;
+}
+
+void NBranch::buildBlockExecution() 
+{
+  BlockQueue::add(this);
+  pass->buildBlockExecution();
+  if (fail) {
+    fail->buildBlockExecution();
+  }
+}
+
 // NPrint
 
 NPrint::NPrint(list<NExpression*> *exprs) : exprs(exprs) {}
 
-void NPrint::print() {  list<NExpression*>::iterator it = exprs->begin();
+void NPrint::print() {
+  list<NExpression*>::iterator it = exprs->begin();
 
   cout << "print ";
   while (it != exprs->end()) {
@@ -792,7 +959,8 @@ void NPrint::print() {  list<NExpression*>::iterator it = exprs->begin();
 
 void NPrint::printNode() {
   list<NExpression*>::iterator it;
-    cout << treeIndent() << "NPrint" << endl;
+  
+  cout << treeIndent() << "NPrint" << endl;
   treeDepth += 1;
   for (it = exprs->begin(); it != exprs->end(); ++it) {
     (*it)->printNode();
@@ -809,7 +977,11 @@ Value* NPrint::evaluate() {
   }
   cout << endl;
 
-  return Value::fromVoid();}
+  return Value::fromVoid();
+}
+
+CFG* NPrint::makeCFG() {
+}
 
 // NRead
 
@@ -824,7 +996,8 @@ Value* NRead::evaluate() {
   
   cout << ">> ";
   
-  switch (type) {    case INT: {
+  switch (type) {
+    case INT: {
       int i;
       cin >> i;
       v = Value::fromInt(i);
@@ -851,4 +1024,100 @@ Value* NRead::evaluate() {
   }
   
   state[id] = v;
-  return Value::fromVoid();}
+  return Value::fromVoid();
+}
+
+CFG* NRead::makeCFG() {
+}
+
+int CFG::labelCount=1;
+
+CFG::CFG() 
+{
+  this->edges = new list<CFG*>;
+  this->label = CFG::labelCount++;
+}
+
+void CFG::print() 
+{
+  cout << endl << "Label: " << this->label << "; ";
+  cout << "STMT: ";
+  this->node->printCfgNode();
+  list<CFG*>::iterator it;
+
+  for (it = edges->begin(); it != edges->end(); it++)
+  {
+    (*it)->print();
+  }
+}
+
+void CFG::buildTree() {
+  list<CFG*>::iterator it;
+
+  CFG* head = this;
+  for (it=edges->begin(); it != edges->end(); ++it) {
+    cout << "("
+         << head->label
+         << ","
+         << (*it)->label
+         << ")"
+         << endl;
+    (*it)->buildTree();
+    //CFG* currentGraph = (*it)->makeCFG();
+
+    // Check if previous node has any edges, if so link them to this new node.
+    // i.e. if branches should return to the same statement
+    // if (childGraph->edges->size() > 0) {
+    //   cout << "\n Made it here";
+    //   list<CFG*>::iterator itEdge;
+    //   for (itEdge = childGraph->edges->begin(); itEdge != childGraph->edges->end(); ++itEdge) {
+    //     (*itEdge)->edges->push_back(currentGraph);
+    //   }
+    // }
+    //childGraph->edges->push_back(currentGraph);
+    //childGraph = currentGraph;
+  }
+}
+
+CFG_Graph::CFG_Graph() {
+}
+
+void CFG_Graph::buildBlocks(NStatement* start) {
+  start->buildBlockExecution();
+}
+
+queue<NStatement*> BlockQueue::tempQueue;
+map<int, BasicBlock*> BlockQueue::blocks;
+
+
+void BlockQueue::add(NStatement* statement) {
+  tempQueue.push(statement);
+
+  if (BlockQueue::isLeader(statement))
+  {
+    BasicBlock* block = new BasicBlock();
+    while(!tempQueue.empty())
+    {
+      block->statements->push_back(tempQueue.front());
+      tempQueue.pop();
+    }
+    blocks[blocks.size()] = block;
+  }
+}
+
+bool BlockQueue::isLeader(NStatement* statement) {
+  if (dynamic_cast<NBranch*>(statement)) {
+    return true;
+  }
+}
+
+void BlockQueue::print() {
+  map<int, BasicBlock*>::iterator it;
+
+  for (it = blocks.begin(); it != blocks.end(); it++)
+  {
+    cout << "Label: " << it->first << endl;
+    it->second->print();
+    cout << endl;
+  }
+}
