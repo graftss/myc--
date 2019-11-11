@@ -321,10 +321,11 @@ int main(int argc, char **argv) {
   cout << endl << endl << "----------Control Flow Label/Statement Breakdown" << endl << endl;
   cfgRootNode->printNodes();
 
-  cout << endl << endl << "----------CFG Node Tree" << endl << endl;
-  cfgRootNode->print();
+  cout << endl << endl << "----------CFG Label/AST Map Verification" << endl << endl;
+  map<int, CFG*> labelNodeMap = cfgRootNode->createLabelNodeMap();
+  CFG::printLabelNodeMap(labelNodeMap);
 
-  cout << endl << endl << "----------CFG EdgeMap Print" << endl << endl;
+  cout << endl << endl << "----------CFG EdgeMap Verification" << endl << endl;
   list<tuple<int, int>> edgeList = cfgRootNode->createLabelEdgeList();
   CFG::printLabelEdgeMap(edgeList);
 }

@@ -437,17 +437,17 @@ CFG* NBlock::makeCFG() {
   CFG* graph = (*it)->makeCFG();
   ++it;
 
-  CFG* childGraph = graph;
+  CFG* siblingGraph = graph;
   for (it; it != statements->end(); ++it) {
     CFG* currentGraph = (*it)->makeCFG();
 
     // If the previous node has edges already i.e. if statement
     // We need to traverse down to find all ends of the edges
     // and add edge for them to the next statement.
-    if (childGraph->edges->size() > 0) {
+    if (siblingGraph->edges->size() > 0) {
       list<CFG*>::iterator itEdge;
       list<CFG*>* emptyNodes = new list<CFG*>;
-      for (itEdge = childGraph->edges->begin(); itEdge != childGraph->edges->end(); ++itEdge) {
+      for (itEdge = siblingGraph->edges->begin(); itEdge != siblingGraph->edges->end(); ++itEdge) {
         CFG::findEmptyNodes(*itEdge, emptyNodes);
       }
       for (itEdge = emptyNodes->begin(); itEdge != emptyNodes->end(); ++itEdge) {
@@ -455,9 +455,9 @@ CFG* NBlock::makeCFG() {
       }
     }
     else {
-      childGraph->edges->push_back(currentGraph);
+      siblingGraph->edges->push_back(currentGraph);
     }
-    childGraph = currentGraph;
+    siblingGraph = currentGraph;
   }
 
   return graph;
@@ -486,6 +486,9 @@ Value* NReturn::evaluate() {
 bool NReturn::isReturn() { return true; }
 
 CFG* NReturn::makeCFG() {
+  CFG* graph = new CFG();
+  graph->statement = this;
+  return graph;
 }
 
 // NAssign 
@@ -550,6 +553,9 @@ Value* NIndexAssign::evaluate() {
 }
 
 CFG* NIndexAssign::makeCFG() {
+  CFG* graph = new CFG();
+  graph->statement = this;
+  return graph;
 }
 
 // NVarDecl
@@ -620,6 +626,9 @@ Value* NArrayDecl::evaluate() {
 }
 
 CFG* NArrayDecl::makeCFG() {
+  CFG* graph = new CFG();
+  graph->statement = this;
+  return graph;
 }
 
   
@@ -713,6 +722,9 @@ Value* NFuncDecl::call(list<Value*> *args) {
 }
 
 CFG* NFuncDecl::makeCFG() {
+  CFG* graph = new CFG();
+  graph->statement = this;
+  return graph;
 }
 
 // NFuncCall
@@ -760,6 +772,9 @@ Value* NFuncCall::evaluate() {
 }
 
 CFG* NFuncCall::makeCFG() {
+  CFG* graph = new CFG();
+  graph->statement = this;
+  return graph;
 }
 
 // NWhile
@@ -791,6 +806,9 @@ Value* NWhile::evaluate() {
 }
 
 CFG* NWhile::makeCFG() {
+  CFG* graph = new CFG();
+  graph->statement = this;
+  return graph;
 }
 
 // NDoWhile
@@ -823,6 +841,9 @@ Value* NDoWhile::evaluate() {
 }
 
 CFG* NDoWhile::makeCFG() {
+  CFG* graph = new CFG();
+  graph->statement = this;
+  return graph;
 }
 
 // NFor
@@ -860,6 +881,9 @@ Value* NFor::evaluate() {
 }
 
 CFG* NFor::makeCFG() {
+  CFG* graph = new CFG();
+  graph->statement = this;
+  return graph;
 }
 
 // NBranch
@@ -952,6 +976,9 @@ Value* NPrint::evaluate() {
 }
 
 CFG* NPrint::makeCFG() {
+  CFG* graph = new CFG();
+  graph->statement = this;
+  return graph;
 }
 
 // NRead
@@ -999,6 +1026,9 @@ Value* NRead::evaluate() {
 }
 
 CFG* NRead::makeCFG() {
+  CFG* graph = new CFG();
+  graph->statement = this;
+  return graph;
 }
 
 int CFG::labelCount=1;
@@ -1063,6 +1093,16 @@ map<int, CFG*> CFG::createLabelNodeMap()
   }
 
   return cfgMap;
+}
+
+void CFG::printLabelNodeMap(map<int, CFG*> labelNodeMap) 
+{
+  map<int, CFG*>::iterator it;
+  for (it=labelNodeMap.begin(); it != labelNodeMap.end(); ++it) {
+    cout << "Label: " << it->first << " Stmt: ";
+    it->second->statement->printCfgNode();
+    cout << endl;
+  }
 }
 
 list<std::tuple<int, int>> CFG::createLabelEdgeList()

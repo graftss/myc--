@@ -114,6 +114,7 @@ class CFG {
   map<int, CFG*> createLabelNodeMap();
   list<tuple<int, int>> createLabelEdgeList();
   static void printLabelEdgeMap(list<tuple<int, int>> edgeList);
+  static void printLabelNodeMap(map<int, CFG*> labelNodeMap);
 };
 
 class NExpression {

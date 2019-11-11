@@ -12,7 +12,7 @@ myc--: y.tab.o lex.yy.o myc--.o
 	${CCC} ${CCFLAGS} lex.yy.o y.tab.o myc--.o -o myc-- 
 
 myc--.o: myc--.cpp myc--.h
-	${CCC} -c myc--.cpp
+	${CCC} ${CCFLAGS} -c myc--.cpp
 y.tab.o: myc--.y
 	${YACC} ${YFLAGS} myc--.y
 	${CCC} ${CCFLAGS} y.tab.c -c 
