@@ -342,12 +342,20 @@ int main(int argc, char **argv) {
   }
   cout << endl;
   
+  cout << "assignments to x: ";
+  labels = cfgRootNode->assignmentsToId("x");
+  for (itt = labels->begin(); itt != labels->end(); ++itt) {
+    cout << (*itt) << " ";
+  }
+  cout << endl;
+  
   cout << endl << endl << "----------kill sets" << endl << endl;
   for (int idx = 1; idx < 14; idx++) {
     cout << "kill_RD(" << idx << ") = ";
     printRDElts(cfgRootNode->killSet(idx));
     cout << endl;
   }
+  
 }
 
 void yyerror(const char *s) {

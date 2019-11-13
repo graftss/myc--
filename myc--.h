@@ -126,6 +126,7 @@ class CFG {
   static void printLabelNodeMap(map<int, CFG*> labelNodeMap);
   
   NStatement* labelledStatement(int label);
+  list<int>* assignmentsToId(string id);
   list<int>* labelsTo(int label);
   list<int>* labelsFrom(int label);
 

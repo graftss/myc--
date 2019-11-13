@@ -1135,6 +1135,24 @@ NStatement* CFG::labelledStatement(int label) {
   return cfgMap.at(label)->statement;
 }
 
+list<int>* CFG::assignmentsToId(string id) {
+  list<int>* result = new list<int>;
+  map<int, CFG*>::iterator it;
+  map<int, CFG*> cfgMap = createLabelNodeMap();
+  
+  for (it = cfgMap.begin(); it != cfgMap.end(); ++it) {
+    NStatement* stmt = it->second->statement;
+    if (stmt->getNodeType() == N_ASSIGN) {
+      NAssign* assn = (NAssign*) stmt;
+      if (id == assn->id) {
+        result->push_back(it->first);
+      }
+    }
+  }
+  
+  return result;
+}
+
 list<int>* CFG::labelsTo(int label) {
   list<tuple<int, int>> edges = createLabelEdgeList();
   list<int>* result = new list<int>;
