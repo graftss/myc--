@@ -26,3 +26,6 @@ clean:
 
 runTest: myc--
 	./myc-- < programs/test
+  
+runTest2: myc--
+	./myc-- < programs/loop

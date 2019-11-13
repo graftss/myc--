@@ -836,6 +836,11 @@ Value* NWhile::evaluate() {
 CFG* NWhile::makeCFG() {
   CFG* graph = new CFG();
   graph->statement = this;
+  
+  graph->edges->push_back(body->makeCFG());
+  // need to add edges from all the terminal statements in `body`
+  // back to this node, the "root" of the while loop
+
   return graph;
 }
 
@@ -1233,7 +1238,7 @@ list<RDElt>* CFG::killSet(int label) {
     case N_VARDECL: id = ((NVarDecl*) stmt)->id; break;
   }
   
-  if (id != "") {
+  if (id != """ {
     result->push_back(initRDElt(id));
     
     list<int>* killedLabels = assignmentsToId(id);
@@ -1251,14 +1256,13 @@ list<RDElt>* CFG::genSet(int label) {
   list<RDElt>* result = new list<RDElt>;
   NStatement* stmt = labelledStatement(label);
   NodeType nodeType = stmt->getNodeType();
-  string id = "";
 
+  string id = "";
   switch (nodeType) {
-    case N_ASSIGN: id = ((NAssign*) stmt)->id; break;
-    case N_VARDECL: id = ((NVarDecl*) stmt)->id; break;
+    case N_ASSIGN: iid = ((NAssign*) stmt)->id; break;    case N_VARDECL: iid = ((NVarDecl*) stmt)->id; break;
   }
   
-  if (id != "") result->push_back(make_tuple (id, label));
+  if (id != "")result->push_back(make_tuple (id, label));
   
   return result;
 }
@@ -1294,3 +1298,4 @@ void CFG::printRDExitEqn(int label) {
   cout << ") U ";
   printRDElts(genSet(label));
 }
+

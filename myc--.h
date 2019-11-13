@@ -133,9 +133,9 @@ class CFG {
   list<int>* assignmentsToId(string id);
   list<int>* labelsTo(int label);
   list<int>* labelsFrom(int label);
-
   list<RDElt>* killSet(int label);
   list<RDElt>* genSet(int label);
+
   void printRDEntryEqn(int label);
   void printRDExitEqn(int label);
 };
