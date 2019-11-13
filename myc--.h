@@ -109,6 +109,7 @@ class NStatement; /* Forward Declaration */
 typedef tuple<string, int> RDElt;
 void printRDElt(RDElt e);
 void printRDElts(list<RDElt> *es);
+RDElt initRDElt(string id);
 
 class CFG {
   protected:

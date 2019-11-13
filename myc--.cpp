@@ -18,8 +18,15 @@ string blockIndent() { return std::string(blockDepth * 2, ' '); }
 int treeDepth = 0;
 string treeIndent() { return std::string(treeDepth * 2, ' '); }
 
+const int INIT_RD_LABEL = -1;
+RDElt initRDElt(string id) { return make_tuple (id, INIT_RD_LABEL); }
 void printRDElt(RDElt e) {
-  cout << "(" << get<0>(e) << ", " << get<1>(e) << ")";
+  int label = get<1>(e);
+  
+  cout << "(" << get<0>(e) << ", "; 
+  if (label == INIT_RD_LABEL) cout << "?";
+  else cout << label;
+  cout << ")";
 }
 
 void printRDElts(list<RDElt> *es) {
@@ -30,7 +37,7 @@ void printRDElts(list<RDElt> *es) {
     cout << " ";
   }
   cout << "}";
-}
+} 
 
 // Type
 
@@ -1137,8 +1144,8 @@ NStatement* CFG::labelledStatement(int label) {
 
 list<int>* CFG::assignmentsToId(string id) {
   list<int>* result = new list<int>;
-  map<int, CFG*>::iterator it;
   map<int, CFG*> cfgMap = createLabelNodeMap();
+  map<int, CFG*>::iterator it;
   
   for (it = cfgMap.begin(); it != cfgMap.end(); ++it) {
     NStatement* stmt = it->second->statement;
@@ -1154,8 +1161,8 @@ list<int>* CFG::assignmentsToId(string id) {
 }
 
 list<int>* CFG::labelsTo(int label) {
-  list<tuple<int, int>> edges = createLabelEdgeList();
   list<int>* result = new list<int>;
+  list<tuple<int, int>> edges = createLabelEdgeList();
   list<tuple<int, int>>::iterator it;
   
   for (it = edges.begin(); it != edges.end(); ++it) {
@@ -1168,8 +1175,8 @@ list<int>* CFG::labelsTo(int label) {
 }
 
 list<int>* CFG::labelsFrom(int label) {
-  list<tuple<int, int>> edges = createLabelEdgeList();
   list<int>* result = new list<int>;
+  list<tuple<int, int>> edges = createLabelEdgeList();
   list<tuple<int, int>>::iterator it;
   
   for (it = edges.begin(); it != edges.end(); ++it) {
@@ -1186,7 +1193,15 @@ list<RDElt>* CFG::killSet(int label) {
   NStatement* stmt = labelledStatement(label);
   
   switch (stmt->getNodeType()) {    case N_ASSIGN: {
-      cout << "assign";
+      NAssign *assn = (NAssign*) stmt;
+      string id = assn->id;
+      result->push_back(initRDElt(id));
+      
+      list<int>* killedLabels = assignmentsToId(id);
+      list<int>::iterator it;
+      for (it = killedLabels->begin(); it != killedLabels->end(); ++it) {
+        RDElt pair = make_tuple (id, *it);        result->push_back(pair);
+      }
     }
   }  
   
