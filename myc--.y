@@ -326,6 +326,21 @@ int main(int argc, char **argv) {
   cout << endl << endl << "----------CFG EdgeMap Verification" << endl << endl;
   list<tuple<int, int>> edgeList = cfgRootNode->createLabelEdgeList();
   CFG::printLabelEdgeMap(edgeList);
+  
+  cout << endl << endl << "----------labelsTo 12" << endl << endl;
+  list<int> *labels = cfgRootNode->labelsTo(12);
+  list<int>::iterator itt;
+  for (itt = labels->begin(); itt != labels->end(); ++itt) {
+    cout << (*itt) << " ";
+  }
+  cout << endl;
+  
+  cout << endl << endl << "----------labelsFrom 5" << endl << endl;
+  labels = cfgRootNode->labelsFrom(5);
+  for (itt = labels->begin(); itt != labels->end(); ++itt) {
+    cout << (*itt) << " ";
+  }
+  cout << endl;
 }
 
 void yyerror(const char *s) {

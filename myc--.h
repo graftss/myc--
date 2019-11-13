@@ -101,6 +101,8 @@ class ValueArray {
 
 class NStatement; /* Forward Declaration */
 
+typedef tuple<string, int> RDElt;
+
 class CFG {
   protected:
   static int labelCount;
@@ -115,6 +117,12 @@ class CFG {
   static void findEmptyNodes(CFG* node, list<CFG*>* emptyNodes);
   static void printLabelEdgeMap(list<tuple<int, int>> edgeList);
   static void printLabelNodeMap(map<int, CFG*> labelNodeMap);
+  
+  list<int>* labelsTo(int label);
+  list<int>* labelsFrom(int label);
+
+  list<RDElt>* killSet(int label);
+  list<RDElt>* genSet(int label);
 };
 
 class NExpression {

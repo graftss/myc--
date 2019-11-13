@@ -1110,3 +1110,44 @@ void CFG::printLabelEdgeMap(list<tuple<int, int>> edgeList) {
       << endl;
   }
 }
+
+list<int>* CFG::labelsTo(int label) {
+  list<tuple<int, int>> edges = createLabelEdgeList();
+  list<int>* result = new list<int>;
+  list<tuple<int, int>>::iterator it;
+  
+  for (it = edges.begin(); it != edges.end(); ++it) {
+    if (get<1>(*it) == label) {
+      result->push_back(get<0>(*it));
+    }
+  }
+  
+  return result;
+}
+
+list<int>* CFG::labelsFrom(int label) {
+  list<tuple<int, int>> edges = createLabelEdgeList();
+  list<int>* result = new list<int>;
+  list<tuple<int, int>>::iterator it;
+  
+  for (it = edges.begin(); it != edges.end(); ++it) {
+    if (get<0>(*it) == label) {
+      result->push_back(get<1>(*it));
+    }
+  }
+  
+  return result;
+}
+
+list<RDElt>* CFG::killSet(int label) {
+  list<RDElt>* result = new list<RDElt>;
+  
+  return result;
+}
+
+list<RDElt>* CFG::genSet(int label) {
+  list<RDElt>* result = new list<RDElt>;
+  
+  return result;
+}
+
