@@ -1,5 +1,6 @@
 int x = 10;
 int y = 20;
+int z = 3;
 if (x < y) {
     x = 50;
     if (x < x) {
@@ -10,7 +11,7 @@ if (x < y) {
     }
 }
 else {
-    y = 50;
+    z = 50;
     if (y < y) {
         y = 0;
     }

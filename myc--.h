@@ -126,6 +126,8 @@ class CFG {
   static void printLabelEdgeMap(list<tuple<int, int>> edgeList);
   static void printLabelNodeMap(map<int, CFG*> labelNodeMap);
   
+  list<int>* allLabels();
+  list<string>* allIds();
   NStatement* labelledStatement(int label);
   list<int>* assignmentsToId(string id);
   list<int>* labelsTo(int label);
@@ -133,6 +135,8 @@ class CFG {
 
   list<RDElt>* killSet(int label);
   list<RDElt>* genSet(int label);
+  void printRDEntryEqn(int label);
+  void printRDExitEqn(int label);
 };
 
 class NExpression {

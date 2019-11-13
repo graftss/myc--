@@ -349,17 +349,44 @@ int main(int argc, char **argv) {
   }
   cout << endl;
   
+  cout << "all labels: ";
+  list<int> *allLabels = cfgRootNode->allLabels();
+  list<int>::iterator it1;
+  for (it1 = allLabels->begin(); it1 != allLabels->end(); ++it1) {
+    cout << (*it1) << " ";
+  }
+  cout << endl;
+  
+  cout << "all identifiers: ";
+  list<string> *ids = cfgRootNode->allIds();
+  list<string>::iterator it2;
+  for (it2 = ids->begin(); it2 != ids->end(); ++it2) {
+    cout << (*it2) << " ";
+  }
+  cout << endl;
+  
+  int label;
+  
   cout << endl << endl << "----------kill sets" << endl << endl;
-  for (int idx = 1; idx < 14; idx++) {
-    cout << "kill_RD(" << idx << ") = ";
-    printRDElts(cfgRootNode->killSet(idx));
+  for (it1 = allLabels->begin(); it1 != allLabels->end(); ++it1) {
+    label = *it1;
+    cout << "kill_RD(" << label << ") = ";
+    printRDElts(cfgRootNode->killSet(label));
     cout << endl;
   }
   
   cout << endl << endl << "----------gen sets" << endl << endl;
-  for (int idx = 1; idx < 14; idx++) {
-    cout << "gen_RD(" << idx << ") = ";
-    printRDElts(cfgRootNode->genSet(idx));
+  for (it1 = allLabels->begin(); it1 != allLabels->end(); ++it1) {
+    label = *it1;
+    cout << "gen_RD(" << label << ") = ";
+    printRDElts(cfgRootNode->genSet(label));
+    cout << endl;
+  }
+  
+  cout << endl << endl << "----------entry equations" << endl << endl;
+  for (it1 = allLabels->begin(); it1 != allLabels->end(); ++it1) {
+    label = *it1;
+    cfgRootNode->printRDEntryEqn(label);
     cout << endl;
   }
   

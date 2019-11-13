@@ -1137,6 +1137,34 @@ void CFG::printLabelEdgeMap(list<tuple<int, int>> edgeList) {
   }
 }
 
+list<int>* CFG::allLabels() {
+  list<int>* result = new list<int>;
+  map<int, CFG*> cfgMap = createLabelNodeMap();
+  map<int, CFG*>::iterator it;
+  
+  for (it = cfgMap.begin(); it != cfgMap.end(); ++it) {
+    result->push_back(it->first);
+  }
+  
+  return result;}
+
+list<string>* CFG::allIds() {
+  list<string>* result = new list<string>;
+  map<int, CFG*> cfgMap = createLabelNodeMap();
+  map<int, CFG*>::iterator it;
+  
+  for (it = cfgMap.begin(); it != cfgMap.end(); ++it) {
+    NStatement* stmt = it->second->statement;
+    if (stmt->getNodeType() == N_ASSIGN) {
+      NAssign* assn = (NAssign*) stmt;
+      result->push_back(assn->id);
+    }
+  }
+  
+  result->unique();
+  
+  return result;}
+
 NStatement* CFG::labelledStatement(int label) {
   map<int, CFG*> cfgMap = createLabelNodeMap();
   return cfgMap.at(label)->statement;
@@ -1222,4 +1250,35 @@ list<RDElt>* CFG::genSet(int label) {
   
   return result;
 }
+
+void CFG::printRDEntryEqn(int label) {
+  cout << "RD_entry(" << label << ") = ";
+  
+  if (label == 1) {
+    list<string> *ids = allIds();
+    list<RDElt> *elts = new list<RDElt>;
+
+    for (list<string>::iterator it = ids->begin(); it != ids->end(); ++it) {
+      elts->push_back(initRDElt(*it));
+    }
+    
+    printRDElts(elts);
+  } else {
+    list<int> *labels = labelsTo(label);
+    list<int>::iterator it = labels->begin();
+    
+    while (it != labels->end()) {
+      cout << "RD_exit(" << (*it) << ")";
+      if (++it != labels->end()) {
+        cout << " U ";
+      }
+    }
+  }
+}
+
+void CFG::printRDExitEqn(int label) {
+  
+}
+
+
 
