@@ -356,6 +356,13 @@ int main(int argc, char **argv) {
     cout << endl;
   }
   
+  cout << endl << endl << "----------gen sets" << endl << endl;
+  for (int idx = 1; idx < 14; idx++) {
+    cout << "gen_RD(" << idx << ") = ";
+    printRDElts(cfgRootNode->genSet(idx));
+    cout << endl;
+  }
+  
 }
 
 void yyerror(const char *s) {

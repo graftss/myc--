@@ -1210,6 +1210,15 @@ list<RDElt>* CFG::killSet(int label) {
 
 list<RDElt>* CFG::genSet(int label) {
   list<RDElt>* result = new list<RDElt>;
+  NStatement* stmt = labelledStatement(label);
+  
+  switch (stmt->getNodeType()) {
+    case N_ASSIGN: {
+      NAssign *assn = (NAssign*) stmt;
+      string id = assn->id;
+      result->push_back(make_tuple (id, label));
+    }
+  }  
   
   return result;
 }
