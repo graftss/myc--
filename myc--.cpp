@@ -1238,7 +1238,7 @@ list<RDElt>* CFG::killSet(int label) {
     case N_VARDECL: id = ((NVarDecl*) stmt)->id; break;
   }
   
-  if (id != """ {
+  if (id != "") {
     result->push_back(initRDElt(id));
     
     list<int>* killedLabels = assignmentsToId(id);
@@ -1259,7 +1259,8 @@ list<RDElt>* CFG::genSet(int label) {
 
   string id = "";
   switch (nodeType) {
-    case N_ASSIGN: iid = ((NAssign*) stmt)->id; break;    case N_VARDECL: iid = ((NVarDecl*) stmt)->id; break;
+    case N_ASSIGN: id = ((NAssign*) stmt)->id; break;    
+    case N_VARDECL: id = ((NVarDecl*) stmt)->id; break;
   }
   
   if (id != "")result->push_back(make_tuple (id, label));
