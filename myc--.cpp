@@ -30,13 +30,17 @@ void printRDElt(RDElt e) {
 }
 
 void printRDElts(list<RDElt> *es) {
-  list<RDElt>::iterator it;
-  cout << "{ ";
-  for (it = es->begin(); it != es->end(); ++it) {
-    printRDElt(*it);
-    cout << " ";
+  if (es->size() == 0) {
+    cout << "{}";
+  } else {
+    list<RDElt>::iterator it;
+    cout << "{ ";
+    for (it = es->begin(); it != es->end(); ++it) {
+      printRDElt(*it);
+      cout << " ";
+    }
+    cout << "}";
   }
-  cout << "}";
 } 
 
 // Type
@@ -1146,7 +1150,8 @@ list<int>* CFG::allLabels() {
     result->push_back(it->first);
   }
   
-  return result;}
+  return result;
+}
 
 list<string>* CFG::allIds() {
   list<string>* result = new list<string>;
@@ -1163,7 +1168,8 @@ list<string>* CFG::allIds() {
   
   result->unique();
   
-  return result;}
+  return result;
+}
 
 NStatement* CFG::labelledStatement(int label) {
   map<int, CFG*> cfgMap = createLabelNodeMap();
@@ -1220,7 +1226,8 @@ list<RDElt>* CFG::killSet(int label) {
   list<RDElt>* result = new list<RDElt>;
   NStatement* stmt = labelledStatement(label);
   
-  switch (stmt->getNodeType()) {    case N_ASSIGN: {
+  switch (stmt->getNodeType()) {
+    case N_ASSIGN: {
       NAssign *assn = (NAssign*) stmt;
       string id = assn->id;
       result->push_back(initRDElt(id));
@@ -1228,7 +1235,8 @@ list<RDElt>* CFG::killSet(int label) {
       list<int>* killedLabels = assignmentsToId(id);
       list<int>::iterator it;
       for (it = killedLabels->begin(); it != killedLabels->end(); ++it) {
-        RDElt pair = make_tuple (id, *it);        result->push_back(pair);
+        RDElt pair = make_tuple (id, *it);
+        result->push_back(pair);
       }
     }
   }  
@@ -1277,8 +1285,8 @@ void CFG::printRDEntryEqn(int label) {
 }
 
 void CFG::printRDExitEqn(int label) {
-  
+  cout << "RD_exit(" << label << ") = (RD_entry(" << label << ") \\ ";
+  printRDElts(killSet(label));
+  cout << ") U ";
+  printRDElts(genSet(label));
 }
-
-
-

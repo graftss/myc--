@@ -390,6 +390,13 @@ int main(int argc, char **argv) {
     cout << endl;
   }
   
+  cout << endl << endl << "----------exit equations" << endl << endl;
+  for (it1 = allLabels->begin(); it1 != allLabels->end(); ++it1) {
+    label = *it1;
+    cfgRootNode->printRDExitEqn(label);
+    cout << endl;
+  }
+  
 }
 
 void yyerror(const char *s) {
