@@ -1,22 +1,23 @@
 int x = 10;
-int y = 20;
+int y;
 int z = 3;
-if (x < y) {
+if (x < z) {
     x = 50;
     if (x < x) {
         x = 100;
     }
     else {
         x = 99;
+        y = 3;
     }
 }
 else {
     z = 50;
     if (y < y) {
-        y = 0;
+      x = 3;
     }
     else {
-        y = 99;
+      y = 4;
     }
 }
 int z = 30;

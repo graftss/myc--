@@ -1166,6 +1166,7 @@ list<string>* CFG::allIds() {
     }
   }
   
+  result->sort();
   result->unique();
   
   return result;

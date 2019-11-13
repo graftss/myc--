@@ -327,22 +327,10 @@ int main(int argc, char **argv) {
   list<tuple<int, int>> edgeList = cfgRootNode->createLabelEdgeList();
   CFG::printLabelEdgeMap(edgeList);
   
-  cout << endl << "labelsTo 12: ";
   list<int> *labels = cfgRootNode->labelsTo(12);
   list<int>::iterator itt;
-  for (itt = labels->begin(); itt != labels->end(); ++itt) {
-    cout << (*itt) << " ";
-  }
-  cout << endl;
   
-  cout << "labelsFrom 5: ";
-  labels = cfgRootNode->labelsFrom(5);
-  for (itt = labels->begin(); itt != labels->end(); ++itt) {
-    cout << (*itt) << " ";
-  }
-  cout << endl;
-  
-  cout << "assignments to x: ";
+  cout << endl << "assignments to x: ";
   labels = cfgRootNode->assignmentsToId("x");
   for (itt = labels->begin(); itt != labels->end(); ++itt) {
     cout << (*itt) << " ";
@@ -367,7 +355,7 @@ int main(int argc, char **argv) {
   
   int label;
   
-  cout << endl << endl << "----------kill sets" << endl << endl;
+  cout << endl << "----------kill sets" << endl << endl;
   for (it1 = allLabels->begin(); it1 != allLabels->end(); ++it1) {
     label = *it1;
     cout << "kill_RD(" << label << ") = ";
