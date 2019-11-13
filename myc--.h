@@ -16,6 +16,7 @@ class NString;
 enum NodeType {
   N_MISC,
   N_ASSIGN,
+  N_VARDECL,
 };
 
 enum Tag {
@@ -277,10 +278,10 @@ class NAssign : public NStatement, public NExpression {
 		NAssign(string id, NExpression *expr);
 		void print();
     void printNode();
+    NodeType getNodeType();
 		Value* evaluate();
     CFG* makeCFG();
     void printCfgNode();
-    NodeType getNodeType();
 };
 
 class NIndexAssign : public NStatement, public NExpression {
@@ -304,6 +305,7 @@ class NVarDecl : public NStatement {
     
     NVarDecl(ValueType type, string id);
     NVarDecl(ValueType type, string id, NExpression *expr);
+    NodeType getNodeType();
     void print();
     void printNode();
     Value* evaluate();

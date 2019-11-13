@@ -520,6 +520,8 @@ CFG* NReturn::makeCFG() {
 NAssign::NAssign(string id, NExpression *expr) 
   : id(id), expr(expr) {}
 
+NodeType NAssign::getNodeType() { return N_ASSIGN; }
+
 void NAssign::print() {
   cout << id << " = ";
   expr->print();
@@ -546,10 +548,6 @@ CFG* NAssign::makeCFG() {
 
 void NAssign::printCfgNode() {
   print();
-}
-
-NodeType NAssign::getNodeType() {
-  return N_ASSIGN;
 }
 
 // NIndexAssign
@@ -593,6 +591,8 @@ NVarDecl::NVarDecl(ValueType type, string id)
   
 NVarDecl::NVarDecl(ValueType type, string id, NExpression *expr) 
   : type(type), id(id), expr(expr) {}
+  
+NodeType NVarDecl::getNodeType() { return N_VARDECL; }
 
 void NVarDecl::print() {
   cout << Type::toString(type) << " " << id;
@@ -1157,12 +1157,13 @@ list<string>* CFG::allIds() {
   list<string>* result = new list<string>;
   map<int, CFG*> cfgMap = createLabelNodeMap();
   map<int, CFG*>::iterator it;
-  
+
   for (it = cfgMap.begin(); it != cfgMap.end(); ++it) {
     NStatement* stmt = it->second->statement;
-    if (stmt->getNodeType() == N_ASSIGN) {
-      NAssign* assn = (NAssign*) stmt;
-      result->push_back(assn->id);
+    
+    switch (stmt->getNodeType()) {
+      case N_ASSIGN: result->push_back(((NAssign*) stmt)->id); break;
+      case N_VARDECL: result->push_back(((NVarDecl*) stmt)->id); break;
     }
   }
   
@@ -1183,13 +1184,15 @@ list<int>* CFG::assignmentsToId(string id) {
   map<int, CFG*>::iterator it;
   
   for (it = cfgMap.begin(); it != cfgMap.end(); ++it) {
-    NStatement* stmt = it->second->statement;
-    if (stmt->getNodeType() == N_ASSIGN) {
-      NAssign* assn = (NAssign*) stmt;
-      if (id == assn->id) {
-        result->push_back(it->first);
-      }
+    NStatement* stmt = it->second->statement;   
+    string nodeId;
+
+    switch (stmt->getNodeType()) {
+      case N_ASSIGN: nodeId = ((NAssign*) stmt)->id; break;
+      case N_VARDECL: nodeId = ((NVarDecl*) stmt)->id; break;
     }
+
+    if (id == nodeId) result->push_back(it->first);
   }
   
   return result;
@@ -1201,9 +1204,7 @@ list<int>* CFG::labelsTo(int label) {
   list<tuple<int, int>>::iterator it;
   
   for (it = edges.begin(); it != edges.end(); ++it) {
-    if (get<1>(*it) == label) {
-      result->push_back(get<0>(*it));
-    }
+    if (get<1>(*it) == label) result->push_back(get<0>(*it));
   }
   
   return result;
@@ -1215,9 +1216,7 @@ list<int>* CFG::labelsFrom(int label) {
   list<tuple<int, int>>::iterator it;
   
   for (it = edges.begin(); it != edges.end(); ++it) {
-    if (get<0>(*it) == label) {
-      result->push_back(get<1>(*it));
-    }
+    if (get<0>(*it) == label) result->push_back(get<1>(*it));
   }
   
   return result;
@@ -1226,19 +1225,22 @@ list<int>* CFG::labelsFrom(int label) {
 list<RDElt>* CFG::killSet(int label) {
   list<RDElt>* result = new list<RDElt>;
   NStatement* stmt = labelledStatement(label);
+  NodeType nodeType = stmt->getNodeType();
+  string id = "";
   
   switch (stmt->getNodeType()) {
-    case N_ASSIGN: {
-      NAssign *assn = (NAssign*) stmt;
-      string id = assn->id;
-      result->push_back(initRDElt(id));
-      
-      list<int>* killedLabels = assignmentsToId(id);
-      list<int>::iterator it;
-      for (it = killedLabels->begin(); it != killedLabels->end(); ++it) {
-        RDElt pair = make_tuple (id, *it);
-        result->push_back(pair);
-      }
+    case N_ASSIGN: id = ((NAssign*) stmt)->id; break;
+    case N_VARDECL: id = ((NVarDecl*) stmt)->id; break;
+  }
+  
+  if (id != "") {
+    result->push_back(initRDElt(id));
+    
+    list<int>* killedLabels = assignmentsToId(id);
+    list<int>::iterator it;
+    for (it = killedLabels->begin(); it != killedLabels->end(); ++it) {
+      RDElt pair = make_tuple (id, *it);
+      result->push_back(pair);
     }
   }  
   
@@ -1248,14 +1250,15 @@ list<RDElt>* CFG::killSet(int label) {
 list<RDElt>* CFG::genSet(int label) {
   list<RDElt>* result = new list<RDElt>;
   NStatement* stmt = labelledStatement(label);
+  NodeType nodeType = stmt->getNodeType();
+  string id = "";
+
+  switch (nodeType) {
+    case N_ASSIGN: id = ((NAssign*) stmt)->id; break;
+    case N_VARDECL: id = ((NVarDecl*) stmt)->id; break;
+  }
   
-  switch (stmt->getNodeType()) {
-    case N_ASSIGN: {
-      NAssign *assn = (NAssign*) stmt;
-      string id = assn->id;
-      result->push_back(make_tuple (id, label));
-    }
-  }  
+  if (id != "") result->push_back(make_tuple (id, label));
   
   return result;
 }
