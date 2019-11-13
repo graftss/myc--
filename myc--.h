@@ -13,6 +13,11 @@ class NFuncDecl;
 class ValueArray;
 class NString;
 
+enum NodeType {
+  N_MISC,
+  N_ASSIGN,
+};
+
 enum Tag {
   OP_LEQ,
   OP_GEQ,
@@ -102,6 +107,8 @@ class ValueArray {
 class NStatement; /* Forward Declaration */
 
 typedef tuple<string, int> RDElt;
+void printRDElt(RDElt e);
+void printRDElts(list<RDElt> *es);
 
 class CFG {
   protected:
@@ -118,6 +125,7 @@ class CFG {
   static void printLabelEdgeMap(list<tuple<int, int>> edgeList);
   static void printLabelNodeMap(map<int, CFG*> labelNodeMap);
   
+  NStatement* labelledStatement(int label);
   list<int>* labelsTo(int label);
   list<int>* labelsFrom(int label);
 
@@ -226,6 +234,7 @@ class NStatement {
     virtual bool isReturn();
     virtual CFG* makeCFG() = 0;
     virtual void printCfgNode() {};
+    virtual NodeType getNodeType() { return N_MISC; };
 };
 
 class NBlock {
@@ -255,6 +264,7 @@ class NReturn : public NStatement {
 
 class NAssign : public NStatement, public NExpression {
 	public:
+    const static NodeType nodeType = N_ASSIGN;
     string id;
     NExpression *expr;
     
@@ -264,6 +274,7 @@ class NAssign : public NStatement, public NExpression {
 		Value* evaluate();
     CFG* makeCFG();
     void printCfgNode();
+    NodeType getNodeType();
 };
 
 class NIndexAssign : public NStatement, public NExpression {

@@ -18,6 +18,19 @@ string blockIndent() { return std::string(blockDepth * 2, ' '); }
 int treeDepth = 0;
 string treeIndent() { return std::string(treeDepth * 2, ' '); }
 
+void printRDElt(RDElt e) {
+  cout << "(" << get<0>(e) << ", " << get<1>(e) << ")";
+}
+
+void printRDElts(list<RDElt> *es) {
+  list<RDElt>::iterator it;
+  cout << "{ ";
+  for (it = es->begin(); it != es->end(); ++it) {
+    printRDElt(*it);
+    cout << " ";
+  }
+  cout << "}";
+}
 
 // Type
 
@@ -522,6 +535,10 @@ CFG* NAssign::makeCFG() {
 
 void NAssign::printCfgNode() {
   print();
+}
+
+NodeType NAssign::getNodeType() {
+  return N_ASSIGN;
 }
 
 // NIndexAssign
@@ -1075,6 +1092,8 @@ void CFG::printLabelNodeMap(map<int, CFG*> labelNodeMap)
     cout << "Label: " << it->first << " Stmt: ";
     it->second->statement->printCfgNode();
     cout << endl;
+    cout << it->second->statement->getNodeType();
+    cout << endl;
   }
 }
 
@@ -1111,6 +1130,11 @@ void CFG::printLabelEdgeMap(list<tuple<int, int>> edgeList) {
   }
 }
 
+NStatement* CFG::labelledStatement(int label) {
+  map<int, CFG*> cfgMap = createLabelNodeMap();
+  return cfgMap.at(label)->statement;
+}
+
 list<int>* CFG::labelsTo(int label) {
   list<tuple<int, int>> edges = createLabelEdgeList();
   list<int>* result = new list<int>;
@@ -1141,6 +1165,12 @@ list<int>* CFG::labelsFrom(int label) {
 
 list<RDElt>* CFG::killSet(int label) {
   list<RDElt>* result = new list<RDElt>;
+  NStatement* stmt = labelledStatement(label);
+  
+  switch (stmt->getNodeType()) {    case N_ASSIGN: {
+      cout << "assign";
+    }
+  }  
   
   return result;
 }

@@ -327,7 +327,7 @@ int main(int argc, char **argv) {
   list<tuple<int, int>> edgeList = cfgRootNode->createLabelEdgeList();
   CFG::printLabelEdgeMap(edgeList);
   
-  cout << endl << endl << "----------labelsTo 12" << endl << endl;
+  cout << endl << "labelsTo 12: ";
   list<int> *labels = cfgRootNode->labelsTo(12);
   list<int>::iterator itt;
   for (itt = labels->begin(); itt != labels->end(); ++itt) {
@@ -335,12 +335,19 @@ int main(int argc, char **argv) {
   }
   cout << endl;
   
-  cout << endl << endl << "----------labelsFrom 5" << endl << endl;
+  cout << "labelsFrom 5: ";
   labels = cfgRootNode->labelsFrom(5);
   for (itt = labels->begin(); itt != labels->end(); ++itt) {
     cout << (*itt) << " ";
   }
   cout << endl;
+  
+  cout << endl << endl << "----------kill sets" << endl << endl;
+  for (int idx = 1; idx < 14; idx++) {
+    cout << "kill_RD(" << idx << ") = ";
+    printRDElts(cfgRootNode->killSet(idx));
+    cout << endl;
+  }
 }
 
 void yyerror(const char *s) {
