@@ -113,6 +113,11 @@ void printRDElts(list<RDElt> *es);
 RDElt initRDElt(string id);
 
 class CFG {
+  private:
+  static void findTerminalNodes(CFG* node, list<CFG*>* terminalNodes, list<CFG*>* visitedNodes);
+  map<int, CFG*> createLabelNodeMap(list<int> *visitedNodes);
+  list<tuple<int, int>> createLabelEdgeList(list<tuple<int, int>> *visitedNodes);
+
   protected:
   static int labelCount;
   int label;
@@ -123,7 +128,7 @@ class CFG {
   CFG();
   map<int, CFG*> createLabelNodeMap();
   list<tuple<int, int>> createLabelEdgeList();
-  static void findEmptyNodes(CFG* node, list<CFG*>* emptyNodes);
+  static void findTerminalNodes(CFG* node, list<CFG*>* terminalNodes);
   static void printLabelEdgeMap(list<tuple<int, int>> edgeList);
   static void printLabelNodeMap(map<int, CFG*> labelNodeMap);
   
