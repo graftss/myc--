@@ -865,7 +865,6 @@ CFG* NWhile::makeCFG() {
   list<int>::iterator itInt;
   list<int> *fls = edge->finalLabels;
   for (itInt = fls->begin(); itInt != fls->end(); ++itInt) {
-    cout << "!!!!!! " << *itInt << " !!!!!!" << endl; 
     graph->extraEdges->push_back(make_tuple (*itInt, graph->label));
   }
   graph->extraEdges->push_back(make_tuple (graph->label, edge->label));
@@ -966,8 +965,12 @@ Value* NFor::evaluate() {
 }
 
 CFG* NFor::makeCFG() {
+  
   CFG* graph = new CFG();
-  graph->statement = this;
+  graph->statement = this->init;
+  
+  CFG* loopGraph = new CFG();
+  loopGraph->statement = this;
   
   CFG* edge = body->makeCFG();
 
@@ -979,6 +982,26 @@ CFG* NFor::makeCFG() {
   }
 
   graph->edges->push_back(edge);
+  graph->edges->push_back(loopGraph);
+  
+  // connect loop init to loop condition
+  graph->extraEdges->push_back(make_tuple (graph->label, loopGraph->label));
+  
+  // connect final labels of loop back to the condition
+  list<int>::iterator itInt;
+  list<int> *fls = edge->finalLabels;
+  for (itInt = fls->begin(); itInt != fls->end(); ++itInt) {
+    graph->extraEdges->push_back(make_tuple (*itInt, loopGraph->label));
+  }
+  
+  // connect condition to first block of loop
+  graph->extraEdges->push_back(make_tuple (loopGraph->label, edge->label));
+  
+  graph->extraEdges->merge(*(edge->extraEdges));
+  graph->finalLabels = new list<int>;
+  
+  // set the final label to the condition
+  graph->finalLabels->push_back(loopGraph->label);
   
   return graph;
 }

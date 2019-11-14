@@ -1,10 +1,12 @@
 int x = 1;
 int y = 0;
 
-while (x < 3) {
-  y = y + 1;
-  y = y * y;
-  x = x + 1;
+for (int i = 1; i < 3; i = i + 1) {
+  if (i % 2 == 0) {
+    print "even";
+  } else {
+    print "odd";
+  }
 }
 
 print y;
