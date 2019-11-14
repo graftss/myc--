@@ -1,8 +1,12 @@
-int x = 3;
-int y = 0;
-while (x > 0) {
-  y = y + 1;
-  y = y * y;
-  x = x - 1;
+print 1;
+
+while (false) {
+  print 3;
+  print 6;
+  while (false) {
+    print 1;
+    print 2;
+  }
 }
-print y;
+
+print 4;

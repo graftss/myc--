@@ -462,8 +462,16 @@ CFG* NBlock::makeCFG() {
   ++it;
 
   CFG* siblingGraph = graph;
+  CFG* currentGraph;
   for (it; it != statements->end(); ++it) {
-    CFG* currentGraph = (*it)->makeCFG();
+    currentGraph = (*it)->makeCFG();
+    
+    graph->extraEdges->merge(*(currentGraph->extraEdges));
+    list<int>::iterator itInt;
+    list<int> *fls = siblingGraph->finalLabels;
+    for (itInt = fls->begin(); itInt != fls->end(); ++itInt) {
+      graph->extraEdges->push_back(make_tuple (*itInt, currentGraph->label));
+    }
 
     // If the previous node has edges already i.e. if statement
     // We need to traverse down to find all ends of the edges
@@ -487,6 +495,8 @@ CFG* NBlock::makeCFG() {
     }
     siblingGraph = currentGraph;
   }
+  
+  graph->finalLabels = siblingGraph->finalLabels;
 
   return graph;
 }
@@ -851,6 +861,16 @@ CFG* NWhile::makeCFG() {
   }
 
   graph->edges->push_back(edge);
+  
+  list<int>::iterator itInt;
+  list<int> *fls = edge->finalLabels;
+  for (itInt = fls->begin(); itInt != fls->end(); ++itInt) {
+    cout << "!!!!!! " << *itInt << " !!!!!!" << endl; 
+    graph->extraEdges->push_back(make_tuple (*itInt, graph->label));
+  }
+  graph->extraEdges->push_back(make_tuple (graph->label, edge->label));
+  graph->extraEdges->merge(*(edge->extraEdges));
+  
   return graph;
 }
 
@@ -1016,10 +1036,20 @@ Value* NBranch::evaluate() {
 CFG* NBranch::makeCFG() {
   CFG* graph = new CFG();
   graph->statement = this;
-  graph->edges->push_back(pass->makeCFG());
+  CFG* passCFG = pass->makeCFG();
+  CFG* failCFG = fail->makeCFG();
+  
+  graph->edges->push_back(passCFG);
   if (fail) {
-    graph->edges->push_back(fail->makeCFG());
+    graph->edges->push_back(failCFG);
   }
+  
+  graph->extraEdges->merge(*(passCFG->extraEdges));
+  graph->extraEdges->merge(*(failCFG->extraEdges));
+  graph->extraEdges->push_back(make_tuple (graph->label, passCFG->label));
+  graph->extraEdges->push_back(make_tuple (graph->label, failCFG->label));
+  graph->finalLabels = passCFG->finalLabels;
+  graph->finalLabels->merge(*(failCFG->finalLabels));
 
   return graph;
 }
@@ -1123,6 +1153,9 @@ CFG::CFG()
 {
   this->edges = new list<CFG*>;
   this->label = CFG::labelCount++;
+  this->finalLabels = new list<int>;
+  this->finalLabels->push_back(this->label);
+  this->extraEdges = new list<tuple<int, int>>;
 }
 
 // Used to assist loopback on NBlock makeCFG
@@ -1267,6 +1300,7 @@ list<std::tuple<int, int>> CFG::createLabelEdgeList(list<tuple<int, int>> *visit
 }
 
 void CFG::printLabelEdgeMap(list<tuple<int, int>> edgeList) {
+  edgeList.sort();
   list<tuple<int, int>>::iterator it;
   
   for (it=edgeList.begin(); it != edgeList.end(); ++it) {

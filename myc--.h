@@ -120,7 +120,6 @@ class CFG {
 
   protected:
   static int labelCount;
-  int label;
 
   public:
   NStatement* statement;
@@ -143,6 +142,10 @@ class CFG {
 
   void printRDEntryEqn(int label);
   void printRDExitEqn(int label);
+  
+  int label;
+  list<int> *finalLabels;
+  list<tuple<int, int>> *extraEdges;
 };
 
 class NExpression {

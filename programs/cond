@@ -1,0 +1,6 @@
+if (true) {
+  print 1;
+} else {
+  print 2;
+}
+int x = 4;

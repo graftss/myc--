@@ -324,11 +324,13 @@ int main(int argc, char **argv) {
   CFG::printLabelNodeMap(labelNodeMap);
 
   cout << endl << endl << "----------CFG EdgeMap Verification" << endl << endl;
-  list<tuple<int, int>> edgeList = cfgRootNode->createLabelEdgeList();
+  list<tuple<int, int>> edgeList = *(cfgRootNode->extraEdges);
   CFG::printLabelEdgeMap(edgeList);
   
   list<int> *labels = cfgRootNode->labelsTo(12);
   list<int>::iterator itt;
+  
+  /*
   
   cout << endl << "assignments to x: ";
   labels = cfgRootNode->assignmentsToId("x");
@@ -383,7 +385,7 @@ int main(int argc, char **argv) {
     label = *it1;
     cfgRootNode->printRDExitEqn(label);
     cout << endl;
-  }
+  }*/
   
 }
 
