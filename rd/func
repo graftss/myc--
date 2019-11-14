@@ -2,6 +2,9 @@ int t = 3;
 
 int add(int x, int y) {
   int result = x + y;
+  if (x + y > 0) {
+    result = 0;
+  }
   return result;
 }
 

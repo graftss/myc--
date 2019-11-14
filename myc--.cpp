@@ -1475,10 +1475,20 @@ list<RDElt>* CFG::genSet(int label) {
   return result;
 }
 
+bool CFG::isInitStatement(int label) {
+  list<tuple<int, int>>::iterator it;
+  
+  for (it = extraEdges->begin(); it != extraEdges->end(); ++it) {
+    if (get<1>(*it) == label) return false;
+  }
+  
+  return true;
+}
+
 void CFG::printRDEntryEqn(int label) {
   cout << "RD_entry(" << label << ") = ";
   
-  if (label == 1) {
+  if (isInitStatement(label)) {
     list<string> *ids = allIds();
     list<RDElt> *elts = new list<RDElt>;
 

@@ -1,0 +1,78 @@
+
+
+----------CFG Label/AST Map Verification
+
+Label: 1 Stmt: int x = 10
+Label: 2 Stmt: int y
+Label: 3 Stmt: int z = 3
+Label: 4 Stmt: if ((x < z)) 
+Label: 5 Stmt: x = 50
+Label: 6 Stmt: if ((x < x)) 
+Label: 7 Stmt: x = 100
+Label: 8 Stmt: x = 99
+Label: 9 Stmt: y = 3
+Label: 10 Stmt: z = 50
+Label: 11 Stmt: if ((y < y)) 
+Label: 12 Stmt: x = 3
+Label: 13 Stmt: y = 4
+Label: 14 Stmt: int z = 30
+Label: 15 Stmt: int t = 30
+
+
+----------CFG EdgeMap Verification
+
+(1,2)
+(2,3)
+(3,4)
+(4,5)
+(4,10)
+(5,6)
+(6,7)
+(6,8)
+(7,14)
+(8,9)
+(9,14)
+(10,11)
+(11,12)
+(11,13)
+(12,14)
+(13,14)
+(14,15)
+
+
+----------entry equations
+
+RD_entry(1) = { (t, ?) (x, ?) (y, ?) (z, ?) }
+RD_entry(2) = RD_exit(1)
+RD_entry(3) = RD_exit(2)
+RD_entry(4) = RD_exit(3)
+RD_entry(5) = RD_exit(4)
+RD_entry(6) = RD_exit(5)
+RD_entry(7) = RD_exit(6)
+RD_entry(8) = RD_exit(6)
+RD_entry(9) = RD_exit(8)
+RD_entry(10) = RD_exit(4)
+RD_entry(11) = RD_exit(10)
+RD_entry(12) = RD_exit(11)
+RD_entry(13) = RD_exit(11)
+RD_entry(14) = RD_exit(7) U RD_exit(9) U RD_exit(12) U RD_exit(13)
+RD_entry(15) = RD_exit(14)
+
+
+----------exit equations
+
+RD_exit(1) = (RD_entry(1) \ { (x, ?) (x, 1) (x, 5) (x, 7) (x, 8) (x, 12) }) U { (x, 1) }
+RD_exit(2) = (RD_entry(2) \ { (y, ?) (y, 2) (y, 9) (y, 13) }) U { (y, 2) }
+RD_exit(3) = (RD_entry(3) \ { (z, ?) (z, 3) (z, 10) (z, 14) }) U { (z, 3) }
+RD_exit(4) = (RD_entry(4) \ {}) U {}
+RD_exit(5) = (RD_entry(5) \ { (x, ?) (x, 1) (x, 5) (x, 7) (x, 8) (x, 12) }) U { (x, 5) }
+RD_exit(6) = (RD_entry(6) \ {}) U {}
+RD_exit(7) = (RD_entry(7) \ { (x, ?) (x, 1) (x, 5) (x, 7) (x, 8) (x, 12) }) U { (x, 7) }
+RD_exit(8) = (RD_entry(8) \ { (x, ?) (x, 1) (x, 5) (x, 7) (x, 8) (x, 12) }) U { (x, 8) }
+RD_exit(9) = (RD_entry(9) \ { (y, ?) (y, 2) (y, 9) (y, 13) }) U { (y, 9) }
+RD_exit(10) = (RD_entry(10) \ { (z, ?) (z, 3) (z, 10) (z, 14) }) U { (z, 10) }
+RD_exit(11) = (RD_entry(11) \ {}) U {}
+RD_exit(12) = (RD_entry(12) \ { (x, ?) (x, 1) (x, 5) (x, 7) (x, 8) (x, 12) }) U { (x, 12) }
+RD_exit(13) = (RD_entry(13) \ { (y, ?) (y, 2) (y, 9) (y, 13) }) U { (y, 13) }
+RD_exit(14) = (RD_entry(14) \ { (z, ?) (z, 3) (z, 10) (z, 14) }) U { (z, 14) }
+RD_exit(15) = (RD_entry(15) \ { (t, ?) (t, 15) }) U { (t, 15) }

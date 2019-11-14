@@ -140,7 +140,8 @@ class CFG {
   list<int>* labelsFrom(int label);
   list<RDElt>* killSet(int label);
   list<RDElt>* genSet(int label);
-
+  bool isInitStatement(int label);
+  
   void printRDEntryEqn(int label);
   void printRDExitEqn(int label);
   

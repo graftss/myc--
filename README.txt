@@ -1,6 +1,5 @@
-Running `make` builds the parser at `myc--`.
+Running `make` builds the compiler at `myc--`.
 
-Example programs are found in the `programs` directory and
+Example programs are found in the `rd` directory and
 their corresponding example executions are found in the
-`execution` directory.
-
+`rd-execution` directory.

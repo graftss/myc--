@@ -1,0 +1,17 @@
+int x = 3;
+int t = 0;
+
+while (x < 4) {
+  int y = x;
+  while (y < 10) {
+    y = y + 1;
+    t = t + y;
+    if (t % 2 == 0) {
+      print "even";
+    } else {
+      print "odd";
+    }
+  }
+}
+
+print t;
