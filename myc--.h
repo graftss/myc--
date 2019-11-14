@@ -240,7 +240,7 @@ class NStatement {
     virtual Value* evaluate() = 0;
     virtual bool isReturn();
     virtual CFG* makeCFG() = 0;
-    virtual void printCfgNode() {};
+    virtual void printCFGNode() { print(); };
     virtual NodeType getNodeType() { return N_MISC; };
 };
 
@@ -281,7 +281,7 @@ class NAssign : public NStatement, public NExpression {
     NodeType getNodeType();
 		Value* evaluate();
     CFG* makeCFG();
-    void printCfgNode();
+    void printCFGNode();
 };
 
 class NIndexAssign : public NStatement, public NExpression {
@@ -310,7 +310,7 @@ class NVarDecl : public NStatement {
     void printNode();
     Value* evaluate();
     CFG* makeCFG();
-    void printCfgNode();
+    void printCFGNode();
 };
 
 class NArrayDecl : public NStatement {
@@ -368,6 +368,7 @@ class NWhile : public NStatement {
     void printNode();
     Value* evaluate();
     CFG* makeCFG();
+    void printCFGNode();
 };
 
 class NDoWhile : public NStatement {
@@ -380,6 +381,7 @@ class NDoWhile : public NStatement {
     void printNode();
     Value* evaluate();
     CFG* makeCFG();
+    void printCFGNode();
 };
 
 class NFor : public NStatement {
@@ -394,6 +396,7 @@ class NFor : public NStatement {
     void printNode();
     Value* evaluate();
     CFG* makeCFG();
+    void printCFGNode();
 };
 
 class NBranch : public NStatement {
@@ -407,7 +410,7 @@ class NBranch : public NStatement {
     void printNode();
     Value* evaluate();
     CFG* makeCFG();
-    void printCfgNode();
+    void printCFGNode();
 };
 
 class NPrint : public NStatement {
