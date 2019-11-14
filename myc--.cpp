@@ -979,6 +979,7 @@ CFG* NFor::makeCFG() {
   }
 
   graph->edges->push_back(edge);
+  
   return graph;
 }
 
@@ -1372,7 +1373,7 @@ list<int>* CFG::assignmentsToId(string id) {
 
 list<int>* CFG::labelsTo(int label) {
   list<int>* result = new list<int>;
-  list<tuple<int, int>> edges = createLabelEdgeList();
+  list<tuple<int, int>> edges = *extraEdges;
   list<tuple<int, int>>::iterator it;
   
   for (it = edges.begin(); it != edges.end(); ++it) {
@@ -1384,7 +1385,7 @@ list<int>* CFG::labelsTo(int label) {
 
 list<int>* CFG::labelsFrom(int label) {
   list<int>* result = new list<int>;
-  list<tuple<int, int>> edges = createLabelEdgeList();
+  list<tuple<int, int>> edges = *extraEdges;
   list<tuple<int, int>>::iterator it;
   
   for (it = edges.begin(); it != edges.end(); ++it) {

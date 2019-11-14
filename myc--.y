@@ -330,7 +330,7 @@ int main(int argc, char **argv) {
   list<int> *labels = cfgRootNode->labelsTo(12);
   list<int>::iterator itt;
   
-  /*
+  
   
   cout << endl << "assignments to x: ";
   labels = cfgRootNode->assignmentsToId("x");
@@ -385,7 +385,7 @@ int main(int argc, char **argv) {
     label = *it1;
     cfgRootNode->printRDExitEqn(label);
     cout << endl;
-  }*/
+  }
   
 }
 
