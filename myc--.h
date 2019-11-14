@@ -17,6 +17,7 @@ enum NodeType {
   N_MISC,
   N_ASSIGN,
   N_VARDECL,
+  N_FUNCDECL,
 };
 
 enum Tag {
@@ -344,6 +345,7 @@ class NFuncDecl : public NStatement {
     
     NFuncDecl(ValueType returnType, string id, NBlock *body);
     NFuncDecl(ValueType returnType, string id, NBlock *body, list<NVarDecl*> *arguments);
+    NodeType getNodeType();
     void print();
     void printArguments();
     void printNode();

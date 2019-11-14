@@ -466,13 +466,20 @@ CFG* NBlock::makeCFG() {
   for (it; it != statements->end(); ++it) {
     currentGraph = (*it)->makeCFG();
     
+    // add the internal edges of currentGraph no matter what
     graph->extraEdges->merge(*(currentGraph->extraEdges));
-    list<int>::iterator itInt;
-    list<int> *fls = siblingGraph->finalLabels;
-    for (itInt = fls->begin(); itInt != fls->end(); ++itInt) {
-      graph->extraEdges->push_back(make_tuple (*itInt, currentGraph->label));
+    if ((*it)->getNodeType() != N_FUNCDECL) {
+      // if currentGraph isn't a function declaration, connect it with siblingGraph
+      list<int>::iterator itInt;
+      list<int> *fls = siblingGraph->finalLabels;
+      for (itInt = fls->begin(); itInt != fls->end(); ++itInt) {
+        graph->extraEdges->push_back(make_tuple (*itInt, currentGraph->label));
+      }    } else {
+      // if currentGraph is a function declaration, skip over it while keeping
+      // siblingGraph the same
+      continue;
     }
-
+    
     // If the previous node has edges already i.e. if statement
     // We need to traverse down to find all ends of the edges
     // and add edge for them to the next statement.
@@ -690,6 +697,8 @@ NFuncDecl::NFuncDecl(
   NBlock *body, 
   list<NVarDecl*> *arguments
 ) : returnType(returnType), id(id), body(body), arguments(arguments) {}
+
+NodeType NFuncDecl::getNodeType() { return N_FUNCDECL; }
   
 void NFuncDecl::print() {
   cout << Type::toString(returnType) << " " << id << "(";
@@ -766,6 +775,11 @@ Value* NFuncDecl::call(list<Value*> *args) {
 CFG* NFuncDecl::makeCFG() {
   CFG* graph = new CFG();
   graph->statement = this;
+  graph->finalLabels = new list<int>;
+  
+  CFG* bodyGraph = this->body->makeCFG();
+  graph->extraEdges->merge(*(bodyGraph->extraEdges));
+
   return graph;
 }
 

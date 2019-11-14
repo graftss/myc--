@@ -31,4 +31,4 @@ runTest2: myc--
 	./myc-- < programs/loop
   
 runTest3: myc--
-	./myc-- < programs/cond
+	./myc-- < programs/func
