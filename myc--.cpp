@@ -470,11 +470,15 @@ CFG* NBlock::makeCFG() {
     // and add edge for them to the next statement.
     if (siblingGraph->edges->size() > 0) {
       list<CFG*>::iterator itEdge;
-      list<CFG*>* emptyNodes = new list<CFG*>;
+      list<CFG*>* terminalNodes = new list<CFG*>;
       for (itEdge = siblingGraph->edges->begin(); itEdge != siblingGraph->edges->end(); ++itEdge) {
-        CFG::findEmptyNodes(*itEdge, emptyNodes);
+        cout << "\nENTERING: ";
+        (*itEdge)->statement->printCFGNode();
+        CFG::findTerminalNodes(*itEdge, terminalNodes);
+        cout << "\nFINISHED: ";
+        (*itEdge)->statement->printCFGNode();
       }
-      for (itEdge = emptyNodes->begin(); itEdge != emptyNodes->end(); ++itEdge) {
+      for (itEdge = terminalNodes->begin(); itEdge != terminalNodes->end(); ++itEdge) {
         (*itEdge)->edges->push_back(currentGraph);
       }
     }
@@ -837,10 +841,16 @@ CFG* NWhile::makeCFG() {
   CFG* graph = new CFG();
   graph->statement = this;
   
-  graph->edges->push_back(body->makeCFG());
-  // need to add edges from all the terminal statements in `body`
-  // back to this node, the "root" of the while loop
+  CFG* edge = body->makeCFG();
 
+  list<CFG*>* terminalNodes = new list<CFG*>;
+  CFG::findTerminalNodes(edge, terminalNodes);
+  list<CFG*>::iterator itEdge;
+  for (itEdge = terminalNodes->begin(); itEdge != terminalNodes->end(); ++itEdge) {
+    (*itEdge)->edges->push_back(graph);
+  }
+
+  graph->edges->push_back(edge);
   return graph;
 }
 
@@ -883,10 +893,16 @@ CFG* NDoWhile::makeCFG() {
   CFG* graph = new CFG();
   graph->statement = this;
   
-  graph->edges->push_back(body->makeCFG());
-  // need to add edges from all the terminal statements in `body`
-  // back to this node, the "root" of the while loop
+  CFG* edge = body->makeCFG();
 
+  list<CFG*>* terminalNodes = new list<CFG*>;
+  CFG::findTerminalNodes(edge, terminalNodes);
+  list<CFG*>::iterator itEdge;
+  for (itEdge = terminalNodes->begin(); itEdge != terminalNodes->end(); ++itEdge) {
+    (*itEdge)->edges->push_back(graph);
+  }
+
+  graph->edges->push_back(edge);
   return graph;
 }
 
@@ -933,10 +949,16 @@ CFG* NFor::makeCFG() {
   CFG* graph = new CFG();
   graph->statement = this;
   
-  graph->edges->push_back(body->makeCFG());
-  // need to add edges from all the terminal statements in `body`
-  // back to this node, the "root" of the while loop
+  CFG* edge = body->makeCFG();
 
+  list<CFG*>* terminalNodes = new list<CFG*>;
+  CFG::findTerminalNodes(edge, terminalNodes);
+  list<CFG*>::iterator itEdge;
+  for (itEdge = terminalNodes->begin(); itEdge != terminalNodes->end(); ++itEdge) {
+    (*itEdge)->edges->push_back(graph);
+  }
+
+  graph->edges->push_back(edge);
   return graph;
 }
 
@@ -1104,28 +1126,84 @@ CFG::CFG()
 }
 
 // Used to assist loopback on NBlock makeCFG
-void CFG::findEmptyNodes(CFG* node, list<CFG*>* emptyNodes)
+void CFG::findTerminalNodes(CFG* node, list<CFG*>* terminalNodes)
 {
+  node->statement->printCFGNode();
+  list<CFG*>* visitedNodes = new list<CFG*>;
+  findTerminalNodes(node, terminalNodes, visitedNodes);
+  node->statement->printCFGNode();
+  return;
+}
+
+void CFG::findTerminalNodes(CFG* node, list<CFG*>* terminalNodes, list<CFG*>* visitedNodes)
+{
+  visitedNodes->push_back(node);
+
   if (node->edges->size() == 0) {
-    emptyNodes->push_front(node);
+    terminalNodes->push_back(node);
     return;
   }
+
+  node->statement->printCFGNode();
 
   list<CFG*>::iterator it;
   for (it = node->edges->begin(); it != node->edges->end(); it++)
   {
-    findEmptyNodes((*it), emptyNodes);
+    bool alreadyVisited = false;
+    list<CFG*>::iterator vIt;
+    for (vIt = visitedNodes->begin(); vIt != visitedNodes->end(); vIt++)
+    {
+      if ((*it) == (*vIt))
+      {
+        // If node already exists, we must be at the start of a loop
+        // Add the current edge as the terminating node and continue.
+        terminalNodes->push_back(*it);
+        alreadyVisited = true;
+        break;
+      }
+    }
+
+    if (alreadyVisited)
+    {
+      continue;
+    }
+
+    findTerminalNodes((*it), terminalNodes, visitedNodes);
   }
 }
 
+
 map<int, CFG*> CFG::createLabelNodeMap()
+{
+  list<int> *visitedNodes = new list<int>;
+  return createLabelNodeMap(visitedNodes);
+}
+
+map<int, CFG*> CFG::createLabelNodeMap(list<int> *visitedNodes)
 {
   map<int, CFG*> cfgMap;
   list<CFG*>::iterator it;
 
   cfgMap.insert(pair<int, CFG*>(this->label, this));
+  visitedNodes->push_back(this->label);
   for (it=edges->begin(); it != edges->end(); ++it) {
-    map<int, CFG*> edgeMap = (*it)->createLabelNodeMap();
+    list<int>::iterator vIt;
+    bool alreadyVisited = false;
+    for (vIt = visitedNodes->begin(); vIt != visitedNodes->end(); vIt++)
+    {
+      if ((*it)->label == (*vIt))
+      {
+        alreadyVisited = true;
+        break;
+      }
+    }
+
+    if (alreadyVisited)
+    {
+      continue;
+    }
+
+    map<int, CFG*> edgeMap = (*it)->createLabelNodeMap(visitedNodes);
     cfgMap.insert(edgeMap.begin(), edgeMap.end());
   }
 
@@ -1146,14 +1224,38 @@ void CFG::printLabelNodeMap(map<int, CFG*> labelNodeMap)
 
 list<std::tuple<int, int>> CFG::createLabelEdgeList()
 {
+  list<tuple<int, int>>* visitedNodes = new list<tuple<int,int>>;
+  return CFG::createLabelEdgeList(visitedNodes);
+}
+
+list<std::tuple<int, int>> CFG::createLabelEdgeList(list<tuple<int, int>> *visitedNodes)
+{
   list<tuple<int, int>> edgeList;
   list<CFG*>::iterator it;
 
   CFG* head = this;
   for (it=edges->begin(); it != edges->end(); ++it) {
-    list<tuple<int, int>> siblingEdgeList = (*it)->createLabelEdgeList();
+    tuple<int, int> currentTuple = make_tuple(head->label, (*it)->label);
 
-    edgeList.push_back(make_tuple(head->label, (*it)->label));
+    list<tuple<int,int>>::iterator vIt;
+    bool alreadyVisited = false;
+    for (vIt = visitedNodes->begin(); vIt != visitedNodes->end(); vIt++)
+    {
+      if (currentTuple == (*vIt))
+      {
+        alreadyVisited = true;
+        break;
+      }
+    }
+
+    if (alreadyVisited)
+    {
+      continue;
+    }
+
+    edgeList.push_back(currentTuple);
+    visitedNodes->push_back(currentTuple);
+    list<tuple<int, int>> siblingEdgeList = (*it)->createLabelEdgeList(visitedNodes);
     edgeList.sort();
     edgeList.merge(siblingEdgeList);
   }
