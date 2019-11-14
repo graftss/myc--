@@ -546,7 +546,7 @@ CFG* NAssign::makeCFG() {
   return graph;
 }
 
-void NAssign::printCfgNode() {
+void NAssign::printCFGNode() {
   print();
 }
 
@@ -609,7 +609,7 @@ void NVarDecl::printNode() {
   treeDepth -= 1;
 }
 
-void NVarDecl::printCfgNode() {
+void NVarDecl::printCFGNode() {
   print();
 }
 
@@ -844,6 +844,12 @@ CFG* NWhile::makeCFG() {
   return graph;
 }
 
+void NWhile::printCFGNode() {
+  cout << "while (";
+  cond->print();
+  cout << ")";
+}
+
 // NDoWhile
 
 NDoWhile::NDoWhile(NExpression *cond, NBlock *body)
@@ -876,9 +882,19 @@ Value* NDoWhile::evaluate() {
 CFG* NDoWhile::makeCFG() {
   CFG* graph = new CFG();
   graph->statement = this;
+  
+  graph->edges->push_back(body->makeCFG());
+  // need to add edges from all the terminal statements in `body`
+  // back to this node, the "root" of the while loop
+
   return graph;
 }
 
+void NDoWhile::printCFGNode() {
+  cout << "do {...} while (";
+  cond->print();
+  cout << ")";
+}
 // NFor
 
 NFor::NFor(NStatement *init, NExpression *cond, NExpression *incr, NBlock *body)
@@ -916,7 +932,22 @@ Value* NFor::evaluate() {
 CFG* NFor::makeCFG() {
   CFG* graph = new CFG();
   graph->statement = this;
+  
+  graph->edges->push_back(body->makeCFG());
+  // need to add edges from all the terminal statements in `body`
+  // back to this node, the "root" of the while loop
+
   return graph;
+}
+
+void NFor::printCFGNode() {
+  cout << "for (";
+  init->print();
+  cout << "; ";
+  cond->print();
+  cout << "; ";
+  incr->print();
+  cout << ")";
 }
 
 // NBranch
@@ -945,7 +976,7 @@ void NBranch::printNode() {
   treeDepth -= 1;
 }
 
-void NBranch::printCfgNode()
+void NBranch::printCFGNode()
 {
   cout << "if (";
   cond->print();
@@ -1106,7 +1137,7 @@ void CFG::printLabelNodeMap(map<int, CFG*> labelNodeMap)
   map<int, CFG*>::iterator it;
   for (it=labelNodeMap.begin(); it != labelNodeMap.end(); ++it) {
     cout << "Label: " << it->first << " Stmt: ";
-    it->second->statement->printCfgNode();
+    it->second->statement->printCFGNode();
     cout << endl;
     cout << it->second->statement->getNodeType();
     cout << endl;
