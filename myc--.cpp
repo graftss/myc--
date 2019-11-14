@@ -893,10 +893,16 @@ CFG* NDoWhile::makeCFG() {
   CFG* graph = new CFG();
   graph->statement = this;
   
-  graph->edges->push_back(body->makeCFG());
-  // need to add edges from all the terminal statements in `body`
-  // back to this node, the "root" of the while loop
+  CFG* edge = body->makeCFG();
 
+  list<CFG*>* terminalNodes = new list<CFG*>;
+  CFG::findTerminalNodes(edge, terminalNodes);
+  list<CFG*>::iterator itEdge;
+  for (itEdge = terminalNodes->begin(); itEdge != terminalNodes->end(); ++itEdge) {
+    (*itEdge)->edges->push_back(graph);
+  }
+
+  graph->edges->push_back(edge);
   return graph;
 }
 
@@ -943,10 +949,16 @@ CFG* NFor::makeCFG() {
   CFG* graph = new CFG();
   graph->statement = this;
   
-  graph->edges->push_back(body->makeCFG());
-  // need to add edges from all the terminal statements in `body`
-  // back to this node, the "root" of the while loop
+  CFG* edge = body->makeCFG();
 
+  list<CFG*>* terminalNodes = new list<CFG*>;
+  CFG::findTerminalNodes(edge, terminalNodes);
+  list<CFG*>::iterator itEdge;
+  for (itEdge = terminalNodes->begin(); itEdge != terminalNodes->end(); ++itEdge) {
+    (*itEdge)->edges->push_back(graph);
+  }
+
+  graph->edges->push_back(edge);
   return graph;
 }
 
@@ -1144,8 +1156,8 @@ void CFG::findTerminalNodes(CFG* node, list<CFG*>* terminalNodes, list<CFG*>* vi
       if ((*it) == (*vIt))
       {
         // If node already exists, we must be at the start of a loop
-        // Add this node as the terminating node and continue.
-        terminalNodes->push_back(node);
+        // Add the current edge as the terminating node and continue.
+        terminalNodes->push_back(*it);
         alreadyVisited = true;
         break;
       }
