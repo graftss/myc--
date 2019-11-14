@@ -298,7 +298,8 @@ int main(int argc, char **argv) {
   if (argc > 1) yyin = fopen(argv[1], "r");
 
   yyparse();
-
+  
+  /*
   cout << "----------source" << endl << endl;
   root->print();
   
@@ -316,6 +317,7 @@ int main(int argc, char **argv) {
     it->second->print(); 
     std::cout << '\n';
   }
+  */
 
   CFG* cfgRootNode = root->makeCFG();
 
@@ -329,9 +331,9 @@ int main(int argc, char **argv) {
   
   list<int> *labels = cfgRootNode->labelsTo(12);
   list<int>::iterator itt;
+  list<int> *allLabels = cfgRootNode->allLabels();
   
-  
-  
+  /*
   cout << endl << "assignments to x: ";
   labels = cfgRootNode->assignmentsToId("x");
   for (itt = labels->begin(); itt != labels->end(); ++itt) {
@@ -340,9 +342,7 @@ int main(int argc, char **argv) {
   cout << endl;
   
   cout << "all labels: ";
-  list<int> *allLabels = cfgRootNode->allLabels();
-  list<int>::iterator it1;
-  for (it1 = allLabels->begin(); it1 != allLabels->end(); ++it1) {
+  for (itt = allLabels->begin(); itt != allLabels->end(); ++itt) {
     cout << (*it1) << " ";
   }
   cout << endl;
@@ -354,35 +354,20 @@ int main(int argc, char **argv) {
     cout << (*it2) << " ";
   }
   cout << endl;
+  */
   
   int label;
   
-  cout << endl << "----------kill sets" << endl << endl;
-  for (it1 = allLabels->begin(); it1 != allLabels->end(); ++it1) {
-    label = *it1;
-    cout << "kill_RD(" << label << ") = ";
-    printRDElts(cfgRootNode->killSet(label));
-    cout << endl;
-  }
-  
-  cout << endl << endl << "----------gen sets" << endl << endl;
-  for (it1 = allLabels->begin(); it1 != allLabels->end(); ++it1) {
-    label = *it1;
-    cout << "gen_RD(" << label << ") = ";
-    printRDElts(cfgRootNode->genSet(label));
-    cout << endl;
-  }
-  
   cout << endl << endl << "----------entry equations" << endl << endl;
-  for (it1 = allLabels->begin(); it1 != allLabels->end(); ++it1) {
-    label = *it1;
+  for (itt = allLabels->begin(); itt != allLabels->end(); ++itt) {
+    label = *itt;
     cfgRootNode->printRDEntryEqn(label);
     cout << endl;
   }
   
   cout << endl << endl << "----------exit equations" << endl << endl;
-  for (it1 = allLabels->begin(); it1 != allLabels->end(); ++it1) {
-    label = *it1;
+  for (itt = allLabels->begin(); itt != allLabels->end(); ++itt) {
+    label = *itt;
     cfgRootNode->printRDExitEqn(label);
     cout << endl;
   }

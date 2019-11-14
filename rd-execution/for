@@ -1,0 +1,49 @@
+
+
+----------CFG Label/AST Map Verification
+
+Label: 1 Stmt: int x = 0
+Label: 2 Stmt: int i = 0
+Label: 3 Stmt: (i < 10)
+Label: 4 Stmt: x = (x + i)
+Label: 5 Stmt: if ((x > 10)) 
+Label: 6 Stmt: x = (x / 2)
+Label: 7 Stmt: x = (x / 3)
+Label: 8 Stmt: print x
+
+
+----------CFG EdgeMap Verification
+
+(1,2)
+(2,3)
+(3,4)
+(3,8)
+(4,5)
+(5,6)
+(5,7)
+(6,3)
+(7,3)
+
+
+----------entry equations
+
+RD_entry(1) = { (i, ?) (x, ?) }
+RD_entry(2) = RD_exit(1)
+RD_entry(3) = RD_exit(2) U RD_exit(6) U RD_exit(7)
+RD_entry(4) = RD_exit(3)
+RD_entry(5) = RD_exit(4)
+RD_entry(6) = RD_exit(5)
+RD_entry(7) = RD_exit(5)
+RD_entry(8) = RD_exit(3)
+
+
+----------exit equations
+
+RD_exit(1) = (RD_entry(1) \ { (x, ?) (x, 1) (x, 4) (x, 6) (x, 7) }) U { (x, 1) }
+RD_exit(2) = (RD_entry(2) \ { (i, ?) (i, 2) }) U { (i, 2) }
+RD_exit(3) = (RD_entry(3) \ {}) U {}
+RD_exit(4) = (RD_entry(4) \ { (x, ?) (x, 1) (x, 4) (x, 6) (x, 7) }) U { (x, 4) }
+RD_exit(5) = (RD_entry(5) \ {}) U {}
+RD_exit(6) = (RD_entry(6) \ { (x, ?) (x, 1) (x, 4) (x, 6) (x, 7) }) U { (x, 6) }
+RD_exit(7) = (RD_entry(7) \ { (x, ?) (x, 1) (x, 4) (x, 6) (x, 7) }) U { (x, 7) }
+RD_exit(8) = (RD_entry(8) \ {}) U {}

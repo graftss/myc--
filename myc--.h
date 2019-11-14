@@ -350,6 +350,7 @@ class NFuncDecl : public NStatement {
     void printArguments();
     void printNode();
     void printType();
+    void printCFGNode();
     Value* evaluate();
     Value* call(list<Value*> *args);
     CFG* makeCFG();

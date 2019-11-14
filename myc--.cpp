@@ -477,6 +477,7 @@ CFG* NBlock::makeCFG() {
       }    } else {
       // if currentGraph is a function declaration, skip over it while keeping
       // siblingGraph the same
+      siblingGraph->edges->push_back(currentGraph);
       continue;
     }
     
@@ -487,11 +488,7 @@ CFG* NBlock::makeCFG() {
       list<CFG*>::iterator itEdge;
       list<CFG*>* terminalNodes = new list<CFG*>;
       for (itEdge = siblingGraph->edges->begin(); itEdge != siblingGraph->edges->end(); ++itEdge) {
-        cout << "\nENTERING: ";
-        (*itEdge)->statement->printCFGNode();
         CFG::findTerminalNodes(*itEdge, terminalNodes);
-        cout << "\nFINISHED: ";
-        (*itEdge)->statement->printCFGNode();
       }
       for (itEdge = terminalNodes->begin(); itEdge != terminalNodes->end(); ++itEdge) {
         (*itEdge)->edges->push_back(currentGraph);
@@ -726,6 +723,12 @@ void NFuncDecl::printNode() {
   treeDepth -= 1;  
 }
 
+void NFuncDecl:: printCFGNode() {
+  cout << Type::toString(returnType) << " " << id << "(";
+  printArguments();
+  cout << ")";
+}
+
 void NFuncDecl::printType() {
   list<NVarDecl*>::iterator it = arguments->begin();
   
@@ -779,6 +782,7 @@ CFG* NFuncDecl::makeCFG() {
   
   CFG* bodyGraph = this->body->makeCFG();
   graph->extraEdges->merge(*(bodyGraph->extraEdges));
+  graph->edges->push_back(bodyGraph);
 
   return graph;
 }
@@ -1021,13 +1025,7 @@ CFG* NFor::makeCFG() {
 }
 
 void NFor::printCFGNode() {
-  cout << "for (";
-  init->print();
-  cout << "; ";
   cond->print();
-  cout << "; ";
-  incr->print();
-  cout << ")";
 }
 
 // NBranch
@@ -1075,19 +1073,23 @@ CFG* NBranch::makeCFG() {
   CFG* graph = new CFG();
   graph->statement = this;
   CFG* passCFG = pass->makeCFG();
-  CFG* failCFG = fail->makeCFG();
+  CFG* failCFG;
   
   graph->edges->push_back(passCFG);
   if (fail) {
+    failCFG = fail->makeCFG();
     graph->edges->push_back(failCFG);
   }
   
   graph->extraEdges->merge(*(passCFG->extraEdges));
-  graph->extraEdges->merge(*(failCFG->extraEdges));
   graph->extraEdges->push_back(make_tuple (graph->label, passCFG->label));
-  graph->extraEdges->push_back(make_tuple (graph->label, failCFG->label));
   graph->finalLabels = passCFG->finalLabels;
-  graph->finalLabels->merge(*(failCFG->finalLabels));
+
+  if (fail) {
+    graph->extraEdges->merge(*(failCFG->extraEdges));
+    graph->extraEdges->push_back(make_tuple (graph->label, failCFG->label));
+    graph->finalLabels->merge(*(failCFG->finalLabels));
+  }
 
   return graph;
 }
@@ -1199,10 +1201,10 @@ CFG::CFG()
 // Used to assist loopback on NBlock makeCFG
 void CFG::findTerminalNodes(CFG* node, list<CFG*>* terminalNodes)
 {
-  node->statement->printCFGNode();
+  // node->statement->printCFGNode();
   list<CFG*>* visitedNodes = new list<CFG*>;
   findTerminalNodes(node, terminalNodes, visitedNodes);
-  node->statement->printCFGNode();
+  // node->statement->printCFGNode();
   return;
 }
 
@@ -1215,7 +1217,7 @@ void CFG::findTerminalNodes(CFG* node, list<CFG*>* terminalNodes, list<CFG*>* vi
     return;
   }
 
-  node->statement->printCFGNode();
+  // node->statement->printCFGNode();
 
   list<CFG*>::iterator it;
   for (it = node->edges->begin(); it != node->edges->end(); it++)
@@ -1288,8 +1290,6 @@ void CFG::printLabelNodeMap(map<int, CFG*> labelNodeMap)
     cout << "Label: " << it->first << " Stmt: ";
     it->second->statement->printCFGNode();
     cout << endl;
-    cout << it->second->statement->getNodeType();
-    cout << endl;
   }
 }
 
@@ -1357,7 +1357,9 @@ list<int>* CFG::allLabels() {
   map<int, CFG*>::iterator it;
   
   for (it = cfgMap.begin(); it != cfgMap.end(); ++it) {
-    result->push_back(it->first);
+    if (it->second->statement->getNodeType() != N_FUNCDECL) {
+      result->push_back(it->first);
+    }
   }
   
   return result;

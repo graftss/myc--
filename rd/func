@@ -1,0 +1,14 @@
+int t = 3;
+
+int add(int x, int y) {
+  int result = x + y;
+  return result;
+}
+
+bool equal(int x, int y) {
+  bool result = x == y;
+  return result;
+}
+
+int z = 3;
+print t * z;
