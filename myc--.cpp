@@ -1519,6 +1519,38 @@ void CFG::printRDExitEqn(int label) {
   printRDElts(genSet(label));
 }
 
+// mutates the input list, applying the transfer function at the
+// specified label to it.
+void CFG::applyTransferMutation(list<RDElt> *input, int label) {
+  list<RDElt> *kill = killSet(label);
+  list<RDElt> *gen = genSet(label);
+  list<RDElt>::iterator it;
+  
+  // remove kill set
+  for (it = kill->begin(); it != kill->end(); ++it) {
+    input->remove(*it);
+  }
+  
+  // union with gen set
+  for (it = gen->begin(); it != gen->end(); ++it) {
+    input->push_front(*it);
+  }
+  
+  input->unique();
+}
+
+// copies the input list, applies the transfer function to the copy,
+// and returns the mutated copy
+list<RDElt>* CFG::applyTransferFunction(list<RDElt> *input, int label) {
+  list<RDElt>* inputCopy = new list<RDElt>;
+  for (list<RDElt>::iterator it = input->begin(); it != input->end(); ++it) {
+    inputCopy->push_front(*it);
+  }
+  
+  applyTransferMutation(inputCopy, label);
+  return inputCopy;
+}
+
 // Worklist
 
 void printRDAnalysis(RDAnalysis *analysis) {
@@ -1567,22 +1599,31 @@ tuple<RDAnalysis*, RDAnalysis*> Worklist::solveRD(CFG *cfg) {
   while (!w->empty()) {
     // name and remove the first element of w
     Edge e = w->front();
-    int l1 = get<0>(e);
-    int l2 = get<1>(e);
-    cout << "current edge: (" << l1 << ", " << l2 << ")" << endl;
+    int l = get<0>(e);
+    int lp = get<1>(e);
+    cout << "current edge: (" << l << ", " << lp << ")" << endl;
     w->pop_front();
     
-    // TODO: try to update analysis here
+    // TODO: update analysis here
+    // if applying the transfer function at l increased our information at lp, 
+      // update the analysis at lp
+      // add all the edges (lp, lpp) in the CFG to w
+    
   }
   
   // step 3 (return the result as a tuple of two RDAnalysis objects)
   // `analysis` already stores the entry information. to compute the exit
   // information at a given label, we apply that label's transfer function to
-  // the already computed entry information. in particular, we remove the
-  // kill set elements from the entry info, then add in the gen set elements.
-  // kill and gen sets can be obtained from CFG::killSet and CFG::genSet respectively.  
+  // the already computed entry information. 
   RDAnalysis *analysisExit = new map<int, list<RDElt>*>;
-  // TODO: compute exit analysis here
+  map<int, list<RDElt>*>::iterator itMap;
+
+  for (itMap = analysis->begin(); itMap != analysis->end(); ++itMap) {
+    int label = itMap->first;
+    list<RDElt> *entryInfo = itMap->second;
+    list<RDElt> *exitInfo = cfg->applyTransferFunction(entryInfo, label);
+    analysisExit->insert(pair<int, list<RDElt>*>(label, exitInfo));
+  }
   
   return make_tuple(analysis, analysisExit);
 }

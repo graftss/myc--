@@ -140,6 +140,8 @@ class CFG {
   list<int>* labelsFrom(int label);
   list<RDElt>* killSet(int label);
   list<RDElt>* genSet(int label);
+  void applyTransferMutation(list<RDElt>* input, int label);
+  list<RDElt>* applyTransferFunction(list<RDElt>* input, int label);
   bool isInitStatement(int label);
   
   void printRDEntryEqn(int label);
