@@ -25,10 +25,4 @@ clean:
 	/bin/rm -f lex.yy.* y.tab.* *.o myc--
 
 runTest: myc--
-	./myc-- < programs/test
-  
-runTest2: myc--
-	./myc-- < programs/loop
-  
-runTest3: myc--
-	./myc-- < programs/func
+	./myc-- < rd/linear

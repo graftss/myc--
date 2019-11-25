@@ -372,6 +372,14 @@ int main(int argc, char **argv) {
     cout << endl;
   }
   
+  cout << endl << endl << "-----------RD solutions" << endl << endl;
+  tuple<RDAnalysis*, RDAnalysis*> soln = Worklist::solveRD(cfgRootNode);
+
+  cout << "entry solutions:" << endl;
+  printRDAnalysis(get<0>(soln));
+
+  cout << endl << endl << "exit solutions:" << endl;
+  printRDAnalysis(get<1>(soln));
 }
 
 void yyerror(const char *s) {

@@ -1187,6 +1187,8 @@ CFG* NRead::makeCFG() {
   return graph;
 }
 
+// CFG
+
 int CFG::labelCount=1;
 
 CFG::CFG() 
@@ -1517,3 +1519,70 @@ void CFG::printRDExitEqn(int label) {
   printRDElts(genSet(label));
 }
 
+// Worklist
+
+void printRDAnalysis(RDAnalysis *analysis) {
+  map<int, list<RDElt>*>::iterator it;
+  for (it = analysis->begin(); it != analysis->end(); ++it) {
+    cout << "label " << (it->first) << ": ";
+    printRDElts(it->second);
+    cout << endl;
+  }
+}
+
+// output is a tuple of two RDAnalysis pointers, where:
+//   - the first corresponds to "entry" solutions (MFP open circle in slides)
+//   - the second corresponds to "exit" solutions (MFP filled circle in slides)
+tuple<RDAnalysis*, RDAnalysis*> Worklist::solveRD(CFG *cfg) {
+  // precompute some graph information
+  list<Edge> *edges = cfg->extraEdges;
+  list<int> *labels = cfg->allLabels();
+  list<string> *ids = cfg->allIds();
+  
+  // step 1 (initialization of W and analysis to nil)
+  list<Edge> *w = new list<Edge>;
+  RDAnalysis *analysis = new map<int, list<RDElt>*>;
+  
+  // add all CFG edges to initialize worklist
+  list<Edge>::iterator itEdge;
+  for (itEdge = edges->begin(); itEdge != edges-> end(); ++itEdge) {
+    w->push_front(*itEdge);
+  }
+  
+  // add empty information to every label...
+  list<int>::iterator itInt;
+  for (itInt = labels->begin(); itInt != labels->end(); ++itInt) {
+    analysis->insert(pair<int, list<RDElt>*>(*itInt, new list<RDElt>));
+  }
+
+  // ...except the extremal label, to which we add the initial information
+  // for RD analysis. since RD is a forward analysis, the only extremal label
+  // is the initial label, which we have stored at cfg->label
+  list<string>::iterator itStr;
+  for (itStr = ids->begin(); itStr != ids->end(); ++itStr) {
+    analysis->at(cfg->label)->push_back(initRDElt(*itStr));
+  }
+  
+  // step 2 (iteration)
+  while (!w->empty()) {
+    // name and remove the first element of w
+    Edge e = w->front();
+    int l1 = get<0>(e);
+    int l2 = get<1>(e);
+    cout << "current edge: (" << l1 << ", " << l2 << ")" << endl;
+    w->pop_front();
+    
+    // TODO: try to update analysis here
+  }
+  
+  // step 3 (return the result as a tuple of two RDAnalysis objects)
+  // `analysis` already stores the entry information. to compute the exit
+  // information at a given label, we apply that label's transfer function to
+  // the already computed entry information. in particular, we remove the
+  // kill set elements from the entry info, then add in the gen set elements.
+  // kill and gen sets can be obtained from CFG::killSet and CFG::genSet respectively.  
+  RDAnalysis *analysisExit = new map<int, list<RDElt>*>;
+  // TODO: compute exit analysis here
+  
+  return make_tuple(analysis, analysisExit);
+}

@@ -150,6 +150,15 @@ class CFG {
   list<tuple<int, int>> *extraEdges;
 };
 
+typedef map<int, list<RDElt>*> RDAnalysis;
+typedef tuple<int, int> Edge;
+void printRDAnalysis(RDAnalysis *analysis);
+
+class Worklist {
+  public:
+    static tuple<RDAnalysis*, RDAnalysis*> solveRD(CFG *cfg);
+};
+
 class NExpression {
 	public:
 		virtual void print() = 0;
@@ -447,3 +456,4 @@ class NRead : public NStatement {
     Value* evaluate();
     CFG* makeCFG();
 };
+
