@@ -64,3 +64,29 @@ RD_exit(11) = (RD_entry(11) \ {}) U {}
 
 -----------RD solutions
 
+entry solutions:
+label 1: { (t, ?) (x, ?) (y, ?) }
+label 2: { (t, ?) (x, 1) (y, ?) }
+label 3: { (t, 2) (t, 7) (x, 1) (y, ?) (y, 4) (y, 6) }
+label 4: { (t, 2) (t, 7) (x, 1) (y, ?) (y, 4) (y, 6) }
+label 5: { (t, 2) (t, 7) (x, 1) (y, 4) (y, 6) }
+label 6: { (t, 2) (t, 7) (x, 1) (y, 4) (y, 6) }
+label 7: { (t, 2) (t, 7) (x, 1) (y, 6) }
+label 8: { (t, 7) (x, 1) (y, 6) }
+label 9: { (t, 7) (x, 1) (y, 6) }
+label 10: { (t, 7) (x, 1) (y, 6) }
+label 11: { (t, 2) (t, 7) (x, 1) (y, ?) (y, 4) (y, 6) }
+
+
+exit solutions:
+label 1: { (t, ?) (x, 1) (y, ?) }
+label 2: { (t, 2) (x, 1) (y, ?) }
+label 3: { (t, 2) (t, 7) (x, 1) (y, ?) (y, 4) (y, 6) }
+label 4: { (t, 2) (t, 7) (x, 1) (y, 4) }
+label 5: { (t, 2) (t, 7) (x, 1) (y, 4) (y, 6) }
+label 6: { (t, 2) (t, 7) (x, 1) (y, 6) }
+label 7: { (t, 7) (x, 1) (y, 6) }
+label 8: { (t, 7) (x, 1) (y, 6) }
+label 9: { (t, 7) (x, 1) (y, 6) }
+label 10: { (t, 7) (x, 1) (y, 6) }
+label 11: { (t, 2) (t, 7) (x, 1) (y, ?) (y, 4) (y, 6) }

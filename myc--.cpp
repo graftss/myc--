@@ -23,8 +23,8 @@ const int INIT_RD_LABEL = -1;
 RDElt initRDElt(string id) { return make_tuple (id, INIT_RD_LABEL); }
 void printRDElt(RDElt e) {
   int label = get<1>(e);
-  
-  cout << "(" << get<0>(e) << ", "; 
+
+  cout << "(" << get<0>(e) << ", ";
   if (label == INIT_RD_LABEL) cout << "?";
   else cout << label;
   cout << ")";
@@ -42,7 +42,7 @@ void printRDElts(list<RDElt> *es) {
     }
     cout << "}";
   }
-} 
+}
 
 // Type
 
@@ -58,7 +58,7 @@ string Type::toString(ValueType valueType) {
   }
 }
 
-// Value 
+// Value
 
 Value* Value::fromBool(bool b) {
   Value *v = new Value;
@@ -117,14 +117,14 @@ Value* Value::fromVoid() {
 
 bool Value::toBool() { return value.b; }
 
-int Value::toInt() { 
+int Value::toInt() {
   if (valueType == FLOAT) return std::floor(value.f);
-  return value.i; 
+  return value.i;
 }
 
 float Value::toFloat() {
   if (valueType == INT) return value.i;
-  return value.f; 
+  return value.f;
 }
 
 char Value::toChar() { return value.c; }
@@ -159,20 +159,20 @@ bool Value::isTrue() {
     case FLOAT: return toFloat() != 0;
     case CHAR: return toChar() != 0;
   }
-  
+
   return true;
 }
 
 int Value::compare(Value *l, Value *r) {
   int lt = l->valueType, rt = r->valueType;
-  
+
   // numeric comparison
   if ((lt == FLOAT || lt == INT) && (rt == FLOAT || rt == INT)) {
     float lf = l->toFloat(), rf = r->toFloat();
     if (lf == rf) return 0;
     return lf < rf ? -1 : 1;
   }
-  
+
   // non-numeric comparisons
   if (lt != rt) return -2;
 
@@ -183,16 +183,16 @@ int Value::compare(Value *l, Value *r) {
       return lc < rc ? -1 : 1;
     }
   }
-  
+
   return -2;
 }
 
 // ValueArray
 
-ValueArray::ValueArray(ValueType valueType, int size) 
+ValueArray::ValueArray(ValueType valueType, int size)
   : valueType(valueType), size(size) {
   std::vector<Value*> v (size, Value::fromVoid());
-  
+
   values = v;
 }
 
@@ -209,7 +209,7 @@ void ValueArray::setValue(int index, Value* v) {
 NNumber::NNumber(float num) : num(num) {}
 void NNumber::print() { cout << num; }
 void NNumber::printNode() { cout << treeIndent() << "NNumber " << num << endl; }
-Value* NNumber::evaluate() { 
+Value* NNumber::evaluate() {
   return abs(num - int(num)) > 0
     ? Value::fromFloat(num)
     : Value::fromInt(num);
@@ -245,9 +245,9 @@ Value* NIdentifier::evaluate() { return state[id]; }
 
 // NBinaryOp
 
-NBinaryOp::NBinaryOp(NExpression *left, NExpression *right, int tag) 
+NBinaryOp::NBinaryOp(NExpression *left, NExpression *right, int tag)
   : left(left), right(right), tag(tag) {}
-  
+
 string NBinaryOp::opString() {
   string op;
   switch (tag) {
@@ -269,7 +269,7 @@ string NBinaryOp::opString() {
 
   return op;
 }
-  
+
 void NBinaryOp::print() {
   cout << "(";
   left->print();
@@ -290,7 +290,7 @@ void NBinaryOp::printNode() {
 Value* NBinaryOp::evaluate() {
   Value* l = left->evaluate();
   Value* r = right->evaluate();
-  
+
   switch (tag) {
     case OP_PLUS: {
       switch (l->valueType) {
@@ -305,26 +305,26 @@ Value* NBinaryOp::evaluate() {
         case INT: return Value::fromInt(l->toInt() - r->toInt());
       }
     }
-   
+
     case OP_TIMES: {
       switch (l->valueType) {
         case FLOAT: Value::fromFloat(l->toFloat() * r->toFloat());
         case INT: return Value::fromInt(l->toInt() * r->toInt());
       }
     }
-    
+
     case OP_DIVIDE: {
       switch (l->valueType) {
         case FLOAT: Value::fromFloat(l->toFloat() / r->toFloat());
         case INT: return Value::fromInt(l->toInt() / r->toInt());
       }
     }
-    
+
     case OP_MODULO: return Value::fromFloat(l->toInt() % r->toInt());
 
     case OP_AND: return Value::fromBool(l->toBool() && r->toBool());
     case OP_OR: return Value::fromBool(l->toBool() || r->toBool());
-    
+
     case OP_GT: return Value::fromBool(Value::compare(l, r) == 1);
     case OP_LT: return Value::fromBool(Value::compare(l, r) == -1);
     case OP_EQ: return Value::fromBool(Value::compare(l, r) == 0);
@@ -349,7 +349,7 @@ string NUnaryOp::opString() {
   switch (tag) {
     case OP_NOT: op = "!"; break;
   }
-  
+
   return op;
 }
 
@@ -368,7 +368,7 @@ void NUnaryOp::printNode() {
 
 Value* NUnaryOp::evaluate() {
   Value* v = expr->evaluate();
-  
+
   switch (tag) {
     case OP_NOT: return Value::fromBool(!v->toBool());
   }
@@ -376,9 +376,9 @@ Value* NUnaryOp::evaluate() {
 
 // NIndex
 
-NIndex::NIndex(NExpression *arrayExpr, NExpression *indexExpr) 
+NIndex::NIndex(NExpression *arrayExpr, NExpression *indexExpr)
   : arrayExpr(arrayExpr), indexExpr(indexExpr) {}
-  
+
 void NIndex::print() {
   arrayExpr->print();
   cout << "[";
@@ -396,7 +396,7 @@ void NIndex::printNode() {
 
 Value* NIndex::evaluate() {
   Value* array = arrayExpr->evaluate();
-  Value* index = indexExpr->evaluate(); 
+  Value* index = indexExpr->evaluate();
   return array->toArray()->getValue(index->toInt());
 }
 
@@ -404,7 +404,7 @@ Value* NIndex::evaluate() {
 
 bool NStatement::isReturn() { return false; }
 
-// NBlock 
+// NBlock
 
 NBlock::NBlock() {
   statements = new list<NStatement*>;
@@ -452,9 +452,9 @@ Value* NBlock::evaluate() {
     Value *v = (*it)->evaluate();
     if ((*it)->isReturn()) return v;
   }
-  
+
   return Value::fromVoid();
-} 
+}
 
 CFG* NBlock::makeCFG() {
   list<NStatement*>::iterator it;
@@ -466,7 +466,7 @@ CFG* NBlock::makeCFG() {
   CFG* currentGraph;
   for (it; it != statements->end(); ++it) {
     currentGraph = (*it)->makeCFG();
-    
+
     // add the internal edges of currentGraph no matter what
     graph->extraEdges->merge(*(currentGraph->extraEdges));
     if ((*it)->getNodeType() != N_FUNCDECL) {
@@ -482,7 +482,7 @@ CFG* NBlock::makeCFG() {
       siblingGraph->edges->push_back(currentGraph);
       continue;
     }
-    
+
     // If the previous node has edges already i.e. if statement
     // We need to traverse down to find all ends of the edges
     // and add edge for them to the next statement.
@@ -501,13 +501,13 @@ CFG* NBlock::makeCFG() {
     }
     siblingGraph = currentGraph;
   }
-  
+
   graph->finalLabels = siblingGraph->finalLabels;
 
   return graph;
 }
 
-// NReturn 
+// NReturn
 
 NReturn::NReturn(NExpression *expr) : expr(expr) {}
 
@@ -535,9 +535,9 @@ CFG* NReturn::makeCFG() {
   return graph;
 }
 
-// NAssign 
+// NAssign
 
-NAssign::NAssign(string id, NExpression *expr) 
+NAssign::NAssign(string id, NExpression *expr)
   : id(id), expr(expr) {}
 
 NodeType NAssign::getNodeType() { return N_ASSIGN; }
@@ -574,7 +574,7 @@ void NAssign::printCFGNode() {
 
 NIndexAssign::NIndexAssign(string id, NExpression *indexExpr, NExpression *expr)
   : id(id), indexExpr(indexExpr), expr(expr) {}
-  
+
 void NIndexAssign::print() {
   cout << id << "[";
   indexExpr->print();
@@ -606,12 +606,12 @@ CFG* NIndexAssign::makeCFG() {
 
 // NVarDecl
 
-NVarDecl::NVarDecl(ValueType type, string id) 
+NVarDecl::NVarDecl(ValueType type, string id)
   : id(id), type(type) {}
-  
-NVarDecl::NVarDecl(ValueType type, string id, NExpression *expr) 
+
+NVarDecl::NVarDecl(ValueType type, string id, NExpression *expr)
   : type(type), id(id), expr(expr) {}
-  
+
 NodeType NVarDecl::getNodeType() { return N_VARDECL; }
 
 void NVarDecl::print() {
@@ -647,7 +647,7 @@ CFG* NVarDecl::makeCFG() {
 
 // NArrayDecl
 
-NArrayDecl::NArrayDecl(ValueType type, string id, NExpression* sizeExpr) 
+NArrayDecl::NArrayDecl(ValueType type, string id, NExpression* sizeExpr)
   : type(type), id(id), sizeExpr(sizeExpr) {}
 
 void NArrayDecl::print() {
@@ -662,14 +662,14 @@ void NArrayDecl::printNode() {
   sizeExpr->printNode();
   treeDepth -= 1;
 }
-  
+
 Value* NArrayDecl::evaluate() {
   int size = sizeExpr->evaluate()->toInt();
   ValueArray *array = new ValueArray(type, size);
   Value *v = Value::fromArray(array);
-  
+
   state[id] = v;
-    
+
   return Value::fromVoid();
 }
 
@@ -679,26 +679,26 @@ CFG* NArrayDecl::makeCFG() {
   return graph;
 }
 
-  
+
 // NFuncDecl
 
 NFuncDecl::NFuncDecl(
-  ValueType returnType, 
-  string id, 
+  ValueType returnType,
+  string id,
   NBlock *body
 ) : returnType(returnType), id(id), body(body) {
   arguments = new list<NVarDecl*>;
 }
 
 NFuncDecl::NFuncDecl(
-  ValueType returnType, 
-  string id, 
-  NBlock *body, 
+  ValueType returnType,
+  string id,
+  NBlock *body,
   list<NVarDecl*> *arguments
 ) : returnType(returnType), id(id), body(body), arguments(arguments) {}
 
 NodeType NFuncDecl::getNodeType() { return N_FUNCDECL; }
-  
+
 void NFuncDecl::print() {
   cout << Type::toString(returnType) << " " << id << "(";
   printArguments();
@@ -709,7 +709,7 @@ void NFuncDecl::print() {
 
 void NFuncDecl::printArguments() {
   list<NVarDecl*>::iterator it = arguments->begin();
-  
+
   while (it != arguments->end()) {
     (*it)->print();
     if (++it != arguments->end()) {
@@ -720,9 +720,9 @@ void NFuncDecl::printArguments() {
 
 void NFuncDecl::printNode() {
   cout << treeIndent() << "NFuncDecl " << Type::toString(returnType) << " " << id << endl;
-  treeDepth += 1;  
+  treeDepth += 1;
   body->printNode();
-  treeDepth -= 1;  
+  treeDepth -= 1;
 }
 
 void NFuncDecl:: printCFGNode() {
@@ -733,7 +733,7 @@ void NFuncDecl:: printCFGNode() {
 
 void NFuncDecl::printType() {
   list<NVarDecl*>::iterator it = arguments->begin();
-  
+
   cout << "(";
   while (it != arguments->end()) {
     cout << Type::toString((*it)->type);
@@ -746,13 +746,13 @@ void NFuncDecl::printType() {
 
 Value* NFuncDecl::evaluate() {
   state[id] = Value::fromFunc(this);
-  
+
   return Value::fromVoid();
 }
 
 Value* NFuncDecl::call(list<Value*> *args) {
   map<string, Value*> temp = *(new map<string, Value*>);
-  
+
   // save existing argument variables in global scope to temp state
   list<NVarDecl*>::iterator paramIt = arguments->begin();
   list<Value*>::iterator argIt = args->begin();
@@ -763,9 +763,9 @@ Value* NFuncDecl::call(list<Value*> *args) {
 
     state[id] = (*argIt);
   }
-  
+
   Value* result = body->evaluate();
-  
+
   // return saved scope values to global scope
   for (paramIt = arguments->begin(); paramIt != arguments->end(); ++paramIt) {
     string id = (*paramIt)->id;
@@ -773,7 +773,7 @@ Value* NFuncDecl::call(list<Value*> *args) {
     if (temp[id] != NULL) state[id] = temp[id];
     else state.erase(id);
   }
-  
+
   return result;
 }
 
@@ -781,7 +781,7 @@ CFG* NFuncDecl::makeCFG() {
   CFG* graph = new CFG();
   graph->statement = this;
   graph->finalLabels = new list<int>;
-  
+
   CFG* bodyGraph = this->body->makeCFG();
   graph->extraEdges->merge(*(bodyGraph->extraEdges));
   graph->edges->push_back(bodyGraph);
@@ -795,12 +795,12 @@ NFuncCall::NFuncCall(string id) : id(id) {
   arguments = new list<NExpression*>;
 }
 
-NFuncCall::NFuncCall(string id, list<NExpression*> *arguments) 
+NFuncCall::NFuncCall(string id, list<NExpression*> *arguments)
   : id(id), arguments(arguments) {}
 
 void NFuncCall::print() {
   list<NExpression*>::iterator it = arguments->begin();
-  
+
   cout << id << "(";
   while (it != arguments->end()) {
     (*it)->print();
@@ -813,7 +813,7 @@ void NFuncCall::print() {
 
 void NFuncCall::printNode() {
   list<NExpression*>::iterator it;
-  
+
   cout << treeIndent() << "NFuncCall " << id << endl;
   treeDepth += 1;
   for (it = arguments->begin(); it != arguments->end(); ++it) {
@@ -828,8 +828,8 @@ Value* NFuncCall::evaluate() {
   for (it = arguments->begin(); it != arguments->end(); ++it) {
     values->push_back((*it)->evaluate());
   }
-  
-  
+
+
   return state[id]->value.func->call(values);
 }
 
@@ -863,14 +863,14 @@ Value* NWhile::evaluate() {
   while (cond->evaluate()->isTrue()) {
     body->evaluate();
   }
-  
+
   return Value::fromVoid();
 }
 
 CFG* NWhile::makeCFG() {
   CFG* graph = new CFG();
   graph->statement = this;
-  
+
   CFG* edge = body->makeCFG();
 
   list<CFG*>* terminalNodes = new list<CFG*>;
@@ -881,7 +881,7 @@ CFG* NWhile::makeCFG() {
   }
 
   graph->edges->push_back(edge);
-  
+
   list<int>::iterator itInt;
   list<int> *fls = edge->finalLabels;
   for (itInt = fls->begin(); itInt != fls->end(); ++itInt) {
@@ -889,7 +889,7 @@ CFG* NWhile::makeCFG() {
   }
   graph->extraEdges->push_back(make_tuple (graph->label, edge->label));
   graph->extraEdges->merge(*(edge->extraEdges));
-  
+
   return graph;
 }
 
@@ -931,7 +931,7 @@ Value* NDoWhile::evaluate() {
 CFG* NDoWhile::makeCFG() {
   CFG* graph = new CFG();
   graph->statement = this;
-  
+
   CFG* edge = body->makeCFG();
 
   list<CFG*>* terminalNodes = new list<CFG*>;
@@ -985,13 +985,13 @@ Value* NFor::evaluate() {
 }
 
 CFG* NFor::makeCFG() {
-  
+
   CFG* graph = new CFG();
   graph->statement = this->init;
-  
+
   CFG* loopGraph = new CFG();
   loopGraph->statement = this;
-  
+
   CFG* edge = body->makeCFG();
 
   list<CFG*>* terminalNodes = new list<CFG*>;
@@ -1003,26 +1003,26 @@ CFG* NFor::makeCFG() {
 
   graph->edges->push_back(edge);
   graph->edges->push_back(loopGraph);
-  
+
   // connect loop init to loop condition
   graph->extraEdges->push_back(make_tuple (graph->label, loopGraph->label));
-  
+
   // connect final labels of loop back to the condition
   list<int>::iterator itInt;
   list<int> *fls = edge->finalLabels;
   for (itInt = fls->begin(); itInt != fls->end(); ++itInt) {
     graph->extraEdges->push_back(make_tuple (*itInt, loopGraph->label));
   }
-  
+
   // connect condition to first block of loop
   graph->extraEdges->push_back(make_tuple (loopGraph->label, edge->label));
-  
+
   graph->extraEdges->merge(*(edge->extraEdges));
   graph->finalLabels = new list<int>;
-  
+
   // set the final label to the condition
   graph->finalLabels->push_back(loopGraph->label);
-  
+
   return graph;
 }
 
@@ -1040,7 +1040,7 @@ void NBranch::print() {
   cond->print();
   cout << ") ";
   pass->printIndented();
-  
+
   if (fail != NULL) {
     cout << " else";
     fail->printIndented();
@@ -1067,7 +1067,7 @@ Value* NBranch::evaluate() {
   bool test = cond->evaluate()->isTrue();
   if (test) pass->evaluate();
   else if (fail != NULL) fail->evaluate();
-  
+
   return Value::fromVoid();
 }
 
@@ -1076,13 +1076,13 @@ CFG* NBranch::makeCFG() {
   graph->statement = this;
   CFG* passCFG = pass->makeCFG();
   CFG* failCFG;
-  
+
   graph->edges->push_back(passCFG);
   if (fail) {
     failCFG = fail->makeCFG();
     graph->edges->push_back(failCFG);
   }
-  
+
   graph->extraEdges->merge(*(passCFG->extraEdges));
   graph->extraEdges->push_back(make_tuple (graph->label, passCFG->label));
   graph->finalLabels = passCFG->finalLabels;
@@ -1112,7 +1112,7 @@ void NPrint::print() {
 
 void NPrint::printNode() {
   list<NExpression*>::iterator it;
-  
+
   cout << treeIndent() << "NPrint" << endl;
   treeDepth += 1;
   for (it = exprs->begin(); it != exprs->end(); ++it) {
@@ -1149,9 +1149,9 @@ void NRead::printNode() { cout << treeIndent() << "NRead " << id << endl; }
 
 Value* NRead::evaluate() {
   Value* v;
-  
+
   cout << ">> ";
-  
+
   switch (type) {
     case INT: {
       int i;
@@ -1178,7 +1178,7 @@ Value* NRead::evaluate() {
       break;
     }
   }
-  
+
   state[id] = v;
   return Value::fromVoid();
 }
@@ -1193,7 +1193,7 @@ CFG* NRead::makeCFG() {
 
 int CFG::labelCount=1;
 
-CFG::CFG() 
+CFG::CFG()
 {
   this->edges = new list<CFG*>;
   this->label = CFG::labelCount++;
@@ -1287,7 +1287,7 @@ map<int, CFG*> CFG::createLabelNodeMap(list<int> *visitedNodes)
   return cfgMap;
 }
 
-void CFG::printLabelNodeMap(map<int, CFG*> labelNodeMap) 
+void CFG::printLabelNodeMap(map<int, CFG*> labelNodeMap)
 {
   map<int, CFG*>::iterator it;
   for (it=labelNodeMap.begin(); it != labelNodeMap.end(); ++it) {
@@ -1344,7 +1344,7 @@ list<std::tuple<int, int>> CFG::createLabelEdgeList(list<tuple<int, int>> *visit
 void CFG::printLabelEdgeMap(list<tuple<int, int>> edgeList) {
   edgeList.sort();
   list<tuple<int, int>>::iterator it;
-  
+
   for (it=edgeList.begin(); it != edgeList.end(); ++it) {
     cout << "("
       << get<0>(*it)
@@ -1359,13 +1359,13 @@ list<int>* CFG::allLabels() {
   list<int>* result = new list<int>;
   map<int, CFG*> cfgMap = createLabelNodeMap();
   map<int, CFG*>::iterator it;
-  
+
   for (it = cfgMap.begin(); it != cfgMap.end(); ++it) {
     if (it->second->statement->getNodeType() != N_FUNCDECL) {
       result->push_back(it->first);
     }
   }
-  
+
   return result;
 }
 
@@ -1376,16 +1376,16 @@ list<string>* CFG::allIds() {
 
   for (it = cfgMap.begin(); it != cfgMap.end(); ++it) {
     NStatement* stmt = it->second->statement;
-    
+
     switch (stmt->getNodeType()) {
       case N_ASSIGN: result->push_back(((NAssign*) stmt)->id); break;
       case N_VARDECL: result->push_back(((NVarDecl*) stmt)->id); break;
     }
   }
-  
+
   result->sort();
   result->unique();
-  
+
   return result;
 }
 
@@ -1398,9 +1398,9 @@ list<int>* CFG::assignmentsToId(string id) {
   list<int>* result = new list<int>;
   map<int, CFG*> cfgMap = createLabelNodeMap();
   map<int, CFG*>::iterator it;
-  
+
   for (it = cfgMap.begin(); it != cfgMap.end(); ++it) {
-    NStatement* stmt = it->second->statement;   
+    NStatement* stmt = it->second->statement;
     string nodeId;
 
     switch (stmt->getNodeType()) {
@@ -1410,7 +1410,7 @@ list<int>* CFG::assignmentsToId(string id) {
 
     if (id == nodeId) result->push_back(it->first);
   }
-  
+
   return result;
 }
 
@@ -1418,11 +1418,11 @@ list<int>* CFG::labelsTo(int label) {
   list<int>* result = new list<int>;
   list<tuple<int, int>> edges = *extraEdges;
   list<tuple<int, int>>::iterator it;
-  
+
   for (it = edges.begin(); it != edges.end(); ++it) {
     if (get<1>(*it) == label) result->push_back(get<0>(*it));
   }
-  
+
   return result;
 }
 
@@ -1430,11 +1430,11 @@ list<int>* CFG::labelsFrom(int label) {
   list<int>* result = new list<int>;
   list<tuple<int, int>> edges = *extraEdges;
   list<tuple<int, int>>::iterator it;
-  
+
   for (it = edges.begin(); it != edges.end(); ++it) {
     if (get<0>(*it) == label) result->push_back(get<1>(*it));
   }
-  
+
   return result;
 }
 
@@ -1443,23 +1443,23 @@ list<RDElt>* CFG::killSet(int label) {
   NStatement* stmt = labelledStatement(label);
   NodeType nodeType = stmt->getNodeType();
   string id = "";
-  
+
   switch (stmt->getNodeType()) {
     case N_ASSIGN: id = ((NAssign*) stmt)->id; break;
     case N_VARDECL: id = ((NVarDecl*) stmt)->id; break;
   }
-  
+
   if (id != "") {
     result->push_back(initRDElt(id));
-    
+
     list<int>* killedLabels = assignmentsToId(id);
     list<int>::iterator it;
     for (it = killedLabels->begin(); it != killedLabels->end(); ++it) {
       RDElt pair = make_tuple (id, *it);
       result->push_back(pair);
     }
-  }  
-  
+  }
+
   return result;
 }
 
@@ -1470,28 +1470,28 @@ list<RDElt>* CFG::genSet(int label) {
 
   string id = "";
   switch (nodeType) {
-    case N_ASSIGN: id = ((NAssign*) stmt)->id; break;    
+    case N_ASSIGN: id = ((NAssign*) stmt)->id; break;
     case N_VARDECL: id = ((NVarDecl*) stmt)->id; break;
   }
-  
+
   if (id != "")result->push_back(make_tuple (id, label));
-  
+
   return result;
 }
 
 bool CFG::isInitStatement(int label) {
   list<tuple<int, int>>::iterator it;
-  
+
   for (it = extraEdges->begin(); it != extraEdges->end(); ++it) {
     if (get<1>(*it) == label) return false;
   }
-  
+
   return true;
 }
 
 void CFG::printRDEntryEqn(int label) {
   cout << "RD_entry(" << label << ") = ";
-  
+
   if (isInitStatement(label)) {
     list<string> *ids = allIds();
     list<RDElt> *elts = new list<RDElt>;
@@ -1499,12 +1499,12 @@ void CFG::printRDEntryEqn(int label) {
     for (list<string>::iterator it = ids->begin(); it != ids->end(); ++it) {
       elts->push_back(initRDElt(*it));
     }
-    
+
     printRDElts(elts);
   } else {
     list<int> *labels = labelsTo(label);
     list<int>::iterator it = labels->begin();
-    
+
     while (it != labels->end()) {
       cout << "RD_exit(" << (*it) << ")";
       if (++it != labels->end()) {
@@ -1527,17 +1527,17 @@ void CFG::applyTransferMutation(list<RDElt> *input, int label) {
   list<RDElt> *kill = killSet(label);
   list<RDElt> *gen = genSet(label);
   list<RDElt>::iterator it;
-  
+
   // remove kill set
   for (it = kill->begin(); it != kill->end(); ++it) {
     input->remove(*it);
   }
-  
+
   // union with gen set
   for (it = gen->begin(); it != gen->end(); ++it) {
     input->push_front(*it);
   }
-  
+
   input->unique();
 }
 
@@ -1548,7 +1548,7 @@ list<RDElt>* CFG::applyTransferFunction(list<RDElt> *input, int label) {
   for (list<RDElt>::iterator it = input->begin(); it != input->end(); ++it) {
     inputCopy->push_front(*it);
   }
-  
+
   applyTransferMutation(inputCopy, label);
   return inputCopy;
 }
@@ -1572,17 +1572,17 @@ tuple<RDAnalysis*, RDAnalysis*> Worklist::solveRD(CFG *cfg) {
   list<Edge> *edges = cfg->extraEdges;
   list<int> *labels = cfg->allLabels();
   list<string> *ids = cfg->allIds();
-  
+
   // step 1 (initialization of W and analysis to nil)
   list<Edge> *w = new list<Edge>;
   RDAnalysis *analysis = new map<int, list<RDElt>*>;
-  
+
   // add all CFG edges to initialize worklist
   list<Edge>::iterator itEdge;
   for (itEdge = edges->begin(); itEdge != edges-> end(); ++itEdge) {
     w->push_front(*itEdge);
   }
-  
+
   // add empty information to every label...
   list<int>::iterator itInt;
   for (itInt = labels->begin(); itInt != labels->end(); ++itInt) {
@@ -1596,7 +1596,7 @@ tuple<RDAnalysis*, RDAnalysis*> Worklist::solveRD(CFG *cfg) {
   for (itStr = ids->begin(); itStr != ids->end(); ++itStr) {
     analysis->at(cfg->label)->push_back(initRDElt(*itStr));
   }
-  
+
   // step 2 (iteration)
   while (!w->empty()) {
     // name and remove the first element of w
@@ -1608,7 +1608,7 @@ tuple<RDAnalysis*, RDAnalysis*> Worklist::solveRD(CFG *cfg) {
     list<RDElt> *in = analysis->at(l);
     list<RDElt> *out = cfg->applyTransferFunction(in, l);
 
-    // if applying the transfer function at l increased our information at lp, 
+    // if applying the transfer function at l increased our information at lp,
     if (!CFG::RDEltSetsEqual(analysis->at(lp), out))
     {
       list<RDElt>::iterator itLpOut;
@@ -1620,8 +1620,8 @@ tuple<RDAnalysis*, RDAnalysis*> Worklist::solveRD(CFG *cfg) {
         lpTransferOut->push_back(*itLpOut);
       }
 
-      lpTransferOut->unique();
       lpTransferOut->sort();
+      lpTransferOut->unique();
 
       // add all the edges (lp, lpp) in the CFG to w
       list<Edge> *lpEdges = cfg->edgesFrom(lp);
@@ -1632,18 +1632,17 @@ tuple<RDAnalysis*, RDAnalysis*> Worklist::solveRD(CFG *cfg) {
       }
     }
   }
-  
+
   // step 3 (return the result as a tuple of two RDAnalysis objects)
   // `analysis` already stores the entry information. to compute the exit
   // information at a given label, we apply that label's transfer function to
-  // the already computed entry information. 
+  // the already computed entry information.
   RDAnalysis *analysisExit = new map<int, list<RDElt>*>;
   map<int, list<RDElt>*>::iterator itMap;
 
   for (itMap = analysis->begin(); itMap != analysis->end(); ++itMap) {
     int label = itMap->first;
     list<RDElt> *entryInfo = itMap->second;
-    entryInfo->unique();
     list<RDElt> *exitInfo = cfg->applyTransferFunction(entryInfo, label);
     exitInfo->sort();
     analysisExit->insert(pair<int, list<RDElt>*>(label, exitInfo));
@@ -1684,10 +1683,10 @@ list<Edge>* CFG::edgesFrom(int label) {
   list<Edge>* result = new list<Edge>;
   list<Edge> edges = *extraEdges;
   list<Edge>::iterator it;
-  
+
   for (it = edges.begin(); it != edges.end(); ++it) {
     if (get<0>(*it) == label) result->push_back(*it);
   }
-  
+
   return result;
 }
