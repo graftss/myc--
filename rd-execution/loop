@@ -60,3 +60,7 @@ RD_exit(8) = (RD_entry(8) \ {}) U {}
 RD_exit(9) = (RD_entry(9) \ {}) U {}
 RD_exit(10) = (RD_entry(10) \ {}) U {}
 RD_exit(11) = (RD_entry(11) \ {}) U {}
+
+
+-----------RD solutions
+

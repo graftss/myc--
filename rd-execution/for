@@ -47,3 +47,27 @@ RD_exit(5) = (RD_entry(5) \ {}) U {}
 RD_exit(6) = (RD_entry(6) \ { (x, ?) (x, 1) (x, 4) (x, 6) (x, 7) }) U { (x, 6) }
 RD_exit(7) = (RD_entry(7) \ { (x, ?) (x, 1) (x, 4) (x, 6) (x, 7) }) U { (x, 7) }
 RD_exit(8) = (RD_entry(8) \ {}) U {}
+
+
+-----------RD solutions
+
+entry solutions:
+label 1: { (i, ?) (x, ?) }
+label 2: { (i, ?) (x, 1) }
+label 3: { (i, 2) (x, 1) (x, 6) (x, 7) }
+label 4: { (i, 2) (x, 1) (x, 6) (x, 7) }
+label 5: { (i, 2) (x, 4) }
+label 6: { (i, 2) (x, 4) }
+label 7: { (i, 2) (x, 4) }
+label 8: { (i, 2) (x, 1) (x, 6) (x, 7) }
+
+
+exit solutions:
+label 1: { (i, ?) (x, 1) }
+label 2: { (i, 2) (x, 1) }
+label 3: { (i, 2) (x, 1) (x, 6) (x, 7) }
+label 4: { (i, 2) (x, 4) }
+label 5: { (i, 2) (x, 4) }
+label 6: { (i, 2) (x, 6) }
+label 7: { (i, 2) (x, 7) }
+label 8: { (i, 2) (x, 1) (x, 6) (x, 7) }

@@ -76,3 +76,41 @@ RD_exit(12) = (RD_entry(12) \ { (x, ?) (x, 1) (x, 5) (x, 7) (x, 8) (x, 12) }) U 
 RD_exit(13) = (RD_entry(13) \ { (y, ?) (y, 2) (y, 9) (y, 13) }) U { (y, 13) }
 RD_exit(14) = (RD_entry(14) \ { (z, ?) (z, 3) (z, 10) (z, 14) }) U { (z, 14) }
 RD_exit(15) = (RD_entry(15) \ { (t, ?) (t, 15) }) U { (t, 15) }
+
+
+-----------RD solutions
+
+entry solutions:
+label 1: { (t, ?) (x, ?) (y, ?) (z, ?) }
+label 2: { (t, ?) (x, 1) (y, ?) (z, ?) }
+label 3: { (t, ?) (x, 1) (y, 2) (z, ?) }
+label 4: { (t, ?) (x, 1) (y, 2) (z, 3) }
+label 5: { (t, ?) (x, 1) (y, 2) (z, 3) }
+label 6: { (t, ?) (x, 5) (y, 2) (z, 3) }
+label 7: { (t, ?) (x, 5) (y, 2) (z, 3) }
+label 8: { (t, ?) (x, 5) (y, 2) (z, 3) }
+label 9: { (t, ?) (x, 8) (y, 2) (z, 3) }
+label 10: { (t, ?) (x, 1) (y, 2) (z, 3) }
+label 11: { (t, ?) (x, 1) (y, 2) (z, 10) }
+label 12: { (t, ?) (x, 1) (y, 2) (z, 10) }
+label 13: { (t, ?) (x, 1) (y, 2) (z, 10) }
+label 14: { (t, ?) (x, 1) (x, 7) (x, 8) (x, 12) (y, 2) (y, 9) (y, 13) (z, 3) (z, 10) }
+label 15: { (t, ?) (x, 1) (x, 7) (x, 8) (x, 12) (y, 2) (y, 9) (y, 13) (z, 14) }
+
+
+exit solutions:
+label 1: { (t, ?) (x, 1) (y, ?) (z, ?) }
+label 2: { (t, ?) (x, 1) (y, 2) (z, ?) }
+label 3: { (t, ?) (x, 1) (y, 2) (z, 3) }
+label 4: { (t, ?) (x, 1) (y, 2) (z, 3) }
+label 5: { (t, ?) (x, 5) (y, 2) (z, 3) }
+label 6: { (t, ?) (x, 5) (y, 2) (z, 3) }
+label 7: { (t, ?) (x, 7) (y, 2) (z, 3) }
+label 8: { (t, ?) (x, 8) (y, 2) (z, 3) }
+label 9: { (t, ?) (x, 8) (y, 9) (z, 3) }
+label 10: { (t, ?) (x, 1) (y, 2) (z, 10) }
+label 11: { (t, ?) (x, 1) (y, 2) (z, 10) }
+label 12: { (t, ?) (x, 12) (y, 2) (z, 10) }
+label 13: { (t, ?) (x, 1) (y, 13) (z, 10) }
+label 14: { (t, ?) (x, 1) (x, 7) (x, 8) (x, 12) (y, 2) (y, 9) (y, 13) (z, 14) }
+label 15: { (t, 15) (x, 1) (x, 7) (x, 8) (x, 12) (y, 2) (y, 9) (y, 13) (z, 14) }

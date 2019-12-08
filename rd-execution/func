@@ -49,3 +49,29 @@ RD_exit(8) = (RD_entry(8) \ { (result, ?) (result, 3) (result, 5) (result, 8) })
 RD_exit(9) = (RD_entry(9) \ {}) U {}
 RD_exit(10) = (RD_entry(10) \ { (z, ?) (z, 10) }) U { (z, 10) }
 RD_exit(11) = (RD_entry(11) \ {}) U {}
+
+
+-----------RD solutions
+
+entry solutions:
+label 1: { (result, ?) (t, ?) (z, ?) }
+label 3: {}
+label 4: { (result, 3) }
+label 5: { (result, 3) }
+label 6: { (result, 5) }
+label 8: {}
+label 9: { (result, 8) }
+label 10: { (result, ?) (t, 1) (z, ?) }
+label 11: { (result, ?) (t, 1) (z, 10) }
+
+
+exit solutions:
+label 1: { (result, ?) (t, 1) (z, ?) }
+label 3: { (result, 3) }
+label 4: { (result, 3) }
+label 5: { (result, 5) }
+label 6: { (result, 5) }
+label 8: { (result, 8) }
+label 9: { (result, 8) }
+label 10: { (result, ?) (t, 1) (z, 10) }
+label 11: { (result, ?) (t, 1) (z, 10) }
