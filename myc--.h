@@ -108,6 +108,7 @@ class ValueArray {
 
 class NStatement; /* Forward Declaration */
 
+typedef tuple<int, int> Edge;
 typedef tuple<string, int> RDElt;
 void printRDElt(RDElt e);
 void printRDElts(list<RDElt> *es);
@@ -131,6 +132,7 @@ class CFG {
   static void findTerminalNodes(CFG* node, list<CFG*>* terminalNodes);
   static void printLabelEdgeMap(list<tuple<int, int>> edgeList);
   static void printLabelNodeMap(map<int, CFG*> labelNodeMap);
+  static bool RDEltSetsEqual(list<RDElt>* listA, list<RDElt>* listB);
   
   list<int>* allLabels();
   list<string>* allIds();
@@ -138,6 +140,7 @@ class CFG {
   list<int>* assignmentsToId(string id);
   list<int>* labelsTo(int label);
   list<int>* labelsFrom(int label);
+  list<Edge>* edgesFrom(int label);
   list<RDElt>* killSet(int label);
   list<RDElt>* genSet(int label);
   void applyTransferMutation(list<RDElt>* input, int label);
@@ -153,7 +156,6 @@ class CFG {
 };
 
 typedef map<int, list<RDElt>*> RDAnalysis;
-typedef tuple<int, int> Edge;
 void printRDAnalysis(RDAnalysis *analysis);
 
 class Worklist {

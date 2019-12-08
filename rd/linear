@@ -1,6 +1,9 @@
 int x = 3;
 int y = 4;
 int z = 8;
-z = y - 3;
-x = z + y;
+if (z == 8) {
+    z = y - 3;
+} else {
+    x = z + y;
+}
 y = y - x;

@@ -7,6 +7,7 @@
 #include <cmath>
 #include "myc--.h"
 #include <tuple>
+#include <algorithm>
 
 using namespace std;
 
@@ -474,7 +475,8 @@ CFG* NBlock::makeCFG() {
       list<int> *fls = siblingGraph->finalLabels;
       for (itInt = fls->begin(); itInt != fls->end(); ++itInt) {
         graph->extraEdges->push_back(make_tuple (*itInt, currentGraph->label));
-      }    } else {
+      }
+    } else {
       // if currentGraph is a function declaration, skip over it while keeping
       // siblingGraph the same
       siblingGraph->edges->push_back(currentGraph);
@@ -1601,14 +1603,34 @@ tuple<RDAnalysis*, RDAnalysis*> Worklist::solveRD(CFG *cfg) {
     Edge e = w->front();
     int l = get<0>(e);
     int lp = get<1>(e);
-    cout << "current edge: (" << l << ", " << lp << ")" << endl;
     w->pop_front();
-    
-    // TODO: update analysis here
+
+    list<RDElt> *in = analysis->at(l);
+    list<RDElt> *out = cfg->applyTransferFunction(in, l);
+
     // if applying the transfer function at l increased our information at lp, 
-      // update the analysis at lp
+    if (!CFG::RDEltSetsEqual(analysis->at(lp), out))
+    {
+      list<RDElt>::iterator itLpOut;
+      list<RDElt> *lpTransferOut = analysis->at(lp);
+
+      // Union - oldOut with new out
+      for(itLpOut = out->begin(); itLpOut != out->end(); itLpOut++)
+      {
+        lpTransferOut->push_back(*itLpOut);
+      }
+
+      lpTransferOut->unique();
+      lpTransferOut->sort();
+
       // add all the edges (lp, lpp) in the CFG to w
-    
+      list<Edge> *lpEdges = cfg->edgesFrom(lp);
+
+      list<Edge>::iterator itLpEdge;
+      for (itLpEdge = lpEdges->begin(); itLpEdge != lpEdges->end(); ++itLpEdge) {
+        w->push_front(*itLpEdge);
+      }
+    }
   }
   
   // step 3 (return the result as a tuple of two RDAnalysis objects)
@@ -1621,9 +1643,51 @@ tuple<RDAnalysis*, RDAnalysis*> Worklist::solveRD(CFG *cfg) {
   for (itMap = analysis->begin(); itMap != analysis->end(); ++itMap) {
     int label = itMap->first;
     list<RDElt> *entryInfo = itMap->second;
+    entryInfo->unique();
     list<RDElt> *exitInfo = cfg->applyTransferFunction(entryInfo, label);
+    exitInfo->sort();
     analysisExit->insert(pair<int, list<RDElt>*>(label, exitInfo));
   }
-  
+
   return make_tuple(analysis, analysisExit);
+}
+
+bool CFG::RDEltSetsEqual(list<RDElt>* listA, list<RDElt>* listB) {
+    if (listA->size() != listB->size())
+    {
+      return false;
+    }
+
+    // TODO: impure, should copy inputs
+    listA->sort();
+    listB->sort();
+
+    for(int i = 0; i < listA->size(); ++i)
+    {
+      list<RDElt>::iterator itA = listA->begin();
+      list<RDElt>::iterator itB = listB->begin();
+      advance(itA, i);
+      advance(itB, i);
+
+      RDElt a = *itA;
+      RDElt b = *itB;
+
+      if (a != b) {
+        return false;
+      }
+    }
+
+    return true;
+}
+
+list<Edge>* CFG::edgesFrom(int label) {
+  list<Edge>* result = new list<Edge>;
+  list<Edge> edges = *extraEdges;
+  list<Edge>::iterator it;
+  
+  for (it = edges.begin(); it != edges.end(); ++it) {
+    if (get<0>(*it) == label) result->push_back(*it);
+  }
+  
+  return result;
 }
